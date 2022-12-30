@@ -2,7 +2,8 @@
 import {
     vscode
 } from "./utilities/vscode";
-
+import { computed } from "vue";
+import Editor from './Editor.vue';
 
 function handleHowdyClick() {
     vscode.postMessage({
@@ -10,18 +11,21 @@ function handleHowdyClick() {
         text: "Hey there partner! 🤠",
     });
 }
-
+const json = {
+    "fields": [{
+        "label": "单行文本",
+        "type": "input",
+        "bbox": []
+    }]
+}
+const jsonText = computed(()=>{
+    return JSON.stringify(json)
+})
 /**
  * json 数据转换成代码
  */
 function json2Code(json = {}, uiComponnetType = 'elementui') {
-    json = {
-        "fields": [{
-            "label": "单行文本",
-            "type": "input",
-            "bbox": []
-        }]
-    }
+    
     console.log(json)
 }
 </script>
@@ -30,6 +34,7 @@ function json2Code(json = {}, uiComponnetType = 'elementui') {
   <main>
     <h1>Hello world!</h1>   
     <el-button>I am ElButton</el-button>
+    <Editor :value="jsonText"/>
   </main>
 </template>
 

@@ -9,8 +9,11 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "vue": "^3.2.33",
-    "element-plus": "^2.2.27"
+    "element-plus": "^2.2.27",
+    "monaco-editor": "^0.34.1",
+    "node-sass": "^8.0.0",
+    "sass": "^1.57.1",
+    "vue": "^3.2.33"
   },
   "devDependencies": {
     "@types/node": "^16.11.27",
