@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import { ref, onMounted, watch, onUnmounted } from "vue";
-import useCurrentInstance from "./hooks/useCurrentInstance";
+import { onMounted, watch, onUnmounted } from "vue";
+import useCurrentInstance from "../hooks/useCurrentInstance";
 
 const props = defineProps({
   value: {
@@ -11,6 +11,7 @@ const props = defineProps({
 });
 
 const { proxy } = useCurrentInstance();
+
 // Monaco Editor Options
 const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   // automaticLayout:true,

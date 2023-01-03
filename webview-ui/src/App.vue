@@ -2,8 +2,9 @@
 import {
     vscode
 } from "./utilities/vscode";
-import { computed } from "vue";
-import Editor from './Editor.vue';
+import {ref, computed } from "vue";
+import Editor from './components/Editor.vue';
+import Design from './Design.vue';
 
 function handleHowdyClick() {
     vscode.postMessage({
@@ -21,20 +22,23 @@ const json = {
 const jsonText = computed(()=>{
     return JSON.stringify(json)
 })
+const designStep = ref(1)
 /**
  * json 数据转换成代码
  */
 function json2Code(json = {}, uiComponnetType = 'elementui') {
-    
     console.log(json)
+}
+function goDesign() {
+    designStep.value =  2
 }
 </script>
 
 <template>
   <main>
-    <h1>Hello world!</h1>   
-    <el-button>I am ElButton</el-button>
-    <Editor :value="jsonText"/>
+    <el-button @click="goDesign">设计</el-button>
+    <editor v-show="designStep === 1" :value="jsonText"/>
+    <design v-show="designStep === 2" />
   </main>
 </template>
 
