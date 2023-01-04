@@ -31,7 +31,7 @@
     <div class="center-board">
       <div class="action-bar">
         <el-button icon="el-icon-download" type="text" @click="genCode"> 生成vue文件 </el-button>
-        <el-button class="copy-btn-main" icon="el-icon-document-copy" type="text" @click="copy">
+        <el-button class="copy-btn-main" icon="el-icon-document-copy" type="text" @click="copyCode">
           复制代码
         </el-button>
         <el-button class="delete-btn" icon="el-icon-delete" type="text" @click="empty">
@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, onUnmounted } from "vue";
+import { ref, reactive, onMounted, watch, onUnmounted, nextTick } from "vue";
 import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
 // import Preview from "./Preview.vue";
@@ -125,7 +125,7 @@ const leftComponents = [
     list: layoutComponents,
   },
 ];
-const drawingList:any[] = reactive([]);
+let drawingList:DraggableItem[] = reactive([]);
 onMounted(() => {
   const clipboard = new ClipboardJS("#copyNode", {
     text: () => {
@@ -169,18 +169,17 @@ function addComponent(item:any) {
 //   this.activeFormItem(clone);
 }
 function activeFormItem(currentItem:any) {
-    console.log(currentItem)
   activeItem = currentItem;
 }
 function genCode(){}
 function generateCode():string {
     return ''
 }
-function copy() {
+function copyCode() {
     
 }
 function empty() {
-
+    drawingList.length = 0
 }
 function drawingItemCopy(item:any, list:[]) {
     //   let clone = deepClone(item)
@@ -189,14 +188,13 @@ function drawingItemCopy(item:any, list:[]) {
     //   this.activeFormItem(clone)
 }
 function drawingItemDelete(index:number, list:[]) {
-    console.log(index)
-    // list.splice(index, 1)
-    // this.$nextTick(() => {
-    // const len = this.drawingList.length
-    // if (len) {
-    //     this.activeFormItem(this.drawingList[len - 1])
-    // }
-    // })
+    drawingList.splice(index, 1)
+    nextTick(() => {
+        const len = drawingList.length
+        if (len) {
+            activeFormItem(drawingList[len - 1])
+        }
+    })
 }
 const dialogVisible:boolean = false
 </script>

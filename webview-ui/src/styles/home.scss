@@ -107,6 +107,7 @@ $lighterBlue: #409EFF;
   & > .el-form {
     // 69 = 12+15+42
     height: calc(100vh - 69px);
+    width: 100vw;
   }
 }
 .drawing-board {
@@ -158,6 +159,7 @@ $lighterBlue: #409EFF;
 .drawing-item{
   position: relative;
   cursor: move;
+  padding: 10px;
   &.unfocus-bordered:not(.active-from-item) > div:first-child {
     border: 1px dashed #ccc;
   }

@@ -29,10 +29,10 @@ function copy() {
   <div @click="active" class="drawing-item" :class="{'active-from-item': 1}">
     <render :conf="props.currentItem as Object" />
     <span class="drawing-item-copy" title="复制" @click="copy">
-      <svg-icon name="time" />
+      <svg-icon name="copy" />
     </span>
     <span class="drawing-item-delete" title="删除" @click="deleteItem">
-      <i class="el-icon-delete" />
+      <svg-icon name="delete" />
     </span>
   </div>
 </template>
