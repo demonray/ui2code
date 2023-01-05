@@ -9,14 +9,14 @@ interface DraggableItem {
 interface Props {
     index: number
     currentItem: DraggableItem
-    avtived: DraggableItem
+    activeIndex: number
 }
 const props = defineProps<Props>()
 
 const emit = defineEmits(["activeItem", "deleteItem", "copyItem"]);
 
 function active() {
-  emit("activeItem", props.currentItem);
+  emit("activeItem", props.index);
 }
 function deleteItem() {
   emit("deleteItem", props.index);
@@ -26,8 +26,10 @@ function copy() {
 }
 </script>
 <template>
-  <div @click="active" class="drawing-item" :class="{'active-from-item': 1}">
-    <render :conf="props.currentItem as Object" />
+  <div @click="active" class="drawing-item" :class="{'active-from-item': props.activeIndex === props.index}">
+    <el-form-item>
+      <render :conf="props.currentItem as Object" />
+    </el-form-item>
     <span class="drawing-item-copy" title="复制" @click="copy">
       <svg-icon name="copy" />
     </span>

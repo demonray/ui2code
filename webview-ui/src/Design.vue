@@ -53,16 +53,16 @@
               :animation="340"
               group="componentsGroup"
             >
-                <template #item="{ index, element }">
-                    <draggable-item
-                        :index="index"
-                        :current-item="element"
-                        :avtived="activeItem"
-                        @active-item="activeFormItem"
-                        @copy-item="drawingItemCopy"
-                        @delete-item="drawingItemDelete"
-                    />
-                </template>
+              <template #item="{ index, element }">
+                <draggable-item
+                  :index="index"
+                  :current-item="element"
+                  :active-index="activeIndex"
+                  @active-item="activeFormItem"
+                  @copy-item="drawingItemCopy"
+                  @delete-item="drawingItemDelete"
+                />
+              </template>
             </draggable>
             <div v-show="!drawingList.length" class="empty-info">
               从左侧拖入或点选组件进行表单设计
@@ -71,7 +71,7 @@
         </el-row>
       </el-scrollbar>
     </div>
-<!-- 
+    <!-- 
     <right-panel
       :active-data="activeData"
       :form-conf="formConf"
@@ -87,11 +87,7 @@
       :generate-conf="generateConf"
     /> -->
 
-    <code-type-dialog
-      :visible.sync="dialogVisible"
-      title="选择生成类型"
-      @confirm="generateCode"
-    />
+    <code-type-dialog :visible.sync="dialogVisible" title="选择生成类型" @confirm="generateCode" />
     <input id="copyNode" type="hidden" />
   </div>
 </template>
@@ -125,30 +121,49 @@ const leftComponents = [
     list: layoutComponents,
   },
 ];
-let drawingList:DraggableItem[] = reactive([]);
+
+let drawingList: DraggableItem[] = reactive([]);
+
+const props = defineProps({
+  json: {
+    type: Object,
+    default: () => ({}),
+  },
+});
+
+watch(props.json, (v) => {
+  initDrawingList(v);
+});
+
 onMounted(() => {
   const clipboard = new ClipboardJS("#copyNode", {
     text: () => {
       const codeStr = generateCode();
-    //   this.$notify({
-    //     title: "成功",
-    //     message: "代码已复制到剪切板，可粘贴。",
-    //     type: "success",
-    //   });
+      //   this.$notify({
+      //     title: "成功",
+      //     message: "代码已复制到剪切板，可粘贴。",
+      //     type: "success",
+      //   });
       return codeStr;
     },
   });
   clipboard.on("error", () => {
     // this.$message.error("代码复制失败");
   });
+  initDrawingList(props.json);
 });
 
-onUnmounted(()=>{
-    
-})
+function initDrawingList(json) {
+  drawingList.length = 0;
+  json.fields.forEach((it: any) => {
+    drawingList.push(it);
+  });
+}
 
-function cloneComponent(origin:any) {
-  console.log(origin)
+onUnmounted(() => {});
+
+function cloneComponent(origin: any) {
+  console.log(origin);
   //   const clone = deepClone(origin)
   //   const config = clone.__config__
   //   config.span = this.formConf.span // 生成代码时，会根据span做精简判断
@@ -159,44 +174,42 @@ function cloneComponent(origin:any) {
 }
 interface DraggableItem {
   type: string;
-  id: string
+  id: string;
 }
-let activeItem:DraggableItem
-function addComponent(item:any) {
-//   const clone = this.cloneComponent(item);
-     drawingList.push(item);
-     console.log(drawingList)
-//   this.activeFormItem(clone);
+let activeIndex: number;
+function addComponent(item: any) {
+  //   const clone = this.cloneComponent(item);
+  drawingList.push(item);
+  console.log(drawingList);
+  //   this.activeFormItem(clone);
 }
-function activeFormItem(currentItem:any) {
-  activeItem = currentItem;
+function activeFormItem(index: number) {
+  activeIndex = index;
 }
-function genCode(){}
-function generateCode():string {
-    return ''
+function genCode() {}
+function generateCode(): string {
+  return "";
 }
-function copyCode() {
-    
-}
+function copyCode() {}
 function empty() {
-    drawingList.length = 0
+  drawingList.length = 0;
 }
-function drawingItemCopy(item:any, list:[]) {
-    //   let clone = deepClone(item)
-    //   clone = this.createIdAndKey(clone)
-    //   list.push(clone)
-    //   this.activeFormItem(clone)
+function drawingItemCopy(item: any, list: []) {
+  //   let clone = deepClone(item)
+  //   clone = this.createIdAndKey(clone)
+  //   list.push(clone)
+  //   this.activeFormItem(clone)
 }
-function drawingItemDelete(index:number, list:[]) {
-    drawingList.splice(index, 1)
-    nextTick(() => {
-        const len = drawingList.length
-        if (len) {
-            activeFormItem(drawingList[len - 1])
-        }
-    })
+function drawingItemDelete(index: number, list: []) {
+  drawingList.splice(index, 1);
+  nextTick(() => {
+    const len = drawingList.length;
+    if (len) {
+      activeFormItem(len - 1);
+    }
+  });
 }
-const dialogVisible:boolean = false
+const dialogVisible: boolean = false;
 </script>
 
 <style lang="scss">

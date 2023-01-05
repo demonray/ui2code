@@ -66,8 +66,8 @@ let monacoInstance: monaco.editor.IStandaloneCodeEditor;
 onMounted(() => {
   // 编辑器实例化
   if (proxy && proxy.$refs) {
-    const modelUri = monaco.Uri.parse("a://b/foo.json"); // a made up unique URI for our model
-    const model = monaco.editor.createModel(props.value, props.language, modelUri);
+    // const modelUri = monaco.Uri.parse("a://b/foo.json"); // a made up unique URI for our model
+    const model = monaco.editor.createModel(props.value, props.language);
     monacoInstance = monaco.editor.create(proxy.$refs.monaco as HTMLElement, {
       ...editorOptions,
       model,
