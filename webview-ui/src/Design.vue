@@ -122,14 +122,11 @@ const leftComponents = [
   },
 ];
 
-let drawingList: DraggableItem[] = reactive([]);
+let drawingList: ComponentItemJson[] = reactive([]);
 
-const props = defineProps({
-  json: {
-    type: Object,
-    default: () => ({}),
-  },
-});
+const props = defineProps<{
+  json: DesignJson,
+}>();
 
 watch(props.json, (v) => {
   initDrawingList(v);
@@ -153,7 +150,7 @@ onMounted(() => {
   initDrawingList(props.json);
 });
 
-function initDrawingList(json) {
+function initDrawingList(json: DesignJson) {
   drawingList.length = 0;
   json.fields.forEach((it: any) => {
     drawingList.push(it);
@@ -172,12 +169,9 @@ function cloneComponent(origin: any) {
   //   tempActiveData = clone
   //   return tempActiveData
 }
-interface DraggableItem {
-  type: string;
-  id: string;
-}
+
 let activeIndex: number;
-function addComponent(item: any) {
+function addComponent(item: ComponentItemJson) {
   //   const clone = this.cloneComponent(item);
   drawingList.push(item);
   console.log(drawingList);
