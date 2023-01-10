@@ -87,13 +87,16 @@
       :generate-conf="generateConf"
     /> -->
 
-    <code-type-dialog :visible.sync="dialogVisible" title="选择生成类型" @confirm="generateCode" />
+    <code-type-dialog v-model="dialogVisible" title="选择生成类型" @confirm="confrimGenerate" />
     <input id="copyNode" type="hidden" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, onUnmounted, nextTick } from "vue";
+import { makeUpHtml, vueTemplate, vueScript, cssStyle } from "./components/generator/html";
+import { deepClone } from "./utilities/index";
+import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
 // import Preview from "./Preview.vue";
@@ -125,22 +128,32 @@ const leftComponents = [
 let drawingList: ComponentItemJson[] = reactive([]);
 
 const props = defineProps<{
-  json: DesignJson,
+  json: DesignJson;
 }>();
 
 watch(props.json, (v) => {
   initDrawingList(v);
 });
 
+let optration: "copy" | "download";
+let saveType = reactive({
+  fileName: "",
+  type: "file",
+});
+
+const dialogVisible = ref(false);
+
 onMounted(() => {
+  const { proxy } = useCurrentInstance();
   const clipboard = new ClipboardJS("#copyNode", {
     text: () => {
       const codeStr = generateCode();
-      //   this.$notify({
-      //     title: "成功",
-      //     message: "代码已复制到剪切板，可粘贴。",
-      //     type: "success",
-      //   });
+      proxy?.$notify({
+        title: "成功",
+        message: "代码已复制到剪切板，可粘贴。",
+        type: "success",
+      });
+      dialogVisible.value = false;
       return codeStr;
     },
   });
@@ -159,40 +172,65 @@ function initDrawingList(json: DesignJson) {
 
 onUnmounted(() => {});
 
-function cloneComponent(origin: any) {
-  console.log(origin);
-  //   const clone = deepClone(origin)
-  //   const config = clone.__config__
-  //   config.span = this.formConf.span // 生成代码时，会根据span做精简判断
-  //   this.createIdAndKey(clone)
-  //   clone.placeholder !== undefined && (clone.placeholder += config.label)
-  //   tempActiveData = clone
-  //   return tempActiveData
+function cloneComponent(origin: ComponentItemJson): ComponentItemJson {
+  const clone = deepClone(origin);
+  return clone;
 }
 
 let activeIndex: number;
 function addComponent(item: ComponentItemJson) {
-  //   const clone = this.cloneComponent(item);
-  drawingList.push(item);
-  console.log(drawingList);
-  //   this.activeFormItem(clone);
+  const clone = cloneComponent(item);
+  drawingList.push(clone);
+  activeFormItem(drawingList.length - 1);
 }
+
 function activeFormItem(index: number) {
   activeIndex = index;
 }
+
 function genCode() {}
+
+/**
+ * 生成代码
+ */
 function generateCode(): string {
-  return "";
+  const { type } = saveType;
+  const data = {
+    fields: drawingList,
+    ...formConf,
+  };
+  // const script = vueScript(makeUpJs(data, type))
+  const html = vueTemplate(makeUpHtml(data, type));
+
+  // const css = cssStyle(makeUpCss(data))
+  console.log(html);
+  return html;
 }
-function copyCode() {}
+
+function confrimGenerate(save: SaveType) {
+  saveType = save;
+  if (optration === "copy") {
+    document.getElementById("copyNode")?.click();
+  } else if (optration === "download") {
+    generateCode();
+  }
+}
+
+/**
+ * 复制代码
+ */
+function copyCode() {
+  dialogVisible.value = true;
+  optration = "copy";
+}
+
 function empty() {
   drawingList.length = 0;
 }
-function drawingItemCopy(item: any, list: []) {
-  //   let clone = deepClone(item)
-  //   clone = this.createIdAndKey(clone)
-  //   list.push(clone)
-  //   this.activeFormItem(clone)
+function drawingItemCopy(item: ComponentItemJson, list: []) {
+  let clone = deepClone(item);
+  drawingList.push(clone);
+  activeFormItem(drawingList.length - 1);
 }
 function drawingItemDelete(index: number, list: []) {
   drawingList.splice(index, 1);
@@ -203,7 +241,6 @@ function drawingItemDelete(index: number, list: []) {
     }
   });
 }
-const dialogVisible: boolean = false;
 </script>
 
 <style lang="scss">

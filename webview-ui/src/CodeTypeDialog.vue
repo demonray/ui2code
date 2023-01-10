@@ -33,11 +33,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { ElForm} from 'element-plus';
+import type { ElForm } from "element-plus";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 
-const formData = {
-  fileName: '',
+const formData:SaveType = {
+  fileName: "",
   type: "file",
 };
 const rules = {
@@ -68,18 +68,17 @@ const typeOptions = [
 ];
 
 const { proxy } = useCurrentInstance();
-const emit = defineEmits(['confirm','update:visible'])
 
-function onOpen() {
+const emit = defineEmits(["confirm", "update:visible"]);
 
-}
+function onOpen() {}
 
 function close() {
   emit("update:visible", false);
 }
- 
+
 function handelConfirm() {
-    (proxy?.$refs?.elForm as InstanceType<typeof ElForm>).validate((valid: Boolean) => {
+  (proxy?.$refs?.elForm as InstanceType<typeof ElForm>).validate((valid: Boolean) => {
     if (!valid) return;
     emit("confirm", { ...formData });
     close();

@@ -437,7 +437,7 @@ function dataToJsonCode(uiResults: DetectItem[], textResults: TextItem[]) {
  * @param uiResults
  */
 function fillTextToComp(uiTextMap: UITextMap, uiResults: DetectItem[]): void {
-  // todo 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
+  // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
 
   uiResults.forEach((it, index) => {

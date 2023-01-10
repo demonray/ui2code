@@ -4,152 +4,159 @@
  * @param {number} num 缩进次数
  * @param {number} len 【可选】缩进单位，空格数
  */
-export function indent(str:string, num:number, len = 2):string {
-    if (num === 0) return str
-    const isLeft = num < 0; const result:string[] = []; let reg:RegExp; let
-      spaces = ''
-    if (isLeft) {
-      num *= -1
-      reg = new RegExp(`(^\\s{0,${num * len}})`, 'g')
-    } else {
-      for (let i = 0; i < num * len; i++) spaces += ' '
+export function indent(str: string, num: number, len = 2): string {
+  if (num === 0) return str;
+  const isLeft = num < 0;
+  const result: string[] = [];
+  let reg: RegExp;
+  let spaces = "";
+  if (isLeft) {
+    num *= -1;
+    reg = new RegExp(`(^\\s{0,${num * len}})`, "g");
+  } else {
+    for (let i = 0; i < num * len; i++) spaces += " ";
+  }
+
+  str.split("\n").forEach((line: string) => {
+    line = isLeft ? line.replace(reg, "") : spaces + line;
+    result.push(line);
+  });
+  return result.join("\n");
+}
+
+// 首字母大小
+export function titleCase(str: string) {
+  return str.replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
+}
+
+// 下划转驼峰
+export function camelCase(str: string) {
+  return str.replace(/-[a-z]/g, (str1) => str1.substr(-1).toUpperCase());
+}
+
+export function isNumberStr(str: string) {
+  return /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g.test(str);
+}
+
+export const exportDefault = "export default ";
+
+export const beautifierConf = {
+  html: {
+    indent_size: "2",
+    indent_char: " ",
+    max_preserve_newlines: "-1",
+    preserve_newlines: false,
+    keep_array_indentation: false,
+    break_chained_methods: false,
+    indent_scripts: "separate",
+    brace_style: "end-expand",
+    space_before_conditional: true,
+    unescape_strings: false,
+    jslint_happy: false,
+    end_with_newline: true,
+    wrap_line_length: "110",
+    indent_inner_html: true,
+    comma_first: false,
+    e4x: true,
+    indent_empty_lines: true,
+  },
+  js: {
+    indent_size: "2",
+    indent_char: " ",
+    max_preserve_newlines: "-1",
+    preserve_newlines: false,
+    keep_array_indentation: false,
+    break_chained_methods: false,
+    indent_scripts: "normal",
+    brace_style: "end-expand",
+    space_before_conditional: true,
+    unescape_strings: false,
+    jslint_happy: true,
+    end_with_newline: true,
+    wrap_line_length: "110",
+    indent_inner_html: true,
+    comma_first: false,
+    e4x: true,
+    indent_empty_lines: true,
+  },
+};
+
+function stringify(obj: {}) {
+  return JSON.stringify(obj, (key, val) => {
+    if (typeof val === "function") {
+      return `${val}`;
     }
-  
-    str.split('\n').forEach((line:string) => {
-      line = isLeft ? line.replace(reg, '') : spaces + line
-      result.push(line)
-    })
-    return result.join('\n')
-  }
-  
-  // 首字母大小
-  export function titleCase(str:string) {
-    return str.replace(/( |^)[a-z]/g, L => L.toUpperCase())
-  }
-  
-  // 下划转驼峰
-  export function camelCase(str:string) {
-    return str.replace(/-[a-z]/g, str1 => str1.substr(-1).toUpperCase())
-  }
-  
-  export function isNumberStr(str:string) {
-    return /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g.test(str)
-  }
-  
-  export const exportDefault = 'export default '
-  
-  export const beautifierConf = {
-    html: {
-      indent_size: '2',
-      indent_char: ' ',
-      max_preserve_newlines: '-1',
-      preserve_newlines: false,
-      keep_array_indentation: false,
-      break_chained_methods: false,
-      indent_scripts: 'separate',
-      brace_style: 'end-expand',
-      space_before_conditional: true,
-      unescape_strings: false,
-      jslint_happy: false,
-      end_with_newline: true,
-      wrap_line_length: '110',
-      indent_inner_html: true,
-      comma_first: false,
-      e4x: true,
-      indent_empty_lines: true
-    },
-    js: {
-      indent_size: '2',
-      indent_char: ' ',
-      max_preserve_newlines: '-1',
-      preserve_newlines: false,
-      keep_array_indentation: false,
-      break_chained_methods: false,
-      indent_scripts: 'normal',
-      brace_style: 'end-expand',
-      space_before_conditional: true,
-      unescape_strings: false,
-      jslint_happy: true,
-      end_with_newline: true,
-      wrap_line_length: '110',
-      indent_inner_html: true,
-      comma_first: false,
-      e4x: true,
-      indent_empty_lines: true
+    return val;
+  });
+}
+
+function parse(str: string) {
+  JSON.parse(str, (k, v) => {
+    if (v.indexOf && v.indexOf("function") > -1) {
+      return eval(`(${v})`);
     }
+    return v;
+  });
+}
+
+export function jsonClone(obj: object) {
+  return parse(stringify(obj));
+}
+
+// 深拷贝对象
+export function deepClone(obj: any) {
+  const _toString = Object.prototype.toString;
+
+  // null, undefined, non-object, function
+  if (!obj || typeof obj !== "object") {
+    return obj;
   }
-  
-  function stringify(obj:{}) {
-    return JSON.stringify(obj, (key, val) => {
-      if (typeof val === 'function') {
-        return `${val}`
-      }
-      return val
-    })
+
+  // DOM Node
+  if (obj.nodeType && "cloneNode" in obj) {
+    return obj.cloneNode(true);
   }
-  
-  function parse(str:string) {
-    JSON.parse(str, (k, v) => {
-      if (v.indexOf && v.indexOf('function') > -1) {
-        return eval(`(${v})`)
-      }
-      return v
-    })
+
+  // Date
+  if (_toString.call(obj) === "[object Date]") {
+    return new Date(obj.getTime());
   }
-  
-  export function jsonClone(obj:object) {
-    return parse(stringify(obj))
-  }
-  
-  // 深拷贝对象
-  export function deepClone(obj:any) {
-    const _toString = Object.prototype.toString
-  
-    // null, undefined, non-object, function
-    if (!obj || typeof obj !== 'object') {
-      return obj
+
+  // RegExp
+  if (_toString.call(obj) === "[object RegExp]") {
+    const flags = [];
+    if (obj.global) {
+      flags.push("g");
     }
-  
-    // DOM Node
-    if (obj.nodeType && 'cloneNode' in obj) {
-      return obj.cloneNode(true)
+    if (obj.multiline) {
+      flags.push("m");
     }
-  
-    // Date
-    if (_toString.call(obj) === '[object Date]') {
-      return new Date(obj.getTime())
+    if (obj.ignoreCase) {
+      flags.push("i");
     }
-  
-    // RegExp
-    if (_toString.call(obj) === '[object RegExp]') {
-      const flags = []
-      if (obj.global) { flags.push('g') }
-      if (obj.multiline) { flags.push('m') }
-      if (obj.ignoreCase) { flags.push('i') }
-  
-      return new RegExp(obj.source, flags.join(''))
-    }
-  
-    const result = Array.isArray(obj) ? [] : obj.constructor ? new obj.constructor() : {}
-  
-    for (const key in obj) {
-      result[key] = deepClone(obj[key])
-    }
-  
-    return result
+
+    return new RegExp(obj.source, flags.join(""));
   }
-  
-  const toStr = Function.prototype.call.bind(Object.prototype.toString)
-  export function isObjectObject(t:any) {
-    return toStr(t) === '[object Object]'
+
+  const result = Array.isArray(obj) ? [] : obj.constructor ? new obj.constructor() : {};
+
+  for (const key in obj) {
+    result[key] = deepClone(obj[key]);
   }
-  export function isObjectArray(t:any) {
-    return toStr(t) === '[object Array]'
-  }
-  export function isObjectNull(t:any) {
-    return toStr(t) === '[object Null]'
-  }
-  export function isObjectUnde(t:any) {
-    return toStr(t) === '[object Undefined]'
-  }
-  
+
+  return result;
+}
+
+const toStr = Function.prototype.call.bind(Object.prototype.toString);
+export function isObjectObject(t: any) {
+  return toStr(t) === "[object Object]";
+}
+export function isObjectArray(t: any) {
+  return toStr(t) === "[object Array]";
+}
+export function isObjectNull(t: any) {
+  return toStr(t) === "[object Null]";
+}
+export function isObjectUnde(t: any) {
+  return toStr(t) === "[object Undefined]";
+}
