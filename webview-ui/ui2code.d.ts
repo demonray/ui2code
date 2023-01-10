@@ -74,3 +74,5 @@ type OptionItem = {
   value: number;
   label: string;
 };
+
+type NumberKey<T> = { [key: number]: T };

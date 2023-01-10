@@ -369,10 +369,27 @@ function xywh2xyxy(box: { x: number; y: number; w: number; h: number }): XYXY {
   return [minx, miny, maxx, maxy];
 }
 
+interface UITextMapValue {
+  textItem: TextItem;
+  matched: Matched;
+}
+
+type UITextMap = NumberKey<UITextMapValue>;
+
+interface MatchedOptionItem {
+  textMatched: UITextMapValue;
+}
+
+type MatchedOptions = Array<MatchedOptionItem>;
+
 interface UiItem {
   type: UiType;
-  options?: OptionItem[];
-  textMatched?: {};
+  options?: MatchedOptions;
+  textMatched?: UITextMapValue;
+}
+
+interface Matched extends DirDis {
+  index: number;
 }
 
 /**
@@ -385,7 +402,7 @@ function dataToJsonCode(uiResults: DetectItem[], textResults: TextItem[]) {
 
   // 遍历文本识别结果数据，判断与组件识别结果关系：
   // in，left，right，top，bottom
-  const uiTextMap = {};
+  const uiTextMap: UITextMap = {};
   textResults.forEach((item) => {
     const xy = textItemXY(item.text_region);
     item.x = xy.x;
@@ -395,7 +412,7 @@ function dataToJsonCode(uiResults: DetectItem[], textResults: TextItem[]) {
     // todo 只保留一个会出现丢失label，placeholder是in， 是否按行匹配？是否可以多个结果都保留增加纯文本组建
     // 或者文本数据直接插入UI组件列表
 
-    let matchInfo = { dis: 10000, dir: "", index: -1 };
+    let matchInfo: Matched = { dis: 10000, dir: "in", index: -1 };
     for (let i = 0; i < uiResults.length; i++) {
       const dirdis = positionDir(item, uiResults[i]);
       if (dirdis?.dir === "in") {
@@ -419,7 +436,7 @@ function dataToJsonCode(uiResults: DetectItem[], textResults: TextItem[]) {
  * @param uiTextMap
  * @param uiResults
  */
-function fillTextToComp(uiTextMap, uiResults: DetectItem[]): void {
+function fillTextToComp(uiTextMap: UITextMap, uiResults: DetectItem[]): void {
   // todo 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
 
@@ -457,11 +474,11 @@ function fillTextToComp(uiTextMap, uiResults: DetectItem[]): void {
   jsonData.forEach((it) => {
     // todo 设计器统一组件标签，生成对应组件代码时根据目标组件库映射转换
     const conf = findComponentConf(it.type);
-    if (it.type === "radio") {
-      console.log(it, conf);
-    }
+    // if (it.type === "radio") {
+    //   console.log(it, conf);
+    // }
     if (it.options) {
-      const option:OptionItem[] = [];
+      const option: OptionItem[] = [];
       it.options.forEach((op, index) => {
         const { matched, textItem } = op.textMatched;
         if (matched.dir === "right") {
