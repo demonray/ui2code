@@ -1,5 +1,5 @@
 $selectedColor: #f6f7ff;
-$lighterBlue: #409EFF;
+$lighterBlue: #409eff;
 
 .container {
   position: relative;
@@ -18,14 +18,14 @@ $lighterBlue: #409EFF;
     transition: transform 0ms !important;
   }
 }
-.components-draggable{
+.components-draggable {
   padding-bottom: 20px;
 }
-.components-title{
+.components-title {
   font-size: 14px;
   color: #222;
   margin: 6px 2px;
-  .svg-icon{
+  .svg-icon {
     color: #666;
     font-size: 18px;
   }
@@ -38,10 +38,10 @@ $lighterBlue: #409EFF;
   cursor: move;
   border: 1px dashed $selectedColor;
   border-radius: 3px;
-  width: calc( 50% - 32px);
+  width: calc(50% - 32px);
   display: inline-block;
   margin: 5px;
-  .svg-icon{
+  .svg-icon {
     color: #777;
     font-size: 15px;
   }
@@ -61,7 +61,7 @@ $lighterBlue: #409EFF;
   top: 0;
   height: 100vh;
 }
-.left-scrollbar{
+.left-scrollbar {
   height: calc(100vh - 42px);
   overflow: hidden;
 }
@@ -78,7 +78,7 @@ $lighterBlue: #409EFF;
   margin: 0 350px 0 260px;
   box-sizing: border-box;
 }
-.empty-info{
+.empty-info {
   position: absolute;
   top: 46%;
   left: 0;
@@ -88,17 +88,17 @@ $lighterBlue: #409EFF;
   color: #ccb1ea;
   letter-spacing: 4px;
 }
-.action-bar{
+.action-bar {
   position: relative;
   height: 42px;
   text-align: right;
   padding: 0 15px;
-  box-sizing: border-box;;
+  box-sizing: border-box;
   border: 1px solid #f1e8e8;
   border-top: none;
   border-left: none;
-  .delete-btn{
-    color: #F56C6C;
+  .delete-btn {
+    color: #f56c6c;
   }
 }
 .center-board-row {
@@ -139,35 +139,36 @@ $lighterBlue: #409EFF;
     background-color: $selectedColor;
   }
   .active-from-item {
-    & > .el-form-item{
+    & > .el-form-item {
       background: $selectedColor;
       border-radius: 6px;
     }
-    & > .drawing-item-copy, & > .drawing-item-delete{
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    & > .drawing-item-copy,
+    & > .drawing-item-delete {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    & > .component-name{
+    & > .component-name {
       color: $lighterBlue;
     }
   }
-  .el-form-item{
+  .el-form-item {
     margin: 0px;
   }
 }
-.drawing-item{
+.drawing-item {
   position: relative;
   cursor: move;
   padding: 10px;
   &.unfocus-bordered:not(.active-from-item) > div:first-child {
     border: 1px dashed #ccc;
   }
-  .el-form-item{
+  .el-form-item {
     padding: 12px 10px;
   }
 }
-.drawing-row-item{
+.drawing-row-item {
   position: relative;
   cursor: move;
   box-sizing: border-box;
@@ -178,19 +179,19 @@ $lighterBlue: #409EFF;
   .drawing-row-item {
     margin-bottom: 2px;
   }
-  .el-col{
+  .el-col {
     margin-top: 22px;
   }
-  .el-form-item{
+  .el-form-item {
     margin-bottom: 0;
   }
-  .drag-wrapper{
+  .drag-wrapper {
     min-height: 80px;
   }
-  &.active-from-item{
+  &.active-from-item {
     border: 1px dashed $lighterBlue;
   }
-  .component-name{
+  .component-name {
     position: absolute;
     top: 0;
     left: 0;
@@ -200,17 +201,20 @@ $lighterBlue: #409EFF;
     padding: 0 6px;
   }
 }
-.drawing-item, .drawing-row-item{
+.drawing-item,
+.drawing-row-item {
   &:hover {
-    & > .el-form-item{
+    & > .el-form-item {
       background: $selectedColor;
       border-radius: 6px;
     }
-    & > .drawing-item-copy, & > .drawing-item-delete{
+    & > .drawing-item-copy,
+    & > .drawing-item-delete {
       display: initial;
     }
   }
-  & > .drawing-item-copy, & > .drawing-item-delete{
+  & > .drawing-item-copy,
+  & > .drawing-item-delete {
     display: none;
     position: absolute;
     top: -10px;
@@ -224,27 +228,96 @@ $lighterBlue: #409EFF;
     cursor: pointer;
     z-index: 1;
   }
-  & > .drawing-item-copy{
+  & > .drawing-item-copy {
     right: 56px;
     border-color: $lighterBlue;
     color: $lighterBlue;
     background: #fff;
-    &:hover{
+    &:hover {
       background: $lighterBlue;
       color: #fff;
     }
   }
-  & > .drawing-item-delete{
+  & > .drawing-item-delete {
     right: 24px;
-    border-color: #F56C6C;
-    color: #F56C6C;
+    border-color: #f56c6c;
+    color: #f56c6c;
     background: #fff;
-    &:hover{
-      background: #F56C6C;
+    &:hover {
+      background: #f56c6c;
       color: #fff;
     }
   }
 }
 .svg-icon {
   font-size: 16px;
+}
+
+.right-board {
+  .right-scrollbar {
+    .el-scrollbar__view {
+      padding: 12px 18px 15px 15px;
+    }
+  }
+  .el-scrollbar__wrap {
+    box-sizing: border-box;
+    overflow-x: hidden !important;
+    margin-bottom: 0 !important;
+  }
+  .center-tabs {
+    .el-tabs__header {
+      margin-bottom: 0 !important;
+    }
+    .el-tabs__item {
+      width: 50%;
+      text-align: center;
+    }
+    .el-tabs__nav {
+      width: 100%;
+    }
+  }
+
+  .reg-item {
+    padding: 12px 6px;
+    background: #f8f8f8;
+    position: relative;
+    border-radius: 4px;
+    .close-btn {
+      position: absolute;
+      right: -6px;
+      top: -6px;
+      display: block;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 50%;
+      color: #fff;
+      text-align: center;
+      z-index: 1;
+      cursor: pointer;
+      font-size: 12px;
+      &:hover {
+        background: rgba(210, 23, 23, 0.5);
+      }
+    }
+    & + .reg-item {
+      margin-top: 18px;
+    }
+  }
+  .el-scrollbar__view {
+    overflow-x: hidden;
+  }
+}
+
+.action-bar {
+  & .el-button + .el-button {
+    margin-left: 15px;
+  }
+  & i {
+    font-size: 20px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+  }
 }

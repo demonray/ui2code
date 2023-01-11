@@ -1,5 +1,5 @@
 // 表单属性【右面板】
-export const formConf = {
+export const formConfig:FormConfig = {
   formRef: "elForm",
   formModel: "formData",
   size: "small",

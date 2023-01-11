@@ -9,7 +9,8 @@ type UiType =
   | "timepicker"
   | "datepicker"
   | "timerange"
-  | "daterange";
+  | "daterange"
+  | "flex"; // 布局
 
 type CompItemConf = {
   label: string;
@@ -38,6 +39,7 @@ interface ComponentItemJson {
   placeholder?: string;
   readonly?: boolean;
   disabled?: boolean;
+  [propName: string]: any;
 }
 
 interface DetectItem {
@@ -81,3 +83,18 @@ type SaveType = {
   fileName: string;
   type: "file" | "dialog";
 };
+
+interface FormConfig {
+  formRef: string;
+  formModel: string;
+  size: string;
+  labelPosition: string;
+  labelWidth: number;
+  formRules: string;
+  gutter: number;
+  disabled: boolean;
+  span: number;
+  formBtns: boolean;
+}
+
+// K extends keyof dateTimeFormat

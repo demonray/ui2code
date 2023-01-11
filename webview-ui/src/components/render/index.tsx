@@ -1,4 +1,5 @@
 import { h, defineComponent, resolveComponent } from "vue";
+
 export default defineComponent({
   props: {
     conf: {
@@ -24,11 +25,17 @@ export default defineComponent({
           }
         );
       }
-      
     }
     if (this.conf.__slot__ && this.conf.__slot__.default) {
-        child = this.conf.__slot__.default
+      child = this.conf.__slot__.default;
     }
-    return h(tag, {}, child);
+    // todo 组件props生成函数
+    return h(
+      tag,
+      {
+        type: this.conf.type,
+      },
+      child
+    );
   },
 });

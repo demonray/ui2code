@@ -7,7 +7,6 @@ import {
   inputComponents,
   selectComponents,
   layoutComponents,
-  formConf,
 } from "./config/componentType";
 
 // function handleHowdyClick() {

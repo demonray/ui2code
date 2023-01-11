@@ -71,16 +71,16 @@
         </el-row>
       </el-scrollbar>
     </div>
-    <!-- 
+
     <right-panel
+      v-if="activeData"
       :active-data="activeData"
       :form-conf="formConf"
       :show-field="!!drawingList.length"
       @tag-change="tagChange"
-      @fetch-data="fetchData"
     />
 
-    <preview
+    <!-- <preview
       :visible.sync="drawerVisible"
       :form-data="formData"
       size="100%"
@@ -93,19 +93,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, onUnmounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted, watch, onUnmounted, nextTick } from "vue";
 import { makeUpHtml, vueTemplate, vueScript, cssStyle } from "./components/generator/html";
 import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
 // import Preview from "./Preview.vue";
-// import RightPanel from "./RightPanel.vue";
+import RightPanel from "./RightPanel.vue";
 import {
   inputComponents,
   selectComponents,
   layoutComponents,
-  formConf,
+  formConfig,
 } from "./config/componentType";
 import CodeTypeDialog from "./CodeTypeDialog.vue";
 import DraggableItem from "./DraggableItem.vue";
@@ -127,6 +127,7 @@ const leftComponents = [
 
 let drawingList: ComponentItemJson[] = reactive([]);
 
+const formConf = reactive(formConfig);
 const props = defineProps<{
   json: DesignJson;
 }>();
@@ -134,6 +135,15 @@ const props = defineProps<{
 watch(props.json, (v) => {
   initDrawingList(v);
 });
+
+const activeData = computed<ComponentItemJson>(
+  {
+    get: () => drawingList[activeIndex.value],
+    set: (val) => {
+        drawingList[activeIndex.value].value = val
+    }
+  }
+);
 
 let optration: "copy" | "download";
 let saveType = reactive({
@@ -158,7 +168,7 @@ onMounted(() => {
     },
   });
   clipboard.on("error", () => {
-    // this.$message.error("代码复制失败");
+    proxy?.$message.error("代码复制失败");
   });
   initDrawingList(props.json);
 });
@@ -177,7 +187,8 @@ function cloneComponent(origin: ComponentItemJson): ComponentItemJson {
   return clone;
 }
 
-let activeIndex: number;
+let activeIndex = ref(0);
+
 function addComponent(item: ComponentItemJson) {
   const clone = cloneComponent(item);
   drawingList.push(clone);
@@ -185,7 +196,7 @@ function addComponent(item: ComponentItemJson) {
 }
 
 function activeFormItem(index: number) {
-  activeIndex = index;
+  activeIndex.value = index;
 }
 
 function genCode() {}
@@ -227,11 +238,13 @@ function copyCode() {
 function empty() {
   drawingList.length = 0;
 }
+
 function drawingItemCopy(item: ComponentItemJson, list: []) {
   let clone = deepClone(item);
   drawingList.push(clone);
   activeFormItem(drawingList.length - 1);
 }
+
 function drawingItemDelete(index: number, list: []) {
   drawingList.splice(index, 1);
   nextTick(() => {
@@ -240,6 +253,35 @@ function drawingItemDelete(index: number, list: []) {
       activeFormItem(len - 1);
     }
   });
+}
+function tagChange(newTag: ComponentItemJson) {
+    newTag = cloneComponent(newTag)
+    const config = newTag.__config__
+    newTag.__vModel__ = activeData.value.__vModel__
+    config.span = activeData.value.__config__.span
+    activeData.value.__config__.tag = config.tag
+    activeData.value.__config__.tagIcon = config.tagIcon
+    if (typeof activeData.value.__config__.defaultValue === typeof config.defaultValue) {
+      config.defaultValue = activeData.value.__config__.defaultValue
+    }
+    Object.keys(newTag).forEach(key => {
+      if (activeData.value[key] !== undefined) {
+        newTag[key] = activeData.value[key]
+      }
+    })
+    activeData.value = newTag
+    updateDrawingList(newTag, drawingList)
+}
+function updateDrawingList(newTag: ComponentItemJson, list: ComponentItemJson[] ) {
+    if (activeIndex.value > -1) {
+      list.splice(activeIndex.value, 1, newTag)
+    } else {
+      list.forEach(item => {
+        if (Array.isArray(item.__config__.children)) {
+            updateDrawingList(newTag, item.__config__.children)
+        } 
+      })
+    }
 }
 </script>
 
