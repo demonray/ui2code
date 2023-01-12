@@ -640,9 +640,7 @@ const dateOptions = computed(() => {
   }
   return [];
 });
-const activeTag = computed(() => {
-  return props.activeData.__config__.tag;
-});
+
 const tagList = [
   {
     label: "输入型组件",

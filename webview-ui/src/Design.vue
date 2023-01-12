@@ -108,7 +108,7 @@ import {
   formConfig,
 } from "./config/componentType";
 import CodeTypeDialog from "./CodeTypeDialog.vue";
-import DraggableItem from "./DraggableItem.vue";
+import DraggableItem from "./DraggableItem";
 
 const leftComponents = [
   {

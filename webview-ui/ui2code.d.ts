@@ -15,7 +15,7 @@ type UiType =
 type CompItemConf = {
   label: string;
   showLabel?: boolean;
-  tag: string;
+  tag?: string;
   defaultValue?: any;
   required?: boolean;
   [propName: string]: any;

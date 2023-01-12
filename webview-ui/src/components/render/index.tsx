@@ -1,5 +1,16 @@
 import { h, defineComponent, resolveComponent } from "vue";
-
+/**
+ * 
+ * @param conf 
+ * @returns 
+ */
+function makeDataObj(conf:object): object {
+    console.log(conf)
+     // todo 组件props生成函数
+     return {
+        type: conf.type
+      }
+}
 export default defineComponent({
   props: {
     conf: {
@@ -29,12 +40,11 @@ export default defineComponent({
     if (this.conf.__slot__ && this.conf.__slot__.default) {
       child = this.conf.__slot__.default;
     }
-    // todo 组件props生成函数
+    const options  = makeDataObj(this.conf)
+   
     return h(
       tag,
-      {
-        type: this.conf.type,
-      },
+      options,
       child
     );
   },

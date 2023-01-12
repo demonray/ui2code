@@ -295,20 +295,21 @@ export const selectComponents:ComponentItemJson[] = [
 
 // 布局型组件 【左面板】
 export const layoutComponents:ComponentItemJson[] = [
-//   {
-//     __config__: {
-//       layout: "rowFormItem",
-//       tagIcon: "row",
-//       label: "行容器",
-//       layoutTree: true,
-//     },
-//     type: "row",
-//     justify: "start",
-//     align: "top",
-//   },
   {
     __config__: {
-      label: "",
+      layout: "rowFormItem",
+      tagIcon: "row",
+      label: "行容器",
+      layoutTree: true,
+      children: []
+    },
+    type: "row",
+    justify: "start",
+    align: "top",
+  },
+  {
+    __config__: {
+      label: "按钮",
       showLabel: false,
       changeTag: true,
       labelWidth: null,
