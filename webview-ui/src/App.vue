@@ -3,11 +3,7 @@
 import { ref, reactive, computed } from "vue";
 import Editor from "./components/Editor.vue";
 import Design from "./Design.vue";
-import {
-  inputComponents,
-  selectComponents,
-  layoutComponents,
-} from "./config/componentType";
+import { inputComponents, selectComponents, layoutComponents } from "./config/componentType";
 
 // function handleHowdyClick() {
 //   vscode.postMessage({
@@ -15,6 +11,31 @@ import {
 //     text: "Hey there partner! 🤠",
 //   });
 // }
+
+interface DirDis {
+  dir: Direction;
+  dis: number;
+}
+
+type Direction = "in" | "left" | "right" | "bottom" | "top";
+interface Matched extends DirDis {
+  index: number;
+}
+type Matchs = Record<Direction, Matched>;
+
+type UITextMap = NumberKey<Partial<Matchs>>;
+
+interface MatchedOptionItem {
+  textMatched: Partial<Matchs>;
+}
+
+type MatchedOptions = Array<MatchedOptionItem>;
+
+interface UiItem {
+  type: UiType;
+  options?: MatchedOptions;
+  textMatched?: Partial<Matchs>;
+}
 
 const uiResults: DetectItem[] = [
   {
@@ -295,7 +316,12 @@ function isInUIBox(text: TextItem, uiItem: DetectItem): boolean {
   //     const miny = uiItem.y - uiItem.h / 2;
   //     const maxy = uiItem.y + uiItem.h / 2;
   //     return text.x < maxx && text.x > minx && text.y > miny && text.y < maxy;
-  const boxUI = xywh2xyxy({ x: uiItem.x, y: uiItem.y, w: uiItem.w, h: uiItem.h });
+  const boxUI = xywh2xyxy({
+    x: uiItem.x,
+    y: uiItem.y,
+    w: uiItem.w,
+    h: uiItem.h,
+  });
   const boxText: XYXY = [
     text.text_region[0][0],
     text.text_region[0][1],
@@ -307,27 +333,38 @@ function isInUIBox(text: TextItem, uiItem: DetectItem): boolean {
   return iou > 0.6;
 }
 
-interface DirDis {
-  dir: "in" | "left" | "right" | "top" | "bottom";
-  dis: number;
-}
-
 /**
- * 判断是text在UI组件的相对位置：left，right，top，bottom，in
- * @param text 文本中心点
+ * 根据中心点判断text在UI组件的相对位置：left，right，top，bottom，in
+ * @param text 文本
  * @param uiItem 组件位置
  */
 function positionDir(text: TextItem, uiItem: DetectItem): DirDis | undefined {
-  if (isInUIBox(text, uiItem)) return { dir: "in", dis: 0 };
+  let dis = -1;
   if (text.x && text.y) {
-    const dis = (Math.abs(text.x - uiItem.x) + Math.abs(text.y - uiItem.y)) / 2;
+    dis = (Math.abs(text.x - uiItem.x) + Math.abs(text.y - uiItem.y)) / 2;
+  }
+  if (isInUIBox(text, uiItem))
+    return {
+      dir: "in",
+      dis,
+    };
+  // left：FormItem label
+  // right：Checkbox label Radio Label
+  // 丢弃距离超过阈值的？
+  // 除去in再增多一个备选？
+  // 不丢弃任何text？
+  // 每个方向选最近的？
+  if (text.x && text.y) {
     // left
     if (
       text.x <= uiItem.x &&
       text.y <= uiItem.y + uiItem.h / 2 &&
       text.y >= uiItem.y - uiItem.h / 2
     ) {
-      return { dir: "left", dis };
+      return {
+        dir: "left",
+        dis,
+      };
     }
     // right
     if (
@@ -335,7 +372,10 @@ function positionDir(text: TextItem, uiItem: DetectItem): DirDis | undefined {
       text.y <= uiItem.y + uiItem.h / 2 &&
       text.y >= uiItem.y - uiItem.h / 2
     ) {
-      return { dir: "right", dis };
+      return {
+        dir: "right",
+        dis,
+      };
     }
     // top
     if (
@@ -343,7 +383,10 @@ function positionDir(text: TextItem, uiItem: DetectItem): DirDis | undefined {
       text.x <= uiItem.x + uiItem.w / 2 &&
       text.x >= uiItem.x - uiItem.w / 2
     ) {
-      return { dir: "top", dis };
+      return {
+        dir: "top",
+        dis,
+      };
     }
     // bottom
     if (
@@ -351,7 +394,10 @@ function positionDir(text: TextItem, uiItem: DetectItem): DirDis | undefined {
       text.x <= uiItem.x + uiItem.w / 2 &&
       text.x >= uiItem.x - uiItem.w / 2
     ) {
-      return { dir: "bottom", dis };
+      return {
+        dir: "bottom",
+        dis,
+      };
     }
   }
 }
@@ -368,29 +414,6 @@ function xywh2xyxy(box: { x: number; y: number; w: number; h: number }): XYXY {
   return [minx, miny, maxx, maxy];
 }
 
-interface UITextMapValue {
-  textItem: TextItem;
-  matched: Matched;
-}
-
-type UITextMap = NumberKey<UITextMapValue>;
-
-interface MatchedOptionItem {
-  textMatched: UITextMapValue;
-}
-
-type MatchedOptions = Array<MatchedOptionItem>;
-
-interface UiItem {
-  type: UiType;
-  options?: MatchedOptions;
-  textMatched?: UITextMapValue;
-}
-
-interface Matched extends DirDis {
-  index: number;
-}
-
 /**
  * 检测结果数据转换成设计器可识别的json代码
  * @param uiResults
@@ -402,32 +425,48 @@ function dataToJsonCode(uiResults: DetectItem[], textResults: TextItem[]) {
   // 遍历文本识别结果数据，判断与组件识别结果关系：
   // in，left，right，top，bottom
   const uiTextMap: UITextMap = {};
-  textResults.forEach((item) => {
-    const xy = textItemXY(item.text_region);
-    item.x = xy.x;
-    item.y = xy.y;
-    // 优先判断是否包含
-    // 其次根据距离最近匹配
-    // todo 只保留一个会出现丢失label，placeholder是in， 是否按行匹配？是否可以多个结果都保留增加纯文本组建
-    // 或者文本数据直接插入UI组件列表
+  // 优先判断是否包含
+  // 其次根据距离最近匹配
+  // text in ui component
+  const textIn: Record<number, boolean> = {};
+  for (let uiIndex = 0; uiIndex < uiResults.length; uiIndex++) {
+    // 未匹配的文本数据直接插入UI组件列表？
+    const matchs: Partial<Matchs> = {};
+    textResults.forEach((item, index) => {
+      if (!textIn[index]) {
+        const xy = textItemXY(item.text_region);
+        item.x = xy.x;
+        item.y = xy.y;
+        const dirdis = positionDir(item, uiResults[uiIndex]);
 
-    let matchInfo: Matched = { dis: 10000, dir: "in", index: -1 };
-    for (let i = 0; i < uiResults.length; i++) {
-      const dirdis = positionDir(item, uiResults[i]);
-      if (dirdis?.dir === "in") {
-        matchInfo = { dir: "in", dis: 0, index: i };
-        break;
-      }
-      if (dirdis) {
-        if (matchInfo.dis > dirdis.dis) {
-          matchInfo = { ...dirdis, index: i };
+        if (dirdis) {
+          if (dirdis.dir === "in") {
+            textIn[index] = true;
+          }
+          const matchsDir = matchs[dirdis.dir];
+          if (matchsDir) {
+            if (matchsDir.dis > dirdis.dis) {
+              matchs[dirdis.dir] = {
+                dir: dirdis.dir,
+                dis: dirdis.dis,
+                index,
+              };
+            }
+          } else {
+            matchs[dirdis.dir] = {
+              dir: dirdis.dir,
+              dis: dirdis.dis,
+              index,
+            };
+          }
         }
       }
-    }
-    uiTextMap[matchInfo.index] = { textItem: item, matched: matchInfo };
-    //console.log(item, matchInfo, uiResults[matchInfo.index])
-  });
-  fillTextToComp(uiTextMap, uiResults);
+    });
+    uiTextMap[uiIndex] = matchs;
+    // console.log(uiTextMap);
+  }
+
+  fillTextToComp(uiTextMap, uiResults, textResults);
 }
 
 /**
@@ -435,13 +474,17 @@ function dataToJsonCode(uiResults: DetectItem[], textResults: TextItem[]) {
  * @param uiTextMap
  * @param uiResults
  */
-function fillTextToComp(uiTextMap: UITextMap, uiResults: DetectItem[]): void {
+function fillTextToComp(
+  uiTextMap: UITextMap,
+  uiResults: DetectItem[],
+  textResults: TextItem[]
+): void {
   // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
 
   uiResults.forEach((it, index) => {
     let last = jsonData[jsonData.length - 1];
-    // group
+    // checkboxgroup radiogroup 各个选项options
     if (it.class === "checkbox") {
       if (last && last.type === it.class) {
         last.options?.push({
@@ -450,16 +493,26 @@ function fillTextToComp(uiTextMap: UITextMap, uiResults: DetectItem[]): void {
       } else {
         jsonData.push({
           type: it.class,
-          options: [{ textMatched: uiTextMap[index] }],
+          options: [
+            {
+              textMatched: uiTextMap[index],
+            },
+          ],
         });
       }
     } else if (it.class === "radio") {
       if (last && last.type === it.class) {
-        last.options?.push({ textMatched: uiTextMap[index] });
+        last.options?.push({
+          textMatched: uiTextMap[index],
+        });
       } else {
         jsonData.push({
           type: it.class,
-          options: [{ textMatched: uiTextMap[index] }],
+          options: [
+            {
+              textMatched: uiTextMap[index],
+            },
+          ],
         });
       }
     } else {
@@ -469,33 +522,37 @@ function fillTextToComp(uiTextMap: UITextMap, uiResults: DetectItem[]): void {
       });
     }
   });
-  // checkboxgroup radiogroup
+  // console.log(JSON.stringify(jsonData))
   jsonData.forEach((it) => {
     // todo 设计器统一组件标签，生成对应组件代码时根据目标组件库映射转换
     const conf = findComponentConf(it.type);
-    // if (it.type === "radio") {
-    //   console.log(it, conf);
-    // }
-    if (it.options) {
+
+    // checkboxgroup radiogroup
+    if (it.options && conf) {
       const option: OptionItem[] = [];
       it.options.forEach((op, index) => {
-        const { matched, textItem } = op.textMatched;
-        if (matched.dir === "right") {
-          if (it.type === "checkbox" || it.type === "radio") {
+        // checkbox radio 选项文本再右边
+        const { left, right } = op.textMatched;
+        if (it.type === "checkbox" || it.type === "radio") {
+          if (right) {
             option.push({
               value: index,
-              label: textItem.text,
+              label: textResults[right.index].text,
             });
+          }
+          if (left && index === 0) {
+            conf.__config__.label = textResults[left.index].text;
           }
         }
       });
       conf.__slot__.options = option;
     }
-    if (it.textMatched && conf) {
-      const { matched, textItem } = it.textMatched;
-      if (matched.dir === "in") {
+    if (conf) {
+      if (it.textMatched && it.textMatched.in) {
+        const textItem = textResults[it.textMatched.in.index];
         // placeholder for input/select/textarea
         // text for button
+
         if (it.type === "button" && conf.__slot__) {
           // console.log(matched, textItem, conf);
           conf.__slot__.default = textItem.text;
@@ -505,31 +562,41 @@ function fillTextToComp(uiTextMap: UITextMap, uiResults: DetectItem[]): void {
         }
       }
       // label for input/select/textarea/switch
-      if (matched.dir === "left") {
+      if (it.textMatched && it.textMatched.left) {
         if (
           it.type === "input" ||
           it.type === "textarea" ||
           it.type === "select" ||
           it.type === "switch"
         ) {
-          console.log(it.type, matched, textItem, conf);
+          const textItem = textResults[it.textMatched.left.index];
           conf.__config__.label = textItem.text;
         }
       }
-      // options for checboxgroup radiogroup
-      if (matched.dir === "right") {
-        if (it.type === "checkbox" || it.type === "radio") {
-          // conf.__slot__.
-          console.log(conf, it);
-        }
+      if (it.textMatched && it.textMatched.right) {
+        // console.log(it, textResults[it.textMatched.right.index])
       }
-    }
-
-    if (conf) {
+      processConf(conf);
       designJson.fields.push(conf);
     }
   });
   console.log(jsonData, designJson);
+}
+
+/**
+ * 加工数据给设计器使用
+ * 清理OCR识别的必填字断的*
+ * ...
+ * @param conf
+ */
+function processConf(conf: ComponentItemJson) {
+  // required处理
+  if (/^\*/.test(conf.__config__.label)) {
+    conf.__config__.required = true;
+    conf.__config__.label = conf.__config__.label.substring(1);
+  } else {
+    conf.__config__.required = true;
+  }
 }
 
 /**
