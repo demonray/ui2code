@@ -86,9 +86,9 @@ const layouts = {
             class="drag-wrapper">
             {{
               item: () =>
-                currentItem.type === "flex" ? (
+                currentItem.lyoutType === "flex" ? (
                   <el-row
-                    type={currentItem.type}
+                    type={currentItem.lyoutType}
                     justify={currentItem.justify}
                     align={currentItem.align}>
                     {child}

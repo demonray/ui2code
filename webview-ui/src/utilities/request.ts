@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 
 const networkConfig = {
   serverUrl: "http://127.0.0.1:9001",
@@ -6,7 +6,7 @@ const networkConfig = {
 };
 
 // 创建axios实例
-export function requestService(config) {
+export default function requestService(config: AxiosRequestConfig) {
   const service = axios.create({
     // axios中请求配置有baseURL选项，表示请求URL公共部分
     baseURL: networkConfig.serverUrl,
@@ -28,6 +28,7 @@ export function requestService(config) {
   service.interceptors.response.use(
     (res) => {
       console.log(res);
+      return res
     },
     (error) => {
       return Promise.reject(error);

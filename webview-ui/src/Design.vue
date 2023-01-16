@@ -30,11 +30,30 @@
 
     <div class="center-board">
       <div class="action-bar">
-        <el-button icon="el-icon-download" type="text" @click="genCode"> 生成vue文件 </el-button>
-        <el-button class="copy-btn-main" icon="el-icon-document-copy" type="text" @click="copyCode">
+        <div class="detect-msg">{{ props.status }}</div>
+        <el-upload
+          style="display: inline-block; vertical-align: top"
+          :auto-upload="false"
+          :show-file-list="false"
+          :on-change="handleChange"
+        >
+          <template #trigger>
+            <el-button class="action-btn-item" type="text">
+              <svg-icon name="upload" />
+              上传图片
+            </el-button>
+          </template>
+        </el-upload>
+        <el-button type="text" @click="genCode">
+          <svg-icon name="file" />
+          生成vue文件
+        </el-button>
+        <el-button class="action-btn-item" type="text" @click="copyCode">
+          <svg-icon name="copy" />
           复制代码
         </el-button>
-        <el-button class="delete-btn" icon="el-icon-delete" type="text" @click="empty">
+        <el-button class="action-btn-item delete-btn" type="text" @click="empty">
+          <svg-icon name="delete" />
           清空
         </el-button>
       </div>
@@ -99,6 +118,7 @@ import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
+import type { UploadFile } from "element-plus";
 // import Preview from "./Preview.vue";
 import RightPanel from "./RightPanel.vue";
 import {
@@ -125,25 +145,26 @@ const leftComponents = [
   },
 ];
 
+const emit = defineEmits(["upload"]);
+
 let drawingList: ComponentItemJson[] = reactive([]);
 
 const formConf = reactive(formConfig);
 const props = defineProps<{
-  json: DesignJson;
+  json: DesignJson
+  status: string
 }>();
 
 watch(props.json, (v) => {
   initDrawingList(v);
 });
 
-const activeData = computed<ComponentItemJson>(
-  {
-    get: () => drawingList[activeIndex.value],
-    set: (val) => {
-        drawingList[activeIndex.value].value = val
-    }
-  }
-);
+const activeData = computed<ComponentItemJson>({
+  get: () => drawingList[activeIndex.value],
+  set: (val) => {
+    drawingList[activeIndex.value].value = val;
+  },
+});
 
 let optration: "copy" | "download";
 let saveType = reactive({
@@ -255,34 +276,38 @@ function drawingItemDelete(index: number, list: []) {
   });
 }
 function tagChange(newTag: ComponentItemJson) {
-    newTag = cloneComponent(newTag)
-    const config = newTag.__config__
-    newTag.__vModel__ = activeData.value.__vModel__
-    config.span = activeData.value.__config__.span
-    activeData.value.__config__.tag = config.tag
-    activeData.value.__config__.tagIcon = config.tagIcon
-    if (typeof activeData.value.__config__.defaultValue === typeof config.defaultValue) {
-      config.defaultValue = activeData.value.__config__.defaultValue
+  newTag = cloneComponent(newTag);
+  const config = newTag.__config__;
+  newTag.__vModel__ = activeData.value.__vModel__;
+  config.span = activeData.value.__config__.span;
+  activeData.value.__config__.tag = config.tag;
+  activeData.value.__config__.tagIcon = config.tagIcon;
+  if (typeof activeData.value.__config__.defaultValue === typeof config.defaultValue) {
+    config.defaultValue = activeData.value.__config__.defaultValue;
+  }
+  Object.keys(newTag).forEach((key) => {
+    if (activeData.value[key] !== undefined) {
+      newTag[key] = activeData.value[key];
     }
-    Object.keys(newTag).forEach(key => {
-      if (activeData.value[key] !== undefined) {
-        newTag[key] = activeData.value[key]
+  });
+  activeData.value = newTag;
+  updateDrawingList(newTag, drawingList);
+}
+function updateDrawingList(newTag: ComponentItemJson, list: ComponentItemJson[]) {
+  if (activeIndex.value > -1) {
+    list.splice(activeIndex.value, 1, newTag);
+  } else {
+    list.forEach((item) => {
+      if (Array.isArray(item.__config__.children)) {
+        updateDrawingList(newTag, item.__config__.children);
       }
-    })
-    activeData.value = newTag
-    updateDrawingList(newTag, drawingList)
+    });
+  }
 }
-function updateDrawingList(newTag: ComponentItemJson, list: ComponentItemJson[] ) {
-    if (activeIndex.value > -1) {
-      list.splice(activeIndex.value, 1, newTag)
-    } else {
-      list.forEach(item => {
-        if (Array.isArray(item.__config__.children)) {
-            updateDrawingList(newTag, item.__config__.children)
-        } 
-      })
-    }
-}
+// 选中文件后把参数赋值
+const handleChange = (uploadFile: UploadFile) => {
+  emit("upload", uploadFile);
+};
 </script>
 
 <style lang="scss">

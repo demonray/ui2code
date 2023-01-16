@@ -10,7 +10,7 @@ type UiType =
   | "datepicker"
   | "timerange"
   | "daterange"
-  | "flex"; // 布局
+  | "row";
 
 type CompItemConf = {
   label: string;

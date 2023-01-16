@@ -2,7 +2,11 @@
 // import { vscode } from "./utilities/vscode";
 import { ref, reactive, computed } from "vue";
 import Editor from "./components/Editor.vue";
+import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
+import Axios from "./utilities/request";
+import { getBase64 } from "./utilities/index";
+import DetectService from "./config/modelService";
 import { inputComponents, selectComponents, layoutComponents } from "./config/componentType";
 
 // function handleHowdyClick() {
@@ -37,7 +41,7 @@ interface UiItem {
   textMatched?: Partial<Matchs>;
 }
 
-const uiResults: DetectItem[] = [
+let uiResults: DetectItem[] = [
   {
     x: 227.26868,
     y: 282.0313,
@@ -255,11 +259,24 @@ const jsonText = computed(() => {
   return JSON.stringify(uiResults);
 });
 
+const detectStatus: {
+    text: 'PROCESSING' | 'PENDING' | 'SUCCESS',
+    component: 'PROCESSING' | 'PENDING' | 'SUCCESS'
+
+} = reactive({
+    component: 'PROCESSING',
+    text: 'PROCESSING'
+})
+
+const statusMap = {
+    PROCESSING: '提交检测',
+    PENDING: '检测中',
+    SUCCESS: '完成检测'
+}
+
 const designJson: DesignJson = reactive({
   fields: [],
 });
-
-const designStep = ref(1);
 
 /**
  * 查找对应组件设计器配置
@@ -419,7 +436,7 @@ function xywh2xyxy(box: { x: number; y: number; w: number; h: number }): XYXY {
  * @param uiResults
  * @param textResults
  */
-function dataToJsonCode(uiResults: DetectItem[], textResults: TextItem[]) {
+function convertJsonData(uiResults: DetectItem[], textResults: TextItem[]) {
   // todo 检测同一组件识别出多标签的情况，保留得分高的
 
   // 遍历文本识别结果数据，判断与组件识别结果关系：
@@ -602,8 +619,7 @@ function processConf(conf: ComponentItemJson) {
 /**
  * 上传图片，调用接口获取组件信息，文字信息
  */
-function goDesign() {
-  // todo 提交图片获取数据
+function startDesign(uiResults: DetectItem[], textResults: TextItem[]) {
   // 按Y排序
   uiResults.sort((a, b) => {
     return a.y - b.y;
@@ -618,29 +634,143 @@ function goDesign() {
     }
   }
 
-  dataToJsonCode(uiResults, textResults.results[0]);
-  designStep.value = 2;
+  convertJsonData(uiResults, textResults);
+}
+
+/**
+ * 提交图片提交UI模型检查
+ */
+function processUIDetect(uploadFile: UploadFile) {
+  let formData = new FormData();
+  if (uploadFile.raw) {
+    formData.append("files", uploadFile.raw!);
+  }
+  Axios({
+    url: DetectService.UI_DETECT_URL,
+    method: "post",
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }).then((res) => {
+    if (res.data && res.data[0]) {
+      // status: "PROCESSING"
+      // task_id: "e1458014-a457-47d5-986c-30f4ca4ee2ba"
+      // url_result: "/api/result/e1458014-a457-47d5-986c-30f4ca4ee2ba"
+      detectStatus.component = res.data[0].status;
+      checkDetectStatus(res.data[0].task_id);
+    }
+  });
+}
+
+/**
+ * 轮训状态
+ * @param taskid
+ */
+function checkDetectStatus(taskid: string) {
+  Axios({
+    url: DetectService.UI_DETECT_STATUS + taskid,
+    method: "get",
+  })
+    .then((res) => {
+      // result: ""
+      // status: "PENDING"
+      // task_id: "7bfd83e5-17e2-4650-8476-7e573b4b2b03"
+      detectStatus.component = res.data.status
+      if (res.data && res.data.status === "PENDING") {
+        setTimeout(() => {
+          checkDetectStatus(taskid);
+        }, 1000);
+      } else if(res.data && res.data.status === "SUCCESS") {
+        getUIDetectResult(taskid)
+      }
+    })
+    .catch((error) => {
+      // 请求失败，
+      console.log(error);
+    });
+}
+
+/**
+ * 获取检测结果数据
+ * @param taskid
+ */
+ function getUIDetectResult(taskid: string) {
+  Axios({
+    url: DetectService.UI_DETECT_RESULT + taskid,
+    method: "get",
+  })
+    .then((res) => {
+    // {
+    //    data: {
+    //     result: {
+    //         bbox: [],
+    //         file_name: 'static/95a135ee.jpg'
+    //     },
+    //     status: 'SUCCESS',
+    //     task_id: ''
+    //    }
+    // }
+    if (res.data && res.data.status === 'SUCCESS') {
+        uiResults = res.data.result.bbox
+    }
+    })
+    .catch((error) => {
+      // 请求失败，
+      console.log(error);
+    });
+}
+
+/**
+ * 获取文本检查结果
+ */
+async function getTextDetectData(uploadFile: UploadFile) {
+  detectStatus.text = 'PROCESSING'
+  const images = await getBase64(uploadFile.raw as Blob);
+  Axios({
+    url: DetectService.OCR,
+    method: "post",
+    data: {
+      images: images.replace(/data:image\/.+;base64,/, ""),
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => {
+      console.log(res);
+      detectStatus.text = 'SUCCESS'
+    })
+    .catch((error) => {
+      // 请求失败，
+      console.log(error);
+    });
+}
+
+function onUpload(uploadFile: UploadFile) {
+//   processUIDetect(uploadFile);
+//   getTextDetectData(uploadFile);
+  startDesign(uiResults, textResults.results[0]);
 }
 </script>
 
 <template>
   <main>
-    <el-button @click="goDesign">设计</el-button>
-    <editor v-show="designStep === 1" :value="jsonText" language="json" />
-    <design v-show="designStep === 2" :json="designJson" />
+    <!-- <editor v-show="designStep === 1" :value="jsonText" language="json" /> -->
+    <design :json="designJson" @upload="onUpload" />
   </main>
 </template>
 
 <style>
+body {
+  margin: 0;
+  padding: 0
+}
 main {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   height: 100%;
-}
-
-main > * {
-  margin: 1rem 0;
 }
 </style>

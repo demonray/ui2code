@@ -97,6 +97,9 @@ $lighterBlue: #409eff;
   border: 1px solid #f1e8e8;
   border-top: none;
   border-left: none;
+  .action-btn-item {
+    display: inline-block;
+  }
   .delete-btn {
     color: #f56c6c;
   }
@@ -312,7 +315,7 @@ $lighterBlue: #409eff;
 }
 
 .action-bar {
-  & .el-button + .el-button {
+  & .el-button {
     margin-left: 15px;
   }
   & i {
@@ -320,5 +323,10 @@ $lighterBlue: #409eff;
     vertical-align: middle;
     position: relative;
     top: -1px;
+  }
+  .detect-msg {
+    display: inline-block;
+    font-size: 14PX;
+    vertical-align: middle;
   }
 }
