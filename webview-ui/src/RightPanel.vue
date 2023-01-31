@@ -616,7 +616,7 @@ const justifyOptions = [
     value: "space-between",
   },
 ];
-const currentTab = "field";
+const currentTab = ref("field");
 const iconsVisible = ref(false);
 const currentIconModel = ref("prefix-icon");
 

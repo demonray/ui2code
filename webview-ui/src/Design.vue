@@ -99,13 +99,6 @@
       @tag-change="tagChange"
     />
 
-    <!-- <preview
-      :visible.sync="drawerVisible"
-      :form-data="formData"
-      size="100%"
-      :generate-conf="generateConf"
-    /> -->
-
     <code-type-dialog v-model="dialogVisible" title="选择生成类型" @confirm="confrimGenerate" />
     <input id="copyNode" type="hidden" />
   </div>
@@ -151,8 +144,8 @@ let drawingList: ComponentItemJson[] = reactive([]);
 
 const formConf = reactive(formConfig);
 const props = defineProps<{
-  json: DesignJson
-  status: string
+  json: DesignJson,
+  status?: string
 }>();
 
 watch(props.json, (v) => {
