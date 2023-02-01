@@ -731,7 +731,7 @@ async function getTextDetectData(uploadFile: UploadFile) {
     url: DetectService.OCR,
     method: "post",
     data: {
-      images: images.replace(/data:image\/.+;base64,/, ""),
+      base64_str: images.replace(/data:image\/.+;base64,/, ""),
     },
     headers: {
       "Content-Type": "application/json",
@@ -748,10 +748,11 @@ async function getTextDetectData(uploadFile: UploadFile) {
 }
 
 function onUpload(uploadFile: UploadFile) {
-//   processUIDetect(uploadFile);
-//   getTextDetectData(uploadFile);
-  startDesign(uiResults, textResults.results[0]);
+   processUIDetect(uploadFile);
+   getTextDetectData(uploadFile);
 }
+
+startDesign(uiResults, textResults.results[0]);
 </script>
 
 <template>

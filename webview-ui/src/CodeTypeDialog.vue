@@ -25,21 +25,22 @@
         </el-form>
       </el-row>
 
-      <div slot="footer">
+      <template #footer>
         <el-button @click="close"> 取消 </el-button>
         <el-button type="primary" @click="handelConfirm"> 确定 </el-button>
-      </div>
+      </template>
     </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
+import { reactive } from "vue";
 import type { ElForm } from "element-plus";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 
-const formData:SaveType = {
+const formData:SaveType = reactive({
   fileName: "",
   type: "file",
-};
+});
 const rules = {
   fileName: [
     {
@@ -69,12 +70,12 @@ const typeOptions = [
 
 const { proxy } = useCurrentInstance();
 
-const emit = defineEmits(["confirm", "update:visible"]);
+const emit = defineEmits(["confirm", "update:modelValue"]);
 
 function onOpen() {}
 
 function close() {
-  emit("update:visible", false);
+  emit("update:modelValue", false);
 }
 
 function handelConfirm() {

@@ -6,7 +6,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["element-plus/global", "vite-plugin-svg-icons/client"]
+    "types": ["element-plus/global"]
   },
 
   "references": [

@@ -106,13 +106,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, onUnmounted, nextTick } from "vue";
-import { makeUpHtml, vueTemplate, vueScript, cssStyle } from "./components/generator/html";
+import generate from "./components/generator/index";
 import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
 import type { UploadFile } from "element-plus";
-// import Preview from "./Preview.vue";
 import RightPanel from "./RightPanel.vue";
 import {
   inputComponents,
@@ -224,12 +223,11 @@ function generateCode(): string {
     fields: drawingList,
     ...formConf,
   };
-  // const script = vueScript(makeUpJs(data, type))
-  const html = vueTemplate(makeUpHtml(data, type));
 
-  // const css = cssStyle(makeUpCss(data))
-  console.log(html);
-  return html;
+  // todo 提供插件扩展对接目标组件库
+  const code = generate(data, type, 'element-plus')
+  console.log(code);
+  return code;
 }
 
 function confrimGenerate(save: SaveType) {

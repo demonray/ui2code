@@ -10,7 +10,8 @@ type UiType =
   | "datepicker"
   | "timerange"
   | "daterange"
-  | "row";
+  | "row"
+  | "default";
 
 type CompItemConf = {
   label: string;
@@ -18,6 +19,7 @@ type CompItemConf = {
   tag?: string;
   defaultValue?: any;
   required?: boolean;
+  layout?: 'colFormItem' | 'rowFormItem' | 'raw';
   [propName: string]: any;
 };
 
@@ -97,4 +99,7 @@ interface FormConfig {
   formBtns: boolean;
 }
 
-// K extends keyof dateTimeFormat
+interface FormConf extends FormConfig {
+    fields: ComponentItemJson[];
+  }
+  
