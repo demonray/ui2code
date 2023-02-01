@@ -1,4 +1,4 @@
-import { computed, defineComponent } from "vue";
+import { computed, watch, defineComponent, reactive } from "vue";
 import draggable from "vuedraggable";
 import type { PropType } from "vue";
 import render from "./components/render/index";
@@ -177,13 +177,17 @@ export default defineComponent({
         required: props.currentItem.__config__.required,
       };
     });
+    let itemOpts: ItemOpts = reactive({
+        actived: props.activeIndex === props.index,
+        active,
+        deleteItem,
+        copy,
+    });
+    watch(props, (v) => {
+        itemOpts.actived = v.activeIndex === v.index
+    })
     const layout = layouts[config.value.layout as keyof typeof layouts];
-    const itemOpts: ItemOpts = {
-      actived: props.activeIndex === props.index,
-      active,
-      deleteItem,
-      copy,
-    };
+    
     if (layout) {
       return () => layout(props.currentItem, props.index, itemOpts);
     }
