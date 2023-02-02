@@ -44,8 +44,21 @@
             </el-button>
           </template>
         </el-upload>
+        <form
+          ref="sandboxForm"
+          action="https://codesandbox.io/api/v1/sandboxes/define"
+          style="display: inline-block"
+          method="POST"
+          target="_blank"
+        >
+          <input type="hidden" name="parameters" />
+          <el-button type="text" @click="preview">
+            <svg-icon name="view" />
+            预览
+          </el-button>
+        </form>
         <el-button type="text" @click="genCode">
-          <svg-icon name="file" />
+          <svg-icon name="download" />
           生成vue文件
         </el-button>
         <el-button class="action-btn-item" type="text" @click="copyCode">
@@ -106,7 +119,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, onUnmounted, nextTick } from "vue";
-import generate from "./components/generator/index";
+import { generatePreview, generate } from "./components/generator/index";
+import Axios from "./utilities/request";
 import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
@@ -143,8 +157,8 @@ let drawingList: ComponentItemJson[] = reactive([]);
 
 const formConf = reactive(formConfig);
 const props = defineProps<{
-  json: DesignJson,
-  status?: string
+  json: DesignJson;
+  status?: string;
 }>();
 
 watch(props.json, (v) => {
@@ -165,6 +179,7 @@ let saveType = reactive({
 });
 
 const dialogVisible = ref(false);
+const sandboxForm = ref(null);
 
 onMounted(() => {
   const { proxy } = useCurrentInstance();
@@ -212,6 +227,18 @@ function activeFormItem(index: number) {
   activeIndex.value = index;
 }
 
+function preview() {
+  const code = generateCode()
+  const parameters = generatePreview("element-ui", code)
+  console.log(code, parameters)
+  if (sandboxForm.value) {
+    const form = sandboxForm.value as HTMLFormElement;
+    const p = form.children[0] as HTMLInputElement;
+    p.value = parameters;
+    form.submit();
+  }
+}
+
 function genCode() {}
 
 /**
@@ -225,7 +252,7 @@ function generateCode(): string {
   };
 
   // todo 提供插件扩展对接目标组件库
-  const code = generate(data, type, 'element-plus')
+  const code = generate(data, type, "element-ui");
   console.log(code);
   return code;
 }

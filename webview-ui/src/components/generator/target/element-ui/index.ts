@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 import ruleTrigger from "./ruleTrigger";
 
+import { getSandboxTpl } from "./sandbox";
+
 let confGlobal: FormConf | null = null;
 let someSpanIsNot24 = false;
 
@@ -425,9 +427,20 @@ export function cssStyle(cssStr: string) {
       </style>`;
 }
 
-export default function (data: FormConf, type: string): string {
+/**
+ * 生成目标组件库代码
+ * @param data 
+ * @param type 
+ * @returns 
+ */
+export function generateCode(data: FormConf, type: string): string {
   // const script = vueScript(makeUpJs(data, type))
   const html = vueTemplate(makeUpHtml(data, type));
   // const css = cssStyle(makeUpCss(data))
   return html;
 }
+
+export default {
+  generateCode,
+  getSandboxTpl,
+};
