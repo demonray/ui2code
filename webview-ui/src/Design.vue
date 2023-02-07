@@ -119,7 +119,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, onUnmounted, nextTick } from "vue";
-import { generatePreview, generate } from "./components/generator/index";
+import { generatePreview, generateCode } from "./components/generator/index";
 import Axios from "./utilities/request";
 import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
@@ -185,7 +185,7 @@ onMounted(() => {
   const { proxy } = useCurrentInstance();
   const clipboard = new ClipboardJS("#copyNode", {
     text: () => {
-      const codeStr = generateCode();
+      const codeStr = generate();
       proxy?.$notify({
         title: "成功",
         message: "代码已复制到剪切板，可粘贴。",
@@ -228,9 +228,8 @@ function activeFormItem(index: number) {
 }
 
 function preview() {
-  const code = generateCode()
+  const code = generate()
   const parameters = generatePreview("element-ui", code)
-  console.log(code, parameters)
   if (sandboxForm.value) {
     const form = sandboxForm.value as HTMLFormElement;
     const p = form.children[0] as HTMLInputElement;
@@ -244,16 +243,18 @@ function genCode() {}
 /**
  * 生成代码
  */
-function generateCode(): string {
+function generate(): string {
   const { type } = saveType;
+  drawingList.forEach((it, index) => {
+    it.__vModel__ = `field_${index}`
+  })
   const data = {
     fields: drawingList,
     ...formConf,
   };
 
   // todo 提供插件扩展对接目标组件库
-  const code = generate(data, type, "element-ui");
-  console.log(code);
+  const code = generateCode(data, type, "element-ui");
   return code;
 }
 
@@ -262,7 +263,7 @@ function confrimGenerate(save: SaveType) {
   if (optration === "copy") {
     document.getElementById("copyNode")?.click();
   } else if (optration === "download") {
-    generateCode();
+    generate();
   }
 }
 

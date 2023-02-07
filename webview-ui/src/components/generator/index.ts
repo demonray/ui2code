@@ -24,7 +24,7 @@ const map: GenerateLibMap = {
  * @param lib
  * @returns
  */
-export function generate(data: FormConf, type: string, lib: LibType): string {
+export function generateCode(data: FormConf, type: string, lib: LibType): string {
   if (map[lib]) {
     return map[lib].generateCode(data, type);
   }
