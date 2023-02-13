@@ -27,7 +27,6 @@ export default function requestService(config: AxiosRequestConfig) {
   // 响应拦截器
   service.interceptors.response.use(
     (res) => {
-      console.log(res);
       return res
     },
     (error) => {

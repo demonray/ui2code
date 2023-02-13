@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // import { vscode } from "./utilities/vscode";
-import { ref, reactive, computed } from "vue";
-import Editor from "./components/Editor.vue";
+import { ref, reactive, watch } from "vue";
 import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Axios from "./utilities/request";
@@ -116,163 +115,148 @@ let uiResults: DetectItem[] = [
   },
 ];
 
-const textResults = {
-  msg: "",
-  results: [
-    [
-      {
-        confidence: 0.9801278114318848,
-        text: "*单选框组",
-        text_region: [
-          [55, 46],
-          [158, 43],
-          [158, 64],
-          [55, 66],
-        ],
-      },
-      {
-        confidence: 0.9996135830879211,
-        text: "男",
-        text_region: [
-          [208, 46],
-          [231, 46],
-          [231, 67],
-          [208, 67],
-        ],
-      },
-      {
-        confidence: 0.7817301750183105,
-        text: "?女",
-        text_region: [
-          [274, 45],
-          [331, 45],
-          [331, 68],
-          [274, 68],
-        ],
-      },
-      {
-        confidence: 0.9579564929008484,
-        text: "*密码",
-        text_region: [
-          [99, 155],
-          [156, 158],
-          [155, 181],
-          [98, 178],
-        ],
-      },
-      {
-        confidence: 0.997824490070343,
-        text: "请输入密码",
-        text_region: [
-          [198, 158],
-          [303, 158],
-          [303, 178],
-          [198, 178],
-        ],
-      },
-      {
-        confidence: 0.9589386582374573,
-        text: "Q搜索",
-        text_region: [
-          [196, 269],
-          [261, 269],
-          [261, 291],
-          [196, 291],
-        ],
-      },
-      {
-        confidence: 0.7299702763557434,
-        text: "画删除",
-        text_region: [
-          [691, 271],
-          [753, 271],
-          [753, 293],
-          [691, 293],
-        ],
-      },
-      {
-        confidence: 0.9690972566604614,
-        text: "*下拉选择",
-        text_region: [
-          [59, 385],
-          [155, 385],
-          [155, 402],
-          [59, 402],
-        ],
-      },
-      {
-        confidence: 0.9876394867897034,
-        text: "选项一",
-        text_region: [
-          [196, 384],
-          [259, 384],
-          [259, 404],
-          [196, 404],
-        ],
-      },
-      {
-        confidence: 0.968501091003418,
-        text: "*多选框组",
-        text_region: [
-          [57, 496],
-          [157, 496],
-          [157, 514],
-          [57, 514],
-        ],
-      },
-      {
-        confidence: 0.9248738884925842,
-        text: "Iphone",
-        text_region: [
-          [208, 497],
-          [277, 497],
-          [277, 515],
-          [208, 515],
-        ],
-      },
-      {
-        confidence: 0.9797406196594238,
-        text: "MacBook",
-        text_region: [
-          [356, 498],
-          [445, 498],
-          [445, 513],
-          [356, 513],
-        ],
-      },
-      {
-        confidence: 0.951630175113678,
-        text: "*开关",
-        text_region: [
-          [100, 617],
-          [156, 617],
-          [156, 638],
-          [100, 638],
-        ],
-      },
+let textResults: TextItem[] = [
+  {
+    confidence: 0.9801278114318848,
+    text: "*单选框组",
+    text_region: [
+      [55, 46],
+      [158, 43],
+      [158, 64],
+      [55, 66],
     ],
-  ],
-  status: "000",
-};
-
-const jsonText = computed(() => {
-  return JSON.stringify(uiResults);
-});
+  },
+  {
+    confidence: 0.9996135830879211,
+    text: "男",
+    text_region: [
+      [208, 46],
+      [231, 46],
+      [231, 67],
+      [208, 67],
+    ],
+  },
+  {
+    confidence: 0.7817301750183105,
+    text: "?女",
+    text_region: [
+      [274, 45],
+      [331, 45],
+      [331, 68],
+      [274, 68],
+    ],
+  },
+  {
+    confidence: 0.9579564929008484,
+    text: "*密码",
+    text_region: [
+      [99, 155],
+      [156, 158],
+      [155, 181],
+      [98, 178],
+    ],
+  },
+  {
+    confidence: 0.997824490070343,
+    text: "请输入密码",
+    text_region: [
+      [198, 158],
+      [303, 158],
+      [303, 178],
+      [198, 178],
+    ],
+  },
+  {
+    confidence: 0.9589386582374573,
+    text: "Q搜索",
+    text_region: [
+      [196, 269],
+      [261, 269],
+      [261, 291],
+      [196, 291],
+    ],
+  },
+  {
+    confidence: 0.7299702763557434,
+    text: "画删除",
+    text_region: [
+      [691, 271],
+      [753, 271],
+      [753, 293],
+      [691, 293],
+    ],
+  },
+  {
+    confidence: 0.9690972566604614,
+    text: "*下拉选择",
+    text_region: [
+      [59, 385],
+      [155, 385],
+      [155, 402],
+      [59, 402],
+    ],
+  },
+  {
+    confidence: 0.9876394867897034,
+    text: "选项一",
+    text_region: [
+      [196, 384],
+      [259, 384],
+      [259, 404],
+      [196, 404],
+    ],
+  },
+  {
+    confidence: 0.968501091003418,
+    text: "*多选框组",
+    text_region: [
+      [57, 496],
+      [157, 496],
+      [157, 514],
+      [57, 514],
+    ],
+  },
+  {
+    confidence: 0.9248738884925842,
+    text: "Iphone",
+    text_region: [
+      [208, 497],
+      [277, 497],
+      [277, 515],
+      [208, 515],
+    ],
+  },
+  {
+    confidence: 0.9797406196594238,
+    text: "MacBook",
+    text_region: [
+      [356, 498],
+      [445, 498],
+      [445, 513],
+      [356, 513],
+    ],
+  },
+  {
+    confidence: 0.951630175113678,
+    text: "*开关",
+    text_region: [
+      [100, 617],
+      [156, 617],
+      [156, 638],
+      [100, 638],
+    ],
+  },
+];
 
 const detectStatus: {
-    text: 'PROCESSING' | 'PENDING' | 'SUCCESS',
-    component: 'PROCESSING' | 'PENDING' | 'SUCCESS'
-
+  text: "PROCESSING" | "PENDING" | "SUCCESS";
+  component: "PROCESSING" | "PENDING" | "SUCCESS" | "FINISH";
+  msg: string;
 } = reactive({
-    component: 'PROCESSING',
-    text: 'PROCESSING'
-})
-
-const statusMap = {
-    PROCESSING: '提交检测',
-    PENDING: '检测中',
-    SUCCESS: '完成检测'
-}
+  component: "PROCESSING",
+  text: "PROCESSING",
+  msg: "",
+});
 
 const designJson: DesignJson = reactive({
   fields: [],
@@ -539,7 +523,7 @@ function fillTextToComp(
       });
     }
   });
-  // console.log(JSON.stringify(jsonData))
+  
   jsonData.forEach((it) => {
     // todo 设计器统一组件标签，生成对应组件代码时根据目标组件库映射转换
     const conf = findComponentConf(it.type);
@@ -597,7 +581,6 @@ function fillTextToComp(
       designJson.fields.push(conf);
     }
   });
-  console.log(jsonData, designJson);
 }
 
 /**
@@ -620,6 +603,7 @@ function processConf(conf: ComponentItemJson) {
  * 上传图片，调用接口获取组件信息，文字信息
  */
 function startDesign(uiResults: DetectItem[], textResults: TextItem[]) {
+  designJson.fields = [];
   // 按Y排序
   uiResults.sort((a, b) => {
     return a.y - b.y;
@@ -676,13 +660,13 @@ function checkDetectStatus(taskid: string) {
       // result: ""
       // status: "PENDING"
       // task_id: "7bfd83e5-17e2-4650-8476-7e573b4b2b03"
-      detectStatus.component = res.data.status
+      detectStatus.component = res.data.status;
       if (res.data && res.data.status === "PENDING") {
         setTimeout(() => {
           checkDetectStatus(taskid);
         }, 1000);
-      } else if(res.data && res.data.status === "SUCCESS") {
-        getUIDetectResult(taskid)
+      } else if (res.data && res.data.status === "SUCCESS") {
+        getUIDetectResult(taskid);
       }
     })
     .catch((error) => {
@@ -695,25 +679,26 @@ function checkDetectStatus(taskid: string) {
  * 获取检测结果数据
  * @param taskid
  */
- function getUIDetectResult(taskid: string) {
+function getUIDetectResult(taskid: string) {
   Axios({
     url: DetectService.UI_DETECT_RESULT + taskid,
     method: "get",
   })
     .then((res) => {
-    // {
-    //    data: {
-    //     result: {
-    //         bbox: [],
-    //         file_name: 'static/95a135ee.jpg'
-    //     },
-    //     status: 'SUCCESS',
-    //     task_id: ''
-    //    }
-    // }
-    if (res.data && res.data.status === 'SUCCESS') {
-        uiResults = res.data.result.bbox
-    }
+      // {
+      //    data: {
+      //     result: {
+      //         bbox: [],
+      //         file_name: 'static/95a135ee.jpg'
+      //     },
+      //     status: 'SUCCESS',
+      //     task_id: ''
+      //    }
+      // }
+      if (res.data && res.data.status === "SUCCESS") {
+        uiResults = res.data.result.bbox;
+        detectStatus.component = 'FINISH';
+      }
     })
     .catch((error) => {
       // 请求失败，
@@ -725,7 +710,7 @@ function checkDetectStatus(taskid: string) {
  * 获取文本检查结果
  */
 async function getTextDetectData(uploadFile: UploadFile) {
-  detectStatus.text = 'PROCESSING'
+  detectStatus.text = "PROCESSING";
   const images = await getBase64(uploadFile.raw as Blob);
   Axios({
     url: DetectService.OCR,
@@ -738,8 +723,8 @@ async function getTextDetectData(uploadFile: UploadFile) {
     },
   })
     .then((res) => {
-      console.log(res);
-      detectStatus.text = 'SUCCESS'
+      textResults = res.data.data;
+      detectStatus.text = "SUCCESS";
     })
     .catch((error) => {
       // 请求失败，
@@ -748,24 +733,37 @@ async function getTextDetectData(uploadFile: UploadFile) {
 }
 
 function onUpload(uploadFile: UploadFile) {
-   processUIDetect(uploadFile);
-   getTextDetectData(uploadFile);
+  uiResults = [];
+  textResults = [];
+  processUIDetect(uploadFile);
+  getTextDetectData(uploadFile);
 }
 
-startDesign(uiResults, textResults.results[0]);
+watch([() => detectStatus.component, () => detectStatus.text], (v) => {
+  if (v[0] === "FINISH" && v[1] === "SUCCESS") {
+    startDesign(uiResults, textResults);
+    detectStatus.msg = "";
+  }
+  const loading =
+    ["PROCESSING", "PENDING"].indexOf(v[0]) > -1 || ["PROCESSING", "PENDING"].indexOf(v[1]) > -1;
+  if (loading) {
+    detectStatus.msg = "模型识别中...";
+  }
+});
+
+// startDesign(uiResults, textResults);
 </script>
 
 <template>
   <main>
-    <!-- <editor v-show="designStep === 1" :value="jsonText" language="json" /> -->
-    <design :json="designJson" @upload="onUpload" />
+    <design :json="designJson" :status="detectStatus.msg" @upload="onUpload" />
   </main>
 </template>
 
 <style>
 body {
   margin: 0;
-  padding: 0
+  padding: 0;
 }
 main {
   display: flex;
