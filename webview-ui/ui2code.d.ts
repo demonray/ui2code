@@ -81,11 +81,6 @@ type OptionItem = {
 
 type NumberKey<T> = { [key: number]: T };
 
-type SaveType = {
-  fileName: string;
-  type: "file" | "dialog";
-};
-
 interface FormConfig {
   formRef: string;
   formModel: string;

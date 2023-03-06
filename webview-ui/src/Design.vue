@@ -57,10 +57,10 @@
             预览
           </el-button>
         </form>
-        <el-button type="text" @click="genCode">
+        <!-- <el-button type="text" @click="download">
           <svg-icon name="download" />
           生成vue文件
-        </el-button>
+        </el-button> -->
         <el-button class="action-btn-item" type="text" @click="copyCode">
           <svg-icon name="copy" />
           复制代码
@@ -119,15 +119,14 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, onUnmounted, nextTick } from "vue";
-import { generatePreview, generateCode } from "./components/generator/index";
-import Axios from "./utilities/request";
+import { generatePreview, generateCode, type LibType } from "./components/generator/index";
 import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
 import type { UploadFile } from "element-plus";
 import RightPanel from "./RightPanel.vue";
-import {
+import { 
   inputComponents,
   selectComponents,
   layoutComponents,
@@ -172,10 +171,17 @@ const activeData = computed<ComponentItemJson>({
   },
 });
 
-let optration: "copy" | "download";
-let saveType = reactive({
+let optration: "copy" | "download" | "preview";
+type SaveType = {
+  fileName: string;
+  type: "file" | "dialog";
+  targetlib: LibType;
+};
+
+let saveType: SaveType = reactive({
   fileName: "",
   type: "file",
+  targetlib: "element-ui"
 });
 
 const dialogVisible = ref(false);
@@ -195,7 +201,7 @@ onMounted(() => {
       return codeStr;
     },
   });
-  clipboard.on("error", () => {
+  clipboard.on("error", (e) => {
     proxy?.$message.error("代码复制失败");
   });
   initDrawingList(props.json);
@@ -228,8 +234,14 @@ function activeFormItem(index: number) {
 }
 
 function preview() {
+    dialogVisible.value = true;
+    optration = "preview";
+}
+
+function previewSandbox() {
+  const { targetlib } = saveType;
   const code = generate()
-  const parameters = generatePreview("element-ui", code)
+  const parameters = generatePreview(targetlib, code)
   if (sandboxForm.value) {
     const form = sandboxForm.value as HTMLFormElement;
     const p = form.children[0] as HTMLInputElement;
@@ -238,13 +250,11 @@ function preview() {
   }
 }
 
-function genCode() {}
-
 /**
  * 生成代码
  */
 function generate(): string {
-  const { type } = saveType;
+  const { type, targetlib } = saveType;
   drawingList.forEach((it, index) => {
     it.__vModel__ = `field_${index}`
   })
@@ -252,10 +262,8 @@ function generate(): string {
     fields: drawingList,
     ...formConf,
   };
-
-  // todo 提供插件扩展对接目标组件库
-  const code = generateCode(data, type, "element-ui");
-  return code;
+  const code = generateCode(data, type, targetlib);
+  return code || 'null';
 }
 
 function confrimGenerate(save: SaveType) {
@@ -264,6 +272,8 @@ function confrimGenerate(save: SaveType) {
     document.getElementById("copyNode")?.click();
   } else if (optration === "download") {
     generate();
+  } else if(optration === "preview") {
+    previewSandbox()
   }
 }
 

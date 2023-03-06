@@ -9,7 +9,7 @@ export const formConfig:FormConfig = {
   gutter: 15,
   disabled: false,
   span: 24,
-  formBtns: true,
+  formBtns: false,
 };
 
 // 输入型组件 【左面板】

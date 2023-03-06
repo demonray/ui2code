@@ -22,6 +22,14 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
+          <el-col :span="24">
+            <el-form-item label="目标库" prop="type">
+              <el-select v-model="formData.targetlib">
+                <el-option value="element-ui">element-ui-vue2</el-option>
+                <el-option value="element-plus">element-plus-vue3-ts</el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
         </el-form>
       </el-row>
 
@@ -35,12 +43,21 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 import type { ElForm } from "element-plus";
+import type { LibType } from "./components/generator";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 
-const formData:SaveType = reactive({
+type SaveType = {
+  fileName: string;
+  type: "file" | "dialog";
+  targetlib: LibType;
+};
+
+const formData: SaveType = reactive({
   fileName: "",
   type: "file",
+  targetlib: "element-ui",
 });
+
 const rules = {
   fileName: [
     {

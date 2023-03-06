@@ -751,7 +751,7 @@ watch([() => detectStatus.component, () => detectStatus.text], (v) => {
   }
 });
 
-// startDesign(uiResults, textResults);
+startDesign(uiResults, textResults);
 </script>
 
 <template>

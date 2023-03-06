@@ -1,6 +1,7 @@
 import generateElementUI from "./target/element-ui";
+import generateElementPlusUI from "./target/element-plus";
 
-export type LibType = "element-ui";
+export type LibType = "element-ui" | "element-plus";
 
 type LibInterface = {
   // 生成目标组件库代码
@@ -9,12 +10,11 @@ type LibInterface = {
   getSandboxTpl: (tpl: string) => string;
 };
 
-type GenerateLibMap = {
+const map: {
   [propName in LibType]: LibInterface;
-};
-
-const map: GenerateLibMap = {
+} = {
   "element-ui": generateElementUI,
+  "element-plus": generateElementPlusUI,
 };
 
 /**

@@ -1,11 +1,10 @@
-import { h, defineComponent, resolveComponent } from "vue";
+import { h, defineComponent, resolveComponent, type PropType } from "vue";
 /**
  *
  * @param conf
  * @returns
  */
-function makeDataObj(conf: object): object {
-  // console.log(conf)
+function makeDataObj(conf: ComponentItemJson): object {
   // todo 组件props生成函数
   return {
     type: conf.type,
@@ -14,13 +13,13 @@ function makeDataObj(conf: object): object {
 export default defineComponent({
   props: {
     conf: {
-      type: Object,
+      type: Object as PropType<ComponentItemJson>,
       required: true,
     },
   },
   render() {
-    const tag = resolveComponent(this.conf.__config__.tag);
-    let child: Array<any> = [];
+    const tag = resolveComponent(this.conf.__config__.tag as string);
+    let child: Array<any> | string = [];
     if (this.conf.__slot__ && this.conf.__slot__.options) {
       if (this.conf.__config__.tag === "el-radio-group") {
         child = this.conf.__slot__.options.map(
