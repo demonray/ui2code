@@ -134,6 +134,8 @@ import {
 } from "./config/componentType";
 import CodeTypeDialog from "./CodeTypeDialog.vue";
 import DraggableItem from "./DraggableItem";
+import loadBeautifier from './utilities/loadBeautifier';
+import { beautifierConf } from './utilities/pluginsConfig';
 
 const leftComponents = [
   {
@@ -186,6 +188,7 @@ let saveType: SaveType = reactive({
 
 const dialogVisible = ref(false);
 const sandboxForm = ref(null);
+let beautifier:any
 
 onMounted(() => {
   const { proxy } = useCurrentInstance();
@@ -205,6 +208,9 @@ onMounted(() => {
     proxy?.$message.error("代码复制失败");
   });
   initDrawingList(props.json);
+  loadBeautifier(btf => {
+    beautifier = btf
+  })
 });
 
 function initDrawingList(json: DesignJson) {
@@ -263,7 +269,7 @@ function generate(): string {
     ...formConf,
   };
   const code = generateCode(data, type, targetlib);
-  return code || 'null';
+  return code && beautifier ? beautifier.html(code, beautifierConf.html): code || 'null'
 }
 
 function confrimGenerate(save: SaveType) {

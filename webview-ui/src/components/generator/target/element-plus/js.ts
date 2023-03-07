@@ -14,10 +14,15 @@ function buildData(scheme: ComponentItemJson, dataList: string[]) {
 function buildOptions(scheme: ComponentItemJson, optionsList: string[]) {
   if (scheme.__vModel__ === undefined) return;
   let { options } = scheme;
-  if (!options && scheme.__slot__ && scheme.__slot__.options) options = scheme.__slot__.options;
   if (scheme.__config__.dataType === "dynamic") {
     options = [];
   }
+  if (!options && scheme.__slot__ && scheme.__slot__.options) {
+    options = scheme.__slot__.options;
+  } else if(!options) {
+    return
+  }
+
   const str = `const ${scheme.__vModel__}Options = reactive(
     ${JSON.stringify(options)}
   )`;

@@ -1,3 +1,5 @@
+declare var  beautifier:any
+
 type UiType =
   | "input"
   | "textarea"
@@ -19,7 +21,7 @@ type CompItemConf = {
   tag?: string;
   defaultValue?: any;
   required?: boolean;
-  layout?: 'colFormItem' | 'rowFormItem' | 'raw';
+  layout?: "colFormItem" | "rowFormItem" | "raw";
   [propName: string]: any;
 };
 
@@ -95,6 +97,5 @@ interface FormConfig {
 }
 
 interface FormConf extends FormConfig {
-    fields: ComponentItemJson[];
-  }
-  
+  fields: ComponentItemJson[];
+}
