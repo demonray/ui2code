@@ -1,4 +1,4 @@
-declare var  beautifier:any
+declare var beautifier: any;
 
 type UiType =
   | "input"
@@ -98,4 +98,12 @@ interface FormConfig {
 
 interface FormConf extends FormConfig {
   fields: ComponentItemJson[];
+}
+
+interface IFiles {
+  [key: string]: {
+    content?: string;
+    code?: string;
+    isBinary: boolean;
+  };
 }

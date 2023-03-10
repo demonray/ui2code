@@ -126,7 +126,7 @@ import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
 import type { UploadFile } from "element-plus";
 import RightPanel from "./RightPanel.vue";
-import { 
+import {
   inputComponents,
   selectComponents,
   layoutComponents,
@@ -152,7 +152,7 @@ const leftComponents = [
   },
 ];
 
-const emit = defineEmits(["upload"]);
+const emit = defineEmits(["upload", "preview"]);
 
 let drawingList: ComponentItemJson[] = reactive([]);
 
@@ -247,12 +247,17 @@ function preview() {
 function previewSandbox() {
   const { targetlib } = saveType;
   const code = generate()
-  const parameters = generatePreview(targetlib, code)
-  if (sandboxForm.value) {
-    const form = sandboxForm.value as HTMLFormElement;
-    const p = form.children[0] as HTMLInputElement;
-    p.value = parameters;
-    form.submit();
+  const preview = 'local'
+  const parameters = generatePreview(targetlib, code, preview)
+  if (preview === 'local') {
+    emit('preview', parameters)
+  } else {
+    if (sandboxForm.value) {
+      const form = sandboxForm.value as HTMLFormElement;
+      const p = form.children[0] as HTMLInputElement;
+      p.value = parameters;
+      form.submit();
+    }
   }
 }
 

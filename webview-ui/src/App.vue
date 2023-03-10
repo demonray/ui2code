@@ -3,6 +3,7 @@
 import { ref, reactive, watch } from "vue";
 import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
+import Preview from "./Preview.vue";
 import Axios from "./utilities/request";
 import { getBase64 } from "./utilities/index";
 import DetectService from "./config/modelService";
@@ -752,12 +753,20 @@ watch([() => detectStatus.component, () => detectStatus.text], (v) => {
 });
 
 startDesign(uiResults, textResults);
+
+const designPreview = ref(false);
+let files = reactive({
+    data: {}
+})
+function onPreview(params:object) {
+    designPreview.value = true
+    files.data= params
+}
 </script>
 
 <template>
-  <main>
-    <design :json="designJson" :status="detectStatus.msg" @upload="onUpload" />
-  </main>
+  <preview v-if="designPreview" :files="files.data"></preview>
+  <design v-else :json="designJson" :status="detectStatus.msg" @upload="onUpload" @preview="onPreview" />
 </template>
 
 <style>
