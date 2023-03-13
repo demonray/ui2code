@@ -3,8 +3,8 @@
 </template>
 <script setup lang="ts">
 import { onMounted, toRaw } from "vue";
-
 import { loadSandpackClient } from "@codesandbox/sandpack-client";
+import DetectService from "./config/modelService";
 
 interface Props {
   files: IFiles;
@@ -13,20 +13,22 @@ const props = defineProps<Props>();
 
 async function main(files:IFiles) {
   // Iframe selector or element itself
-  const iframe = document.getElementById("iframe");
+  const iframe: HTMLElement | null = document.getElementById("iframe");
 
   // Files, environment and dependencies
-  const content: SandboxSetup = {
+  const content = {
     files: toRaw(files)
   };
 
   // Optional options
-  const options: ClientOptions = {
-    bundlerURL: "http://localhost:8080",
+  const options = {
+    bundlerURL: DetectService.BUNDLERURL,
     showOpenInCodeSandbox: false
   };
   // Properly load and mount the bundler
-  const client = await loadSandpackClient(iframe, content, options);
+  if (iframe) {
+    const client = await loadSandpackClient(iframe as HTMLIFrameElement, content, options);
+  }
 }
 
 onMounted(() => {
