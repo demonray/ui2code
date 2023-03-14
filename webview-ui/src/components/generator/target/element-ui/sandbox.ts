@@ -3,10 +3,10 @@ import { getParameters } from "codesandbox/lib/api/define";
 /**
  * 生成sandbox预览文件
  * @param tpl
- * @param type
+ * @param previewLocal
  * @returns
  */
-export function getSandboxTpl(tpl: string, type: string): string | object {
+export function getSandboxTpl(tpl: string, previewLocal: boolean): string | object {
   const files: IFiles = {
     "public/index.html": {
       isBinary: false,
@@ -54,7 +54,7 @@ new Vue({
       code: `{"scripts":{"serve":"vue-cli-service serve","build":"vue-cli-service build","lint":"vue-cli-service lint"},"dependencies":{"@vue/cli-plugin-babel":"4.1.1","element-ui":"2.13.2","vue":"^2.6.11"},"devDependencies":{"@vue/cli-plugin-eslint":"4.1.1","@vue/cli-service":"4.1.1","babel-eslint":"^10.0.3","eslint":"^6.7.2","eslint-plugin-vue":"^6.0.1","vue-template-compiler":"^2.6.11"},"eslintConfig":{"root":true,"env":{"node":true},"extends":["plugin:vue/essential","eslint:recommended"],"rules":{},"parserOptions":{"parser":"babel-eslint"}},"postcss":{"plugins":{"autoprefixer":{}}},"browserslist":["> 1%","last 2 versions","not ie <= 8"]}`,
     },
   };
-  if (type === "local") {
+  if (previewLocal) {
     return files;
   } else {
     Object.keys(files).forEach((it) => {

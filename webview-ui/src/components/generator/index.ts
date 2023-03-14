@@ -7,7 +7,7 @@ type LibInterface = {
   // 生成目标组件库代码
   generateCode: (data: FormConf, type: string) => string;
   // 生成sanbbox预览文件
-  getSandboxTpl: (tpl: string, preview:string) => string | object;
+  getSandboxTpl: (tpl: string, preview: boolean) => string | object;
 };
 
 const map: {
@@ -35,10 +35,10 @@ export function generateCode(data: FormConf, type: string, lib: LibType): string
  * 生成sandbox预览文件
  * @param type
  * @param lib
- * @param preview 'local' 私有化部署sandbox
+ * @param preview 是否私有化部署sandbox
  * @returns
  */
-export function generatePreview(lib: LibType, code: string, preview: string): string | object {
+export function generatePreview(lib: LibType, code: string, preview: boolean): string | object {
   if (map[lib]) {
     return map[lib].getSandboxTpl(code, preview);
   }

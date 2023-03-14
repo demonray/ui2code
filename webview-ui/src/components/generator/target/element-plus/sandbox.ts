@@ -3,10 +3,10 @@ import { getParameters } from "codesandbox/lib/api/define";
 /**
  * 生成sandbox预览文件
  * @param tpl
- * @param type
+ * @param previewLocal
  * @returns
  */
-export function getSandboxTpl(tpl: string, type: string): string | object {
+export function getSandboxTpl(tpl: string, previewLocal: boolean): string | object {
   const files: IFiles = {
     "index.html": {
       isBinary: false,
@@ -1553,7 +1553,7 @@ export function getSandboxTpl(tpl: string, type: string): string | object {
           `,
     },
   };
-  if (type === "local") {
+  if (previewLocal) {
     return files;
   } else {
     Object.keys(files).forEach((it) => {
