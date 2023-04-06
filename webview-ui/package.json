@@ -9,7 +9,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@codesandbox/sandpack-client": "^2.1.0",
+    "@codesandbox/sandpack-client": "^2.2.9",
     "axios": "^1.2.2",
     "clipboard": "^2.0.11",
     "codesandbox": "^2.2.3",
@@ -17,6 +17,7 @@
     "fs": "^0.0.1-security",
     "monaco-editor": "^0.34.1",
     "node-sass": "^8.0.0",
+    "sandpack-vue3": "^3.0.6",
     "sass": "^1.57.1",
     "vue": "^3.2.33",
     "vuedraggable": "^4.1.0"

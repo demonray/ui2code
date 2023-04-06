@@ -247,7 +247,7 @@ function preview() {
 function previewSandbox() {
   const { targetlib } = saveType;
   const code = generate()
-  const previewLocal = false
+  const previewLocal = true
   const parameters = generatePreview(targetlib, code, previewLocal)
   if (previewLocal) {
     emit('preview', parameters)
@@ -255,7 +255,7 @@ function previewSandbox() {
     if (sandboxForm.value) {
       const form = sandboxForm.value as HTMLFormElement;
       const p = form.children[0] as HTMLInputElement;
-      p.value = parameters;
+      p.value = parameters as string;
       form.submit();
     }
   }

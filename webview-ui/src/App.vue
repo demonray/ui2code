@@ -755,17 +755,18 @@ watch([() => detectStatus.component, () => detectStatus.text], (v) => {
 startDesign(uiResults, textResults);
 
 const designPreview = ref(false);
-let files = reactive({
+
+let previewConf = reactive({
     data: {}
 })
 function onPreview(params:object) {
     designPreview.value = true
-    files.data= params
+    previewConf.data= params
 }
 </script>
 
 <template>
-  <preview v-if="designPreview" :files="files.data"></preview>
+  <preview v-if="designPreview" :params="previewConf.data"></preview>
   <design v-else :json="designJson" :status="detectStatus.msg" @upload="onUpload" @preview="onPreview" />
 </template>
 

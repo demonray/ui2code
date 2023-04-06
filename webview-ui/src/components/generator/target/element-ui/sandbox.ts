@@ -55,7 +55,12 @@ new Vue({
     },
   };
   if (previewLocal) {
-    return files;
+    return { 
+        files,
+        main: "/src/App.vue",
+        template: "vue",
+        environment: "vue-cli"
+    };
   } else {
     Object.keys(files).forEach((it) => {
       const item = files[it];
