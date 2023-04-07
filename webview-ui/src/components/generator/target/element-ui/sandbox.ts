@@ -6,7 +6,7 @@ import { getParameters } from "codesandbox/lib/api/define";
  * @param previewLocal
  * @returns
  */
-export function getSandboxTpl(tpl: string, previewLocal: boolean): string | object {
+export function getSandboxTpl(tpl: string, previewLocal: boolean): string | SandboxTemplateConfig {
   const files: IFiles = {
     "public/index.html": {
       isBinary: false,
@@ -55,11 +55,11 @@ new Vue({
     },
   };
   if (previewLocal) {
-    return { 
-        files,
-        main: "/src/App.vue",
-        template: "vue",
-        environment: "vue-cli"
+    return {
+      files,
+      main: "/src/App.vue",
+      template: "vue",
+      environment: "vue-cli",
     };
   } else {
     Object.keys(files).forEach((it) => {

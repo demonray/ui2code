@@ -6,7 +6,7 @@ import { getParameters } from "codesandbox/lib/api/define";
  * @param previewLocal
  * @returns
  */
-export function getSandboxTpl(tpl: string, previewLocal: boolean): string | object {
+export function getSandboxTpl(tpl: string, previewLocal: boolean): string | SandboxTemplateConfig {
   const files: IFiles = {
     "index.html": {
       isBinary: false,

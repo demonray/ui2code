@@ -756,13 +756,20 @@ startDesign(uiResults, textResults);
 
 const designPreview = ref(false);
 
-let previewConf = reactive({
-    data: {}
+let previewConf = reactive<{data: SandboxTemplateConfig}>({
+    data: {
+        files: {},
+        template: 'vue',
+        main:'',
+        environment: 'vue-cli'
+    }
 })
-function onPreview(params:object) {
+
+function onPreview(params: SandboxTemplateConfig) {
     designPreview.value = true
     previewConf.data= params
 }
+
 </script>
 
 <template>

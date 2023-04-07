@@ -1,14 +1,11 @@
 <template>
   <SandpackProvider
-    :style="{width:'100%',height:'100%'}"
+    :style="{ width: '100%', height: '100%' }"
     :files="config.files"
     :template="config.template"
-    :options="{
-      bundlerTimeOut: 600000,
-      bundlerURL: config.Options.bundlerURL,
-    }"
+    :options="config.Options.providerOptions"
   >
-    <SandpackLayout style="height:100%">
+    <SandpackLayout style="height: 100%">
       <div class="playground-grid">
         <SandpackFileExplorer v-if="config.Components.FileExplorer" />
         <SandpackCodeEditor v-if="config.Components.Editor" v-bind="codeEditorOptions" />
@@ -29,56 +26,65 @@
 </template>
 <script setup lang="ts">
 import {
-  type CodeEditorProps,
-  SANDBOX_TEMPLATES,
-  SandpackCodeEditor,
-  SandpackFileExplorer,
-  SandpackLayout,
-  SandpackTests,
-  SandpackPreview,
-  SandpackProvider,
-  SandpackConsole,
-  Sandpack,
+    type CodeEditorProps,
+    SANDBOX_TEMPLATES,
+    SandpackCodeEditor,
+    SandpackFileExplorer,
+    SandpackLayout,
+    SandpackTests,
+    SandpackPreview,
+    SandpackProvider,
+    SandpackConsole,
+    Sandpack,
 } from "sandpack-vue3";
-import { type ComputedRef, computed, reactive, onMounted, toRaw } from "vue";
+import {
+    type ComputedRef,
+    computed,
+    reactive,
+    onMounted,
+    toRaw
+} from "vue";
 import DetectService from "./config/modelService";
 
 interface Props {
-    params: IFiles;
+    params: SandboxTemplateConfig;
 }
-const props = defineProps<Props>();
+const props = defineProps < Props > ();
 
 const config = reactive({
-  Components: {
-    FileExplorer: true,
-    Editor: true,
-    Preview: true,
-    Console: false,
-    Tests: false,
-  },
-  files: toRaw(props.params.files),
-  template: props.params.template,
-  Options: {
-    // bundlerURL: DetectService.BUNDLERURL,
-    // bundlerURL: 'https://2-0-17-sandpack.codesandbox.io/',
-    // bundlerURL: 'https://2-1-9-sandpack.codesandbox.io/',
-    showTabs: true,
-    showLineNumbers: true,
-    showInlineErrors: true,
-    closableTabs: true,
-    wrapContent: false,
-    readOnly: false,
-    showReadOnly: true,
-    showConsoleButton: true,
-    showConsole: true,
-    showOpenInCodeSandbox: false,
-    showNavigator: true,
-    showRefreshButton: true,
-    consoleShowHeader: false,
-  },
+    Components: {
+        FileExplorer: true,
+        Editor: true,
+        Preview: true,
+        Console: false,
+        Tests: false,
+    },
+    files: toRaw(props.params.files),
+    template: props.params.template,
+    Options: {
+        providerOptions: {
+            bundlerTimeOut: 600000,
+            // bundlerURL: DetectService.BUNDLERURL,
+            // bundlerURL: 'https://2-0-17-sandpack.codesandbox.io/',
+            // bundlerURL: 'https://2-1-9-sandpack.codesandbox.io/',
+        },
+        showTabs: true,
+        showLineNumbers: true,
+        showInlineErrors: true,
+        closableTabs: true,
+        wrapContent: false,
+        readOnly: false,
+        showReadOnly: true,
+        showConsoleButton: true,
+        showConsole: true,
+        showOpenInCodeSandbox: false,
+        showNavigator: true,
+        showRefreshButton: true,
+        consoleShowHeader: false,
+    },
 });
 
-const codeEditorOptions: ComputedRef<CodeEditorProps> = computed(() => ({
+const codeEditorOptions: ComputedRef < CodeEditorProps > = computed(() => ({
     showTabs: config.Options.showTabs,
     showLineNumbers: config.Options.showLineNumbers,
     showInlineErrors: config.Options.showInlineErrors,
@@ -86,10 +92,12 @@ const codeEditorOptions: ComputedRef<CodeEditorProps> = computed(() => ({
     closableTabs: config.Options.closableTabs,
     readOnly: config.Options.readOnly,
     showReadOnly: config.Options.showReadOnly,
-  }));
+}));
 
 onMounted(() => {
-    window.addEventListener("message", (event) => { console.log(event)})
+    window.addEventListener("message", (event) => {
+        // console.log(event)
+    })
 });
 </script>
 <style scoped>
@@ -97,6 +105,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
 }
+
 .playground-grid {
   display: flex;
   width: 100%;
@@ -104,7 +113,7 @@ onMounted(() => {
 }
 
 .playground-grid .sp-file-explorer {
-  flex:1
+  flex: 1;
 }
 
 .playground-grid .sp-editor {
@@ -113,6 +122,6 @@ onMounted(() => {
 }
 
 .playground-grid .sp-previe {
-  flex: 2
+  flex: 2;
 }
 </style>
