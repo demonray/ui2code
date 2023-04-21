@@ -215,9 +215,11 @@ onMounted(() => {
 
 function initDrawingList(json: DesignJson) {
   drawingList.length = 0;
-  json.fields.forEach((it: any) => {
-    drawingList.push(it);
-  });
+  if (json.fields) {
+    json.fields.forEach((it: any) => {
+      drawingList.push(it);
+    });
+  }
 }
 
 onUnmounted(() => {});
