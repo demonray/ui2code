@@ -21,10 +21,10 @@ watch([() => status.component, () => status.text], (v) => {
   }
 });
 
-// const {uiResults, textResults} = getResult()
-// const fields = useMergeDetectData(uiResults, textResults);
+const {uiResults, textResults} = getResult()
+const fields = useMergeDetectData(uiResults, textResults);
 
-let fields = useMergeDetectData([], []);
+// let fields = useMergeDetectData([], []);
 designJson.fields = fields;
 
 const designPreview = ref(false);

@@ -27,6 +27,7 @@
               <el-select v-model="formData.targetlib">
                 <el-option value="element-ui">element-ui-vue2</el-option>
                 <el-option value="element-plus">element-plus-vue3-ts</el-option>
+                <el-option value="fes-design">fes-design-vue3</el-option>
               </el-select>
             </el-form-item>
           </el-col>
