@@ -16,6 +16,7 @@ declare global {
     | "timerange"
     | "daterange"
     | "row"
+    | "table"
     | "default";
 
   type CompItemConf = {
@@ -66,6 +67,18 @@ declare global {
     text_region: TextRegion;
     x?: number;
     y?: number;
+  }
+
+  type structureTable = {
+    cell_bbox: Array<Array<number>>,
+    html: string
+  }
+
+  interface StructureItem {
+    type: string;
+    res: structureTable;
+    bbox: XYXY;
+    [key: string]: any;
   }
 
   interface DesignJson {

@@ -25,7 +25,7 @@ interface UiItem {
   textMatched?: Partial<Matchs>;
 }
 
-let fields: ComponentItemJson[] = []
+let fields: ComponentItemJson[] = [];
 
 /**
  * 查找对应组件设计器配置
@@ -364,7 +364,60 @@ function processConf(conf: ComponentItemJson) {
   }
 }
 
-export default function designData(uiResults: DetectItem[], textResults: TextItem[]) {
+/**
+ * table结构识别数据转换成设计器可识别的json代码
+ * @param data
+ * @returns
+ */
+function makeTableConf(data: StructureItem) {
+  const trs = [];
+  if (data.res.html) {
+    const reg = /<tr>.*?<\/tr>/g;
+    let result;
+    while ((result = reg.exec(data.res.html))) {
+      const breg = /<td>(.*?)<\/td>/g;
+      const tds = [];
+      let tdRes;
+      while ((tdRes = breg.exec(result[0]))) {
+        tds.push(tdRes[1]);
+      }
+      trs.push(tds);
+    }
+  }
+  const conf = findComponentConf("table");
+  if (trs.length) {
+    const data: Array<{}> = [];
+    trs.forEach((it, index) => {
+      if (index === 0) {
+        // 第一行为表头
+        conf.__config__.children = it.map((item, colIndex) => {
+          return {
+            __config__: {
+              layout: "raw",
+              tag: "el-table-column",
+            },
+            prop: `col_${colIndex}`, // todo
+            label: item,
+          };
+        });
+      } else {
+        const obj: { [propName: string]: any } = {};
+        it.forEach((item, colIndex) => {
+          obj[`col_${colIndex}`] = item;
+        });
+        data.push(obj);
+      }
+    });
+    conf.data = data;
+  }
+  return conf;
+}
+
+export default function designData(
+  uiResults: DetectItem[],
+  textResults: TextItem[],
+  structures: StructureItem[]
+) {
   fields = [];
   // 按Y排序
   uiResults.sort((a, b) => {
@@ -379,7 +432,12 @@ export default function designData(uiResults: DetectItem[], textResults: TextIte
       uiResults[i - 1] = tmp;
     }
   }
-
   convertJsonData(uiResults, textResults);
+  // todo 这里structures table 先不考虑位置，后续优化
+  structures.forEach((it) => {
+    if (it.type === "table") {
+      fields.push(makeTableConf(it));
+    }
+  });
   return fields;
 }

@@ -5,8 +5,9 @@ import Axios from "../utilities/request";
 import DetectService from "../config/modelService";
 
 type DetectStatus = {
-  text: "PROCESSING" | "PENDING" | "SUCCESS";
+  text: "PROCESSING" | "SUCCESS";
   component: "PROCESSING" | "PENDING" | "SUCCESS" | "FINISH";
+  structure: "PROCESSING" | "SUCCESS";
   msg: string;
 };
 
@@ -16,14 +17,17 @@ type DetectService = {
   getResult: () => {
     uiResults: DetectItem[];
     textResults: TextItem[];
+    structures: StructureItem[]
   };
-  status: DetectStatus;
+  detectStructure: (file: UploadFile) => void;
+  status: DetectStatus
 };
 
 export default function useDetectService(): DetectService {
   const detectStatus: DetectStatus = reactive({
     component: "PROCESSING",
     text: "PROCESSING",
+    structure: "PROCESSING",
     msg: "",
   });
 
@@ -235,6 +239,8 @@ export default function useDetectService(): DetectService {
     },
   ];
 
+  let structures: StructureItem[] = [{"type":"table","bbox":[0,0,1326,740],"res":{"cell_bbox":[[185.55055236816406,43.0648078918457,307.78790283203125,51.07573318481445,287.9521484375,78.95995330810547,165.904541015625,68.81842041015625],[606.2998046875,64.65746307373047,366.63751220703125,72.13361358642578,307.7749328613281,61.15046310424805,523.2098388671875,53.93317413330078],[870.8186645507812,60.14937210083008,675.6942749023438,65.77749633789062,599.2601318359375,68.79197692871094,792.5513916015625,62.49681854248047],[1128.0042724609375,58.34479904174805,1032.0770263671875,63.75145721435547,969.1015625,74.00433349609375,1071.688232421875,67.83892822265625],[295.02935791015625,200.51441955566406,216.89524841308594,223.71182250976562,180.2811737060547,215.24484252929688,244.97024536132812,192.517822265625],[624.277099609375,232.55772399902344,409.0141296386719,257.54718017578125,343.25054931640625,186.85780334472656,535.225830078125,167.09689331054688],[969.0553588867188,230.4658203125,782.5425415039062,256.1288757324219,699.86474609375,213.8118438720703,889.8897705078125,192.9844207763672],[1161.87744140625,235.4203643798828,1024.8115234375,257.611328125,958.2631225585938,213.41253662109375,1113.8553466796875,194.79257202148438],[298.5976867675781,403.1964111328125,256.1956481933594,430.8294372558594,216.0618133544922,429.5002746582031,251.21888732910156,402.7080078125],[776.329345703125,412.4643859863281,483.14093017578125,438.5457458496094,402.53216552734375,400.92095947265625,676.96923828125,375.540771484375],[1041.0472412109375,435.1838684082031,895.6309814453125,460.027587890625,823.8932495117188,391.2075500488281,976.3172607421875,367.6131591796875],[1182.202392578125,410.9286193847656,1063.899658203125,432.2633056640625,1002.6859130859375,401.0704650878906,1138.76220703125,381.3784484863281],[386.84716796875,625.748046875,217.3773956298828,643.5597534179688,189.85003662109375,623.7069702148438,341.0329284667969,604.1636352539062],[966.0667114257812,631.4271850585938,641.7783203125,647.5657348632812,554.9913330078125,616.2576904296875,885.541748046875,598.3418579101562],[1092.8974609375,657.5278930664062,934.5951538085938,668.805419921875,876.9769897460938,605.6126098632812,1044.2015380859375,589.3925170898438],[1212.6260986328125,656.1166381835938,1094.490478515625,666.6829223632812,1051.7115478515625,615.7734985351562,1185.534423828125,601.8482055664062]],"html":"<html><body><table><tr><td>日期</td><td>姓名</td><td>地址</td><td>操作</td></tr><tr><td>2016-05-01</td><td>上海市普陀区 王小虎 弄</td><td>金沙江路1516</td><td>编辑 删除</td></tr><tr><td>2016-05-02</td><td>上海市普陀区 王小虎 金沙江路1516 弄</td><td>编辑</td><td>删除</td></tr><tr><td>2016-05-03 王小虎</td><td>上海市普陀区 金沙江路1516 弄</td><td>编辑</td><td>删除</td></tr></table></body></html>"},"img_idx":0}] ;
+
   /**
    * 获取文本检查结果
    */
@@ -243,7 +249,7 @@ export default function useDetectService(): DetectService {
     detectStatus.text = "PROCESSING";
     const images = await getBase64(uploadFile.raw as Blob);
     Axios({
-      url: DetectService.OCR,
+      url: `${DetectService.OCR}predict-by-base64`,
       method: "post",
       data: {
         base64_str: images.replace(/data:image\/.+;base64,/, ""),
@@ -255,6 +261,34 @@ export default function useDetectService(): DetectService {
       .then((res) => {
         textResults = res.data.data;
         detectStatus.text = "SUCCESS";
+      })
+      .catch((error) => {
+        // 请求失败，
+        console.log(error);
+      });
+  }
+
+  /**
+   * 表格识别
+   */
+  async function getStructureData(uploadFile: UploadFile) {
+    structures = [];
+    detectStatus.text = "PROCESSING";
+    let data = new FormData();
+    if (uploadFile.raw) {
+      data.append("file", uploadFile.raw);
+    }
+    Axios({
+      url: `${DetectService.OCR}predict-structure`,
+      method: "post",
+      data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+      .then((res) => {
+        structures = res.data.data;
+        detectStatus.structure = "SUCCESS";
       })
       .catch((error) => {
         // 请求失败，
@@ -299,9 +333,6 @@ export default function useDetectService(): DetectService {
       method: "get",
     })
       .then((res) => {
-        // result: ""
-        // status: "PENDING"
-        // task_id: "7bfd83e5-17e2-4650-8476-7e573b4b2b03"
         detectStatus.component = res.data.status;
         if (res.data && res.data.status === "PENDING") {
           setTimeout(() => {
@@ -348,13 +379,10 @@ export default function useDetectService(): DetectService {
       });
   }
 
-  watch([() => detectStatus.component, () => detectStatus.text], (v) => {
-    if (v[0] === "FINISH" && v[1] === "SUCCESS") {
+  watch([() => detectStatus.component, () => detectStatus.text, () => detectStatus.structure], (v) => {
+    if (v[0] === "FINISH" && v[1] === "SUCCESS" && v[2] === "SUCCESS") {
       detectStatus.msg = "";
-    }
-    const loading =
-      ["PROCESSING", "PENDING"].indexOf(v[0]) > -1 || ["PROCESSING", "PENDING"].indexOf(v[1]) > -1;
-    if (loading) {
+    } else {
       detectStatus.msg = "模型识别中...";
     }
   });
@@ -362,9 +390,10 @@ export default function useDetectService(): DetectService {
   return {
     status: detectStatus,
     getResult: () => {
-      return { textResults, uiResults };
+      return { textResults, uiResults, structures };
     },
     detectUI: processUIDetect,
     detectText: getTextDetectData,
+    detectStructure: getStructureData
   };
 }

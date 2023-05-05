@@ -7,22 +7,22 @@ import Preview from "./Preview.vue";
 import useDetectService from "./hooks/useDetectService";
 import useMergeDetectData from "./hooks/useMergeDetectData";
 
-const { status, detectUI, detectText, getResult } = useDetectService();
+const { status, detectUI, detectText, detectStructure, getResult } = useDetectService();
 
 let designJson: DesignJson = reactive({
     fields: []
 });
 
-watch([() => status.component, () => status.text], (v) => {
-  const {uiResults, textResults} = getResult()
-  if (v[0] === "FINISH" && v[1] === "SUCCESS") {
-    const fields = useMergeDetectData(uiResults, textResults);
+watch([() => status.component, () => status.text, () => status.structure], (v) => {
+  const {uiResults, textResults, structures} = getResult()
+  if (v[0] === "FINISH" && v[1] === "SUCCESS" && v[2] === "SUCCESS") {
+    const fields = useMergeDetectData(uiResults, textResults, structures);
     designJson.fields = fields
   }
 });
 
-const {uiResults, textResults} = getResult()
-const fields = useMergeDetectData(uiResults, textResults);
+const {uiResults, textResults, structures} = getResult()
+const fields = useMergeDetectData(uiResults, textResults, structures);
 
 // let fields = useMergeDetectData([], []);
 designJson.fields = fields;
@@ -41,6 +41,7 @@ let previewConf = reactive<{ data: SandboxTemplateConfig }>({
 function onUpload(uploadFile: UploadFile) {
   detectUI(uploadFile);
   detectText(uploadFile);
+  detectStructure(uploadFile);
 }
 
 function onPreview(params: SandboxTemplateConfig) {

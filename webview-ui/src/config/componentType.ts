@@ -1,5 +1,5 @@
 // 表单属性【右面板】
-export const formConfig:FormConfig = {
+export const formConfig: FormConfig = {
   formRef: "elForm",
   formModel: "formData",
   size: "small",
@@ -13,10 +13,10 @@ export const formConfig:FormConfig = {
 };
 
 // 输入型组件 【左面板】
-export const inputComponents:ComponentItemJson[] = [
+export const inputComponents: ComponentItemJson[] = [
   {
     // 组件的自定义配置
-    "__config__": {
+    __config__: {
       label: "单行文本",
       labelWidth: null,
       showLabel: true,
@@ -31,18 +31,18 @@ export const inputComponents:ComponentItemJson[] = [
       regList: [],
     },
     // 组件的插槽属性
-    "__slot__": {
+    __slot__: {
       prepend: "",
       append: "",
     },
     // 其余的为可直接写在组件标签上的属性
-    "placeholder": "请输入",
-    "readonly": false,
-    "disabled": false,
-    "type": "input"
+    placeholder: "请输入",
+    readonly: false,
+    disabled: false,
+    type: "input",
   },
   {
-    "__config__": {
+    __config__: {
       label: "多行文本",
       labelWidth: null,
       showLabel: true,
@@ -55,35 +55,35 @@ export const inputComponents:ComponentItemJson[] = [
       regList: [],
       changeTag: true,
     },
-    "placeholder": "请输入",
-    "readonly": false,
-    "disabled": false,
-    "type": "textarea",
+    placeholder: "请输入",
+    readonly: false,
+    disabled: false,
+    type: "textarea",
   },
-// todo add counter type
-//   {
-//     "__config__": {
-//       label: "计数器",
-//       showLabel: true,
-//       changeTag: true,
-//       labelWidth: null,
-//       tag: "el-input-number",
-//       tagIcon: "number",
-//       defaultValue: undefined,
-//       span: 24,
-//       layout: "colFormItem",
-//       required: true,
-//       regList: [],
-//     },
-//     "placeholder": "",
-//     "readonly": false,
-//     "disabled": false,
-//     "type": "counter",
-//   },
+  // todo add counter type
+  //   {
+  //     "__config__": {
+  //       label: "计数器",
+  //       showLabel: true,
+  //       changeTag: true,
+  //       labelWidth: null,
+  //       tag: "el-input-number",
+  //       tagIcon: "number",
+  //       defaultValue: undefined,
+  //       span: 24,
+  //       layout: "colFormItem",
+  //       required: true,
+  //       regList: [],
+  //     },
+  //     "placeholder": "",
+  //     "readonly": false,
+  //     "disabled": false,
+  //     "type": "counter",
+  //   },
 ];
 
 // 选择型组件 【左面板】
-export const selectComponents:ComponentItemJson[] = [
+export const selectComponents: ComponentItemJson[] = [
   {
     __config__: {
       label: "下拉选择",
@@ -112,7 +112,7 @@ export const selectComponents:ComponentItemJson[] = [
     placeholder: "请选择",
     disabled: false,
     readonly: false,
-    type: "select"
+    type: "select",
   },
   {
     __config__: {
@@ -144,7 +144,7 @@ export const selectComponents:ComponentItemJson[] = [
     },
     disabled: false,
     readonly: false,
-    type: "radio"
+    type: "radio",
   },
   {
     __config__: {
@@ -176,10 +176,10 @@ export const selectComponents:ComponentItemJson[] = [
     },
     disabled: false,
     readonly: false,
-    type: "checkbox"
+    type: "checkbox",
   },
   {
-    "__config__": {
+    __config__: {
       label: "开关",
       tag: "el-switch",
       tagIcon: "switch",
@@ -194,29 +194,29 @@ export const selectComponents:ComponentItemJson[] = [
     },
     disabled: false,
     readonly: false,
-    type: "switch"
+    type: "switch",
   },
-// todo
-//   {
-//     "__config__": {
-//       label: "滑块",
-//       tag: "el-slider",
-//       tagIcon: "slider",
-//       defaultValue: null,
-//       span: 24,
-//       showLabel: true,
-//       layout: "colFormItem",
-//       labelWidth: null,
-//       required: true,
-//       regList: [],
-//       changeTag: true,
-//     },
-//     disabled: false,
-//     readonly: false,
-//     type: "slider"
-//   },
+  // todo
+  //   {
+  //     "__config__": {
+  //       label: "滑块",
+  //       tag: "el-slider",
+  //       tagIcon: "slider",
+  //       defaultValue: null,
+  //       span: 24,
+  //       showLabel: true,
+  //       layout: "colFormItem",
+  //       labelWidth: null,
+  //       required: true,
+  //       regList: [],
+  //       changeTag: true,
+  //     },
+  //     disabled: false,
+  //     readonly: false,
+  //     type: "slider"
+  //   },
   {
-    "__config__": {
+    __config__: {
       label: "时间选择",
       tag: "el-time-picker",
       tagIcon: "time",
@@ -232,10 +232,10 @@ export const selectComponents:ComponentItemJson[] = [
     placeholder: "请选择",
     disabled: false,
     readonly: false,
-    type: "timepicker"
+    type: "timepicker",
   },
   {
-    "__config__": {
+    __config__: {
       label: "时间范围",
       tag: "el-time-picker",
       tagIcon: "time-range",
@@ -251,10 +251,10 @@ export const selectComponents:ComponentItemJson[] = [
     placeholder: "请选择",
     disabled: false,
     readonly: false,
-    type: "timerange"
+    type: "timerange",
   },
   {
-    "__config__": {
+    __config__: {
       label: "日期选择",
       tag: "el-date-picker",
       tagIcon: "date",
@@ -270,10 +270,10 @@ export const selectComponents:ComponentItemJson[] = [
     placeholder: "请选择",
     disabled: false,
     readonly: false,
-    type: "datepicker"
+    type: "datepicker",
   },
   {
-    "__config__": {
+    __config__: {
       label: "日期范围",
       tag: "el-date-picker",
       tagIcon: "date-range",
@@ -289,19 +289,19 @@ export const selectComponents:ComponentItemJson[] = [
     placeholder: "请选择",
     disabled: false,
     readonly: false,
-    type: "daterange"
-  }
+    type: "daterange",
+  },
 ];
 
 // 布局型组件 【左面板】
-export const layoutComponents:ComponentItemJson[] = [
+export const layoutComponents: ComponentItemJson[] = [
   {
     __config__: {
       layout: "rowFormItem",
       tagIcon: "row",
       label: "行容器",
       layoutTree: true,
-      children: []
+      children: [],
     },
     type: "row",
     justify: "start",
@@ -325,88 +325,37 @@ export const layoutComponents:ComponentItemJson[] = [
     disabled: false,
     readonly: false,
   },
-//   {
-//     __config__: {
-//       layout: "colFormItem",
-//       tagIcon: "table",
-//       tag: "el-table",
-//       span: 24,
-//       formId: 101,
-//       renderKey: 1595761764203,
-//       componentName: "row101",
-//       showLabel: true,
-//       changeTag: true,
-//       labelWidth: null,
-//       label: "表格[开发中]",
-//       dataType: "dynamic",
-//       method: "get",
-//       dataPath: "list",
-//       dataConsumer: "data",
-//       url: "https://www.fastmock.site/mock/f8d7a54fb1e60561e2f720d5a810009d/fg/tableData",
-//       children: [
-//         {
-//           __config__: {
-//             layout: "raw",
-//             tag: "el-table-column",
-//             renderKey: 15957617660153,
-//           },
-//           prop: "date",
-//           label: "日期",
-//         },
-//         {
-//           __config__: {
-//             layout: "raw",
-//             tag: "el-table-column",
-//             renderKey: 15957617660152,
-//           },
-//           prop: "address",
-//           label: "地址",
-//         },
-//         {
-//           __config__: {
-//             layout: "raw",
-//             tag: "el-table-column",
-//             renderKey: 15957617660151,
-//           },
-//           prop: "name",
-//           label: "名称",
-//         },
-//         {
-//           __config__: {
-//             layout: "raw",
-//             tag: "el-table-column",
-//             renderKey: 1595774496335,
-//             children: [
-//               {
-//                 __config__: {
-//                   label: "按钮",
-//                   tag: "el-button",
-//                   tagIcon: "button",
-//                   layout: "raw",
-//                   renderKey: 1595779809901,
-//                 },
-//                 __slot__: {
-//                   default: "主要按钮",
-//                 },
-//                 type: "primary",
-//                 icon: "el-icon-search",
-//                 round: false,
-//                 size: "medium",
-//               },
-//             ],
-//           },
-//           label: "操作",
-//         },
-//       ],
-//     },
-//     data: [],
-//     directives: [
-//       {
-//         name: "loading",
-//         value: true,
-//       },
-//     ],
-//     border: true,
-//     type: "table",
-//   },
+  {
+    __config__: {
+      layout: "colFormItem",
+      tagIcon: "table",
+      tag: "el-table",
+      span: 24,
+      labelWidth: null,
+      showLabel: false,
+      label: "表格",
+      dataType: "dynamic",
+      children: [
+        {
+          __config__: {
+            layout: "raw",
+            tag: "el-table-column",
+          },
+          prop: "date",
+          label: "日期",
+        },
+        {
+          __config__: {
+            layout: "raw",
+            tag: "el-table-column",
+          },
+          prop: "address",
+          label: "地址",
+        },
+      ],
+    },
+    data: [],
+    border: true,
+    type: "table",
+  },
 ];
