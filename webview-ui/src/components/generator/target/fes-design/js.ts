@@ -3,11 +3,18 @@ import { deepClone } from "../../../../utilities/index";
 let confGlobal: FormConf | null = null;
 
 // 构建data
-function buildData(scheme: ComponentItemJson, dataList: string[]) {
+function buildData(scheme: ComponentItemJson, dataList: string[], formData: boolean) {
   const config = scheme.__config__;
   if (scheme.__vModel__ === undefined) return;
-  const defaultValue = JSON.stringify(config.defaultValue);
-  dataList.push(`${scheme.__vModel__}: ${defaultValue}`);
+  if (formData) {
+    const defaultValue = JSON.stringify(config.defaultValue);
+    dataList.push(`${scheme.__vModel__}: ${defaultValue}`);
+  } else {
+    const str = `const ${scheme.__vModel__} = reactive(
+        ${JSON.stringify(scheme.data)}
+      )`;
+    dataList.push(str);
+  }
 }
 
 // 构建options
@@ -36,23 +43,27 @@ function buildOptions(scheme: ComponentItemJson, optionsList: string[]) {
  */
 export function makeUpJs(formConfig: FormConf, type: string) {
   confGlobal = formConfig = deepClone(formConfig);
+  const formDataList: any[] = [];
   const dataList: any[] = [];
   const ruleList: any[] = [];
-  const optionsList: any[] = [];
 
   formConfig.fields.forEach((item) => {
-    buildData(item, dataList);
-    buildOptions(item, optionsList);
+    if (item.type === 'table') {
+        buildData(item, dataList, false);
+    } else {
+        buildData(item, formDataList, true);
+        buildOptions(item, dataList);
+    }
   });
 
   confGlobal = null;
   return `<script lang="ts" setup>
     import { reactive } from 'vue'
-    import {FForm,FFormItem,FCheckboxGroup,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch} from './lib/fes-design.js'
+    import {FForm,FFormItem,FCheckboxGroup,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch,FTable,FTableColumn} from './lib/fes-design.js'
     const ${formConfig.formModel} = reactive({
-        ${dataList}     
+        ${formDataList}     
     })
-    ${optionsList.join('\n')}
+    ${dataList.join('\n')}
     const ${formConfig.formRules} = reactive(${JSON.stringify(ruleList)})
     </script>`;
 }

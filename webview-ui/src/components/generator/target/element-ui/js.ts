@@ -1,11 +1,6 @@
 import { exportDefault, titleCase, deepClone } from "../../../../utilities/index";
 import ruleTrigger from "./ruleTrigger";
 
-const units = {
-  KB: "1024",
-  MB: "1024 / 1024",
-  GB: "1024 / 1024 / 1024",
-};
 let confGlobal: FormConf | null = null;
 
 /**
@@ -18,32 +13,29 @@ export function makeUpJs(formConfig: FormConf, type: string) {
   const dataList: any[] = [];
   const ruleList: any[] = [];
   const optionsList: any[] = [];
-  const propsList: any[] = [];
   const methodList = mixinMethod(type);
-  const uploadVarList: any[] = [];
   const created: any[] = [];
 
+  const tableList: any[] = [];
   formConfig.fields.forEach((el) => {
-    buildAttributes(
-      el,
-      dataList,
-      ruleList,
-      optionsList,
-      methodList,
-      propsList,
-      uploadVarList,
-      created
-    );
+    if (el.type === "table") {
+      tableList.push(`${el.__vModel__}: ${JSON.stringify(el.data)},`);
+    } else {
+      buildAttributes(el, dataList, ruleList, optionsList, methodList, created);
+    }
   });
+
+  const dataStr = `${formConfig.formModel}: {
+    ${dataList.join("\n")}
+  },
+  ${tableList.join("\n")}`;
 
   const script = buildexport(
     formConfig,
     type,
-    dataList.join("\n"),
+    dataStr,
     ruleList.join("\n"),
     optionsList.join("\n"),
-    uploadVarList.join("\n"),
-    propsList.join("\n"),
     methodList.join("\n"),
     created.join("\n")
   );
@@ -58,8 +50,6 @@ function buildAttributes(
   ruleList: any[],
   optionsList: any[],
   methodList: any[],
-  propsList: any[],
-  uploadVarList: any[],
   created: any[]
 ) {
   const config = scheme.__config__;
@@ -78,26 +68,10 @@ function buildAttributes(
       callInCreated(methodName, created);
     }
   }
-
-  // 处理props
-  if (scheme.props && scheme.props.props) {
-    buildProps(scheme, propsList);
-  }
-
-
   // 构建子级组件属性
-  if (config.children) {
+  if (config.children && config.layout === "rowItem") {
     config.children.forEach((item: any) => {
-      buildAttributes(
-        item,
-        dataList,
-        ruleList,
-        optionsList,
-        methodList,
-        propsList,
-        uploadVarList,
-        created
-      );
+      buildAttributes(item, dataList, ruleList, optionsList, methodList, created);
     });
   }
 }
@@ -111,22 +85,23 @@ function callInCreated(methodName: string, created: string[]) {
 function mixinMethod(type: string) {
   const list: any[] = [];
   const minxins = {
-    file: confGlobal && confGlobal.formBtns
-      ? {
-          submitForm: `submitForm() {
+    file:
+      confGlobal && confGlobal.formBtns
+        ? {
+            submitForm: `submitForm() {
         this.$refs['${confGlobal.formRef}'].validate(valid => {
           if(!valid) return
           // TODO 提交表单
         })
       },`,
-          resetForm: `resetForm() {
+            resetForm: `resetForm() {
         this.$refs['${confGlobal.formRef}'].resetFields()
       },`,
-        }
-      : null
+          }
+        : null,
   };
 
-  const methods = type === 'file' && minxins[type];
+  const methods = type === "file" && minxins[type];
   if (methods) {
     Object.keys(methods).forEach((key) => {
       list.push(methods[key]);
@@ -161,11 +136,11 @@ function buildRules(scheme: ComponentItemJson, ruleList: string[]) {
       );
     }
     if (config.regList && Array.isArray(config.regList)) {
-      config.regList.forEach((item: { pattern: string; message: any; }) => {
+      config.regList.forEach((item: { pattern: string; message: any }) => {
         if (item.pattern) {
           rules.push(
             `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${
-                config.tag ? ruleTrigger[config.tag] : ''
+              config.tag ? ruleTrigger[config.tag] : ""
             }' }`
           );
         }
@@ -187,43 +162,49 @@ function buildOptions(scheme: ComponentItemJson, optionsList: string[]) {
   optionsList.push(str);
 }
 
-function buildProps(scheme: ComponentItemJson, propsList: string[]) {
-  const str = `${scheme.__vModel__}Props: ${JSON.stringify(scheme.props.props)},`;
-  propsList.push(str);
-}
-
-
-function buildOptionMethod(methodName: string, model: string, methodList: string[], scheme: { __config__: any; }) {
+function buildOptionMethod(
+  methodName: string,
+  model: string,
+  methodList: string[],
+  scheme: { __config__: any }
+) {
   const config = scheme.__config__;
-  const str = `${methodName}() {
-    // 注意：this.$axios是通过Vue.prototype.$axios = axios挂载产生的
-    this.$axios({
-      method: '${config.method}',
-      url: '${config.url}'
-    }).then(resp => {
-      var { data } = resp
-      this.${model} = data.${config.dataPath}
-    })
-  },`;
-  methodList.push(str);
+  let str = "";
+  if (config.url) {
+    str = `${methodName}() {
+        // 注意：this.$axios是通过Vue.prototype.$axios = axios挂载产生的
+        this.$axios({
+          method: '${config.method}',
+          url: '${config.url}'
+        }).then(resp => {
+          var { data } = resp
+          this.${model} = data.${config.dataPath}
+        })
+      },`;
+  }
+  if (str) methodList.push(str);
 }
 
 // js整体拼接
-function buildexport(conf: FormConf, type: string, data: string, rules: string, selectOptions: string, uploadVar: string, props: string, methods: string, created: string) {
+function buildexport(
+  conf: FormConf,
+  type: string,
+  data: string,
+  rules: string,
+  selectOptions: string,
+  methods: string,
+  created: string
+) {
   const str = `${exportDefault}{
   components: {},
   props: [],
   data () {
     return {
-      ${conf.formModel}: {
-        ${data}
-      },
+      ${data}
       ${conf.formRules}: {
         ${rules}
       },
-      ${uploadVar}
       ${selectOptions}
-      ${props}
     }
   },
   computed: {},

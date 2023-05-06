@@ -25,7 +25,7 @@ declare global {
     tag?: string;
     defaultValue?: any;
     required?: boolean;
-    layout?: "colFormItem" | "rowFormItem" | "raw";
+    layout?: "colItem" | "rowItem" | "raw";
     [propName: string]: any;
   };
 
@@ -47,6 +47,7 @@ declare global {
     placeholder?: string;
     readonly?: boolean;
     disabled?: boolean;
+    children?: ComponentItemJson[]
     [propName: string]: any;
   }
 

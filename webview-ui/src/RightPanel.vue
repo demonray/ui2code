@@ -50,13 +50,13 @@
             />
           </el-form-item>
           <el-form-item
-            v-if="activeData.__config__.layout === 'rowFormItem' && activeData.gutter !== undefined"
+            v-if="activeData.__config__.layout === 'rowItem' && activeData.gutter !== undefined"
             label="栅格间隔"
           >
             <el-input-number v-model="activeData.gutter" :min="0" placeholder="栅格间隔" />
           </el-form-item>
           <el-form-item
-            v-if="activeData.__config__.layout === 'rowFormItem' && activeData.lyoutType !== undefined"
+            v-if="activeData.__config__.layout === 'rowItem' && activeData.lyoutType !== undefined"
             label="布局模式"
           >
             <el-radio-group v-model="activeData.lyoutType">
@@ -351,7 +351,11 @@
                 />
                 <div
                   class="close-btn select-line-icon"
-                  @click="activeData.__slot__ && activeData.__slot__.options && activeData.__slot__.options.splice(index, 1)"
+                  @click="
+                    activeData.__slot__ &&
+                      activeData.__slot__.options &&
+                      activeData.__slot__.options.splice(index, 1)
+                  "
                 >
                   <svg-icon name="delete" />
                 </div>
@@ -658,6 +662,7 @@ function addReg() {
     message: "",
   });
 }
+
 function addSelectItem() {
   props.activeData?.__slot__?.options?.push({
     label: "",
@@ -678,6 +683,7 @@ function setDefaultValue(val: any) {
   }
   return val;
 }
+
 function onDefaultValueInput(str: string) {
   if (Array.isArray(props.activeData.__config__.defaultValue)) {
     // 数组
@@ -692,6 +698,7 @@ function onDefaultValueInput(str: string) {
     props.activeData.__config__.defaultValue = isNumberStr(str) ? +str : str;
   }
 }
+
 function onSwitchValueInput(val: any, name: string) {
   if (["true", "false"].indexOf(val) > -1) {
     props.activeData[name] = JSON.parse(val);
@@ -699,6 +706,7 @@ function onSwitchValueInput(val: any, name: string) {
     props.activeData[name] = isNumberStr(val) ? +val : val;
   }
 }
+
 function setTimeValue(val: string, type?: string) {
   const valueFormat = type === "week" ? dateTimeFormat.date : val;
   props.activeData.__config__.defaultValue = null;
@@ -709,12 +717,15 @@ function setTimeValue(val: string, type?: string) {
 function spanChange(val: number) {
   props.formConf.span = val;
 }
+
 function multipleChange(val: boolean) {
   props.activeData.__config__.defaultValue = val ? [] : "";
 }
+
 function dateTypeChange(val: keyof typeof dateTimeFormat) {
   setTimeValue(dateTimeFormat[val], val);
 }
+
 function rangeChange(val: boolean) {
   props.activeData.__config__.defaultValue = val
     ? [props.activeData.min, props.activeData.max]
@@ -725,9 +736,11 @@ function openIconsDialog(model: string) {
   iconsVisible.value = true;
   currentIconModel.value = model;
 }
+
 function setIcon(val: string) {
   props.activeData[currentIconModel.value] = val;
 }
+
 function tagChange(tagIcon: string) {
   let target = inputComponents.find((item) => item.__config__.tagIcon === tagIcon);
   if (!target) target = selectComponents.find((item) => item.__config__.tagIcon === tagIcon);
@@ -742,47 +755,58 @@ function tagChange(tagIcon: string) {
   right: 0;
   top: 0;
   padding-top: 3px;
+
   .field-box {
     position: relative;
     height: calc(100vh - 42px);
     box-sizing: border-box;
     overflow: hidden;
   }
+
   .el-scrollbar {
     height: 100%;
   }
 }
+
 .select-item {
   display: flex;
   border: 1px dashed #fff;
   box-sizing: border-box;
+
   & .close-btn {
     cursor: pointer;
     color: #f56c6c;
   }
+
   & .el-input + .el-input {
     margin-left: 4px;
   }
 }
+
 .select-item + .select-item {
   margin-top: 4px;
 }
+
 .select-item.sortable-chosen {
   border: 1px dashed #409eff;
 }
+
 .select-line-icon {
   line-height: 32px;
   font-size: 22px;
   padding: 0 4px;
   color: #777;
 }
+
 .option-drag {
   cursor: move;
 }
+
 .time-range {
   .el-date-editor {
     width: 227px;
   }
+
   ::v-deep .el-icon-time {
     display: none;
   }
@@ -791,6 +815,7 @@ function tagChange(tagIcon: string) {
 .node-label {
   font-size: 14px;
 }
+
 .node-icon {
   color: #bebfc3;
 }

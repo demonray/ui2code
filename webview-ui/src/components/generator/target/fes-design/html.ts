@@ -14,7 +14,7 @@ function colWrapper(scheme: ComponentItemJson, str: string) {
 }
 
 const layouts = {
-  colFormItem(scheme: ComponentItemJson) {
+  colItem(scheme: ComponentItemJson) {
     const config = scheme.__config__;
     let labelWidth = "";
     let label = `label="${config.label}"`;
@@ -33,7 +33,7 @@ const layouts = {
     str = colWrapper(scheme, str);
     return str;
   },
-  rowFormItem(scheme: ComponentItemJson) {
+  rowItem(scheme: ComponentItemJson) {
     const config = scheme.__config__;
     const type = scheme.type === "default" ? "" : `type="${scheme.type}"`;
     const justify = scheme.type === "default" ? "" : `justify="${scheme.justify}"`;
@@ -49,7 +49,9 @@ const layouts = {
     return str;
   },
   raw(scheme: ComponentItemJson) {
-    return "";
+    const config = scheme.__config__;
+    const tagDom = config.tag && tags[config.tag] ? tags[config.tag](scheme) : "";
+    return tagDom;
   },
 };
 
@@ -149,6 +151,14 @@ const tags: TagTemplate = {
         : "";
 
     return `<${tag} ${vModel} ${activeText} ${inactiveText} ${activeColor} ${inactiveColor} ${activeValue} ${inactiveValue} ${disabled}></${tag}>`;
+  },
+  "el-table": (el: ComponentItemJson) => {
+    let child = buildElTableChild(el);
+    if (child) child = `\n${child}\n`; // 换行
+    const tag = 'FTable'
+    // data height border size fit highlight-current-row
+    const data = `:data="${el.__vModel__}"`;
+    return `<${tag} ${data}>${child}</${tag}>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -278,6 +288,18 @@ function buildElInputChild(scheme: ComponentItemJson) {
   return children.join("\n");
 }
 
+// el-table 子级
+function buildElTableChild(scheme: ComponentItemJson) {
+    let children: string[] = [];
+    if (scheme.__config__.children) {
+      children = scheme.__config__.children.map((it: ComponentItemJson) => {
+        const prop = it.prop ? `prop="${it.prop}"` : "";
+        const label = it.label ? `label="${it.label}"` : "";
+        return `<FTableColumn ${prop} ${label}/>`;
+      });
+    }
+    return children.join("\n");
+  }
 // el-select 子级
 function buildElSelectChild(scheme: ComponentItemJson) {
   const children = [];
@@ -391,15 +413,25 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
   confGlobal = formConfig;
   // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
   someSpanIsNot24 = formConfig.fields.some((item) => item.__config__.span !== 24);
-  // 遍历渲染每个组件成html
+  // 遍历渲染每个组件成html  table组件代码不在form里
+  const tableList: string[] = [];
+
   formConfig.fields.forEach((el) => {
-    if (el.__config__.layout) {
-      htmlList.push(layouts[el.__config__.layout](el));
+    if (el.type !== "table") {
+      if (el.__config__.layout) {
+        htmlList.push(layouts[el.__config__.layout](el));
+      }
+    } else {
+      if (el.__config__.layout) {
+        tableList.push(layouts[el.__config__.layout](el));
+      }
     }
   });
+
   const htmlStr = htmlList.join("\n");
+  const tableStr = tableList.join("\n");
   // 将组件代码放进form标签
-  let temp = buildFormTemplate(formConfig, htmlStr, type);
+  let temp = buildFormTemplate(formConfig, htmlStr, type) + tableStr;
   // dialog标签包裹代码
   if (type === "dialog") {
     temp = dialogWrapper(temp);

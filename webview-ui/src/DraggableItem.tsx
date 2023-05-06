@@ -36,7 +36,7 @@ const components = {
   },
 };
 const layouts = {
-  colFormItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+  colItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
     const { active, actived } = opts;
     const config = currentItem.__config__;
     const child = renderChildren(currentItem, index, opts);
@@ -63,7 +63,7 @@ const layouts = {
       </el-col>
     );
   },
-  rowFormItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+  rowItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
     const { active, actived } = opts;
     const config = currentItem.__config__;
     const className = actived ? "drawing-row-item active-from-item" : "drawing-row-item";
@@ -178,16 +178,16 @@ export default defineComponent({
       };
     });
     let itemOpts: ItemOpts = reactive({
-        actived: props.activeIndex === props.index,
-        active,
-        deleteItem,
-        copy,
+      actived: props.activeIndex === props.index,
+      active,
+      deleteItem,
+      copy,
     });
     watch(props, (v) => {
-        itemOpts.actived = v.activeIndex === v.index
-    })
+      itemOpts.actived = v.activeIndex === v.index;
+    });
     const layout = layouts[config.value.layout as keyof typeof layouts];
-    
+
     if (layout) {
       return () => layout(props.currentItem, props.index, itemOpts);
     }
