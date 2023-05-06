@@ -1,4 +1,3 @@
-// todo 扩展支持table这种非form表单的组件定义
 // 表单属性【右面板】
 export const formConfig: FormConfig = {
   formRef: "elForm",
@@ -267,6 +266,7 @@ export const selectComponents: ComponentItemJson[] = [
       required: true,
       regList: [],
       changeTag: true,
+      type: 'date'
     },
     placeholder: "请选择",
     disabled: false,
@@ -286,6 +286,7 @@ export const selectComponents: ComponentItemJson[] = [
       layout: "colItem",
       regList: [],
       changeTag: true,
+      type: "daterange"
     },
     placeholder: "请选择",
     disabled: false,

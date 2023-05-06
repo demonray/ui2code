@@ -7,11 +7,14 @@ import type { PropType } from "vue";
  * @returns
  */
 function makeDataObj(conf: ComponentItemJson): object {
-  // todo 组件props生成函数
+  // todo 组件props
   const options: { [propName: string]: any } = {};
   switch (conf.type) {
     case "table":
       options.data = conf.data;
+      break;
+    case "timerange":
+      options["is-range"] = true;
       break;
     default:
       options.type = conf.type;
@@ -57,6 +60,7 @@ export default defineComponent({
     const tag = resolveComponent(this.conf.__config__.tag as string);
     const child: Array<any> | string = makeChild(this.conf);
     const options = makeDataObj(this.conf);
+    console.log(tag, options);
     return h(tag, options, child);
   },
 });

@@ -10,18 +10,18 @@ import useMergeDetectData from "./hooks/useMergeDetectData";
 const { status, detectUI, detectText, detectStructure, getResult } = useDetectService();
 
 let designJson: DesignJson = reactive({
-    fields: []
+  fields: [],
 });
 
 watch([() => status.component, () => status.text, () => status.structure], (v) => {
-  const {uiResults, textResults, structures} = getResult()
+  const { uiResults, textResults, structures } = getResult();
   if (v[0] === "FINISH" && v[1] === "SUCCESS" && v[2] === "SUCCESS") {
     const fields = useMergeDetectData(uiResults, textResults, structures);
-    designJson.fields = fields
+    designJson.fields = fields;
   }
 });
 
-const {uiResults, textResults, structures} = getResult()
+const { uiResults, textResults, structures } = getResult();
 const fields = useMergeDetectData(uiResults, textResults, structures);
 
 // let fields = useMergeDetectData([], []);
@@ -48,10 +48,20 @@ function onPreview(params: SandboxTemplateConfig) {
   designPreview.value = true;
   previewConf.data = params;
 }
+function back() {
+  designPreview.value = false;
+}
+function download() {}
 </script>
 
 <template>
-  <preview v-if="designPreview" :params="previewConf.data"></preview>
+  <div v-if="designPreview">
+    <div class="action_bar">
+      <el-button type="text" @click="back"> 返回设计 </el-button>
+      <el-button type="text" @click="download"> 下载代码 </el-button>
+    </div>
+    <preview :params="previewConf.data"></preview>
+  </div>
   <design v-else :json="designJson" :status="status.msg" @upload="onUpload" @preview="onPreview" />
 </template>
 
@@ -66,5 +76,8 @@ main {
   justify-content: center;
   align-items: flex-start;
   height: 100%;
+}
+.action_bar {
+  padding: 0 10px;
 }
 </style>

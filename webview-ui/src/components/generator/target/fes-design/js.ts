@@ -59,7 +59,7 @@ export function makeUpJs(formConfig: FormConf, type: string) {
   confGlobal = null;
   return `<script lang="ts" setup>
     import { reactive } from 'vue'
-    import {FForm,FFormItem,FCheckboxGroup,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch,FTable,FTableColumn} from './lib/fes-design.js'
+    import {FForm,FFormItem,FCheckboxGroup,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch,FTable,FTableColumn,FDatePicker,FTimePicker} from './lib/fes-design.js'
     const ${formConfig.formModel} = reactive({
         ${formDataList}     
     })

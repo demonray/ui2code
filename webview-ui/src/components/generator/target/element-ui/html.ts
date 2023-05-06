@@ -174,44 +174,44 @@ const tags: TagTemplate = {
 
   //     return `<${tag} ${min} ${max} ${step} ${vModel} ${range} ${showStops} ${disabled}></${tag}>`;
   //   },
-  //   "el-time-picker": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
-  //     const startPlaceholder = el["start-placeholder"]
-  //       ? `start-placeholder="${el["start-placeholder"]}"`
-  //       : "";
-  //     const endPlaceholder = el["end-placeholder"]
-  //       ? `end-placeholder="${el["end-placeholder"]}"`
-  //       : "";
-  //     const rangeSeparator = el["range-separator"]
-  //       ? `range-separator="${el["range-separator"]}"`
-  //       : "";
-  //     const isRange = el["is-range"] ? "is-range" : "";
-  //     const format = el.format ? `format="${el.format}"` : "";
-  //     const valueFormat = el["value-format"] ? `value-format="${el["value-format"]}"` : "";
-  //     const pickerOptions = el["picker-options"]
-  //       ? `:picker-options='${JSON.stringify(el["picker-options"])}'`
-  //       : "";
+  "el-time-picker": (el: ComponentItemJson) => {
+    const { tag, type, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
+    const startPlaceholder = el["start-placeholder"]
+      ? `start-placeholder="${el["start-placeholder"]}"`
+      : "";
+    const endPlaceholder = el["end-placeholder"]
+      ? `end-placeholder="${el["end-placeholder"]}"`
+      : "";
+    const rangeSeparator = el["range-separator"]
+      ? `range-separator="${el["range-separator"]}"`
+      : "";
+    const isRange = el.type === "timerange" ? "is-range" : "";
+    const format = el.format ? `format="${el.format}"` : "";
+    const valueFormat = el["value-format"] ? `value-format="${el["value-format"]}"` : "";
+    const pickerOptions = el["picker-options"]
+      ? `:picker-options='${JSON.stringify(el["picker-options"])}'`
+      : "";
 
-  //     return `<${tag} ${vModel} ${isRange} ${format} ${valueFormat} ${pickerOptions} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${disabled}></${tag}>`;
-  //   },
-  //   "el-date-picker": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
-  //     const startPlaceholder = el["start-placeholder"]
-  //       ? `start-placeholder="${el["start-placeholder"]}"`
-  //       : "";
-  //     const endPlaceholder = el["end-placeholder"]
-  //       ? `end-placeholder="${el["end-placeholder"]}"`
-  //       : "";
-  //     const rangeSeparator = el["range-separator"]
-  //       ? `range-separator="${el["range-separator"]}"`
-  //       : "";
-  //     const format = el.format ? `format="${el.format}"` : "";
-  //     const valueFormat = el["value-format"] ? `value-format="${el["value-format"]}"` : "";
-  //     const type = el.type === "date" ? "" : `type="${el.type}"`;
-  //     const readonly = el.readonly ? "readonly" : "";
+    return `<${tag} ${vModel} ${isRange} ${format} ${valueFormat} ${pickerOptions} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${disabled}></${tag}>`;
+  },
+  "el-date-picker": (el: ComponentItemJson) => {
+    const { tag, type, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
+    const startPlaceholder = el["start-placeholder"]
+      ? `start-placeholder="${el["start-placeholder"]}"`
+      : "";
+    const endPlaceholder = el["end-placeholder"]
+      ? `end-placeholder="${el["end-placeholder"]}"`
+      : "";
+    const rangeSeparator = el["range-separator"]
+      ? `range-separator="${el["range-separator"]}"`
+      : "";
+    const format = el.format ? `format="${el.format}"` : "";
+    const valueFormat = el["value-format"] ? `value-format="${el["value-format"]}"` : "";
+    const typeAttr = type ? `type="${type}"` : "";
+    const readonly = el.readonly ? "readonly" : "";
 
-  //     return `<${tag} ${type} ${vModel} ${format} ${valueFormat} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${readonly} ${disabled}></${tag}>`;
-  //   },
+    return `<${tag} ${typeAttr} ${vModel} ${format} ${valueFormat} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${readonly} ${disabled}></${tag}>`;
+  },
   //   "el-rate": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel } = attrBuilder(el);
   //     const max = el.max ? `:max='${el.max}'` : "";
@@ -251,6 +251,7 @@ const tags: TagTemplate = {
 function attrBuilder(el: ComponentItemJson) {
   return {
     tag: el.__config__.tag,
+    type: el.__config__.type,
     vModel: `v-model="${confGlobal?.formModel}.${el.__vModel__}"`,
     clearable: el.clearable ? "clearable" : "",
     placeholder: el.placeholder ? `placeholder="${el.placeholder}"` : "",

@@ -61,7 +61,7 @@ type TagTemplate = {
 
 const tags: TagTemplate = {
   "el-button": (el: ComponentItemJson) => {
-    const tag = 'FButton'
+    const tag = "FButton";
     const { disabled } = attrBuilder(el);
     const type = el.type ? `type="${el.type}"` : "";
     const icon = el.icon ? `icon="${el.icon}"` : "";
@@ -75,7 +75,7 @@ const tags: TagTemplate = {
     return `<${tag} ${type} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
   },
   "el-input": (el: ComponentItemJson) => {
-    const tag = 'FInput'
+    const tag = "FInput";
     const { disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
     const maxlength = el.maxlength ? `:maxlength="${el.maxlength}"` : "";
     const showWordLimit = el["show-word-limit"] ? "show-word-limit" : "";
@@ -107,7 +107,7 @@ const tags: TagTemplate = {
   //     return `<${tag} ${vModel} ${placeholder} ${step} ${stepStrictly} ${precision} ${controlsPosition} ${min} ${max} ${disabled}></${tag}>`;
   //   },
   "el-select": (el: ComponentItemJson) => {
-    const tag = 'FSelect'
+    const tag = "FSelect";
     const { disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
     const filterable = el.filterable ? "filterable" : "";
     const multiple = el.multiple ? "multiple" : "";
@@ -117,7 +117,7 @@ const tags: TagTemplate = {
     return `<${tag} ${vModel} ${placeholder} ${disabled} ${multiple} ${filterable} ${clearable} ${width}>${child}</${tag}>`;
   },
   "el-radio-group": (el: ComponentItemJson) => {
-    const tag = 'FRadioGroup'
+    const tag = "FRadioGroup";
     const { disabled, vModel } = attrBuilder(el);
     const size = `size="${el.size}"`;
     let child = buildElRadioGroupChild(el);
@@ -126,7 +126,7 @@ const tags: TagTemplate = {
     return `<${tag} ${vModel} ${size} ${disabled}>${child}</${tag}>`;
   },
   "el-checkbox-group": (el: ComponentItemJson) => {
-    const tag = 'FCheckboxGroup'
+    const tag = "FCheckboxGroup";
     const { disabled, vModel } = attrBuilder(el);
     const size = `size="${el.size}"`;
     const min = el.min ? `:min="${el.min}"` : "";
@@ -137,7 +137,7 @@ const tags: TagTemplate = {
     return `<${tag} ${vModel} ${min} ${max} ${size} ${disabled}>${child}</${tag}>`;
   },
   "el-switch": (el: ComponentItemJson) => {
-    const tag = 'FSwitch'
+    const tag = "FSwitch";
     const { disabled, vModel } = attrBuilder(el);
     const activeText = el["active-text"] ? `active-text="${el["active-text"]}"` : "";
     const inactiveText = el["inactive-text"] ? `inactive-text="${el["inactive-text"]}"` : "";
@@ -155,7 +155,7 @@ const tags: TagTemplate = {
   "el-table": (el: ComponentItemJson) => {
     let child = buildElTableChild(el);
     if (child) child = `\n${child}\n`; // 换行
-    const tag = 'FTable'
+    const tag = "FTable";
     // data height border size fit highlight-current-row
     const data = `:data="${el.__vModel__}"`;
     return `<${tag} ${data}>${child}</${tag}>`;
@@ -180,44 +180,17 @@ const tags: TagTemplate = {
 
   //     return `<${tag} ${min} ${max} ${step} ${vModel} ${range} ${showStops} ${disabled}></${tag}>`;
   //   },
-  //   "el-time-picker": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
-  //     const startPlaceholder = el["start-placeholder"]
-  //       ? `start-placeholder="${el["start-placeholder"]}"`
-  //       : "";
-  //     const endPlaceholder = el["end-placeholder"]
-  //       ? `end-placeholder="${el["end-placeholder"]}"`
-  //       : "";
-  //     const rangeSeparator = el["range-separator"]
-  //       ? `range-separator="${el["range-separator"]}"`
-  //       : "";
-  //     const isRange = el["is-range"] ? "is-range" : "";
-  //     const format = el.format ? `format="${el.format}"` : "";
-  //     const valueFormat = el["value-format"] ? `value-format="${el["value-format"]}"` : "";
-  //     const pickerOptions = el["picker-options"]
-  //       ? `:picker-options='${JSON.stringify(el["picker-options"])}'`
-  //       : "";
+  "el-time-picker": (el: ComponentItemJson) => {
+    const { disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
+    return `<FTimePicker ${vModel}  ${width} ${placeholder} ${clearable} ${disabled}/>`;
+  },
+  "el-date-picker": (el: ComponentItemJson) => {
+    const { type, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
+    const typeAttr = type ? `type="${type}"` : "";
+    const readonly = el.readonly ? "readonly" : "";
 
-  //     return `<${tag} ${vModel} ${isRange} ${format} ${valueFormat} ${pickerOptions} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${disabled}></${tag}>`;
-  //   },
-  //   "el-date-picker": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
-  //     const startPlaceholder = el["start-placeholder"]
-  //       ? `start-placeholder="${el["start-placeholder"]}"`
-  //       : "";
-  //     const endPlaceholder = el["end-placeholder"]
-  //       ? `end-placeholder="${el["end-placeholder"]}"`
-  //       : "";
-  //     const rangeSeparator = el["range-separator"]
-  //       ? `range-separator="${el["range-separator"]}"`
-  //       : "";
-  //     const format = el.format ? `format="${el.format}"` : "";
-  //     const valueFormat = el["value-format"] ? `value-format="${el["value-format"]}"` : "";
-  //     const type = el.type === "date" ? "" : `type="${el.type}"`;
-  //     const readonly = el.readonly ? "readonly" : "";
-
-  //     return `<${tag} ${type} ${vModel} ${format} ${valueFormat} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${readonly} ${disabled}></${tag}>`;
-  //   },
+    return `<FDatePicker ${typeAttr} ${vModel} ${width} ${placeholder} ${clearable} ${readonly} ${disabled} />`;
+  },
   //   "el-rate": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel } = attrBuilder(el);
   //     const max = el.max ? `:max='${el.max}'` : "";
@@ -257,6 +230,7 @@ const tags: TagTemplate = {
 function attrBuilder(el: ComponentItemJson) {
   return {
     tag: el.__config__.tag,
+    type: el.__config__.type,
     vModel: `v-model="${confGlobal?.formModel}.${el.__vModel__}"`,
     clearable: el.clearable ? "clearable" : "",
     placeholder: el.placeholder ? `placeholder="${el.placeholder}"` : "",
@@ -290,16 +264,16 @@ function buildElInputChild(scheme: ComponentItemJson) {
 
 // el-table 子级
 function buildElTableChild(scheme: ComponentItemJson) {
-    let children: string[] = [];
-    if (scheme.__config__.children) {
-      children = scheme.__config__.children.map((it: ComponentItemJson) => {
-        const prop = it.prop ? `prop="${it.prop}"` : "";
-        const label = it.label ? `label="${it.label}"` : "";
-        return `<FTableColumn ${prop} ${label}/>`;
-      });
-    }
-    return children.join("\n");
+  let children: string[] = [];
+  if (scheme.__config__.children) {
+    children = scheme.__config__.children.map((it: ComponentItemJson) => {
+      const prop = it.prop ? `prop="${it.prop}"` : "";
+      const label = it.label ? `label="${it.label}"` : "";
+      return `<FTableColumn ${prop} ${label}/>`;
+    });
   }
+  return children.join("\n");
+}
 // el-select 子级
 function buildElSelectChild(scheme: ComponentItemJson) {
   const children = [];

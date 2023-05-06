@@ -15,8 +15,8 @@ declare global {
     | "datepicker"
     | "timerange"
     | "daterange"
-    | "row"
     | "table"
+    | "row"
     | "default";
 
   type CompItemConf = {
