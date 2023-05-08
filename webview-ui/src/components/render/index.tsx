@@ -12,6 +12,7 @@ function makeDataObj(conf: ComponentItemJson): object {
   switch (conf.type) {
     case "table":
       options.data = conf.data;
+      options.border = conf.__config__.border;
       break;
     case "timerange":
       options["is-range"] = true;

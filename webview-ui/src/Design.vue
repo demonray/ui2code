@@ -251,7 +251,6 @@ function previewSandbox() {
   const code = generate()
   const previewLocal = true
   const parameters = generatePreview(targetlib, code, previewLocal)
-  console.log(parameters)
   if (previewLocal) {
     emit('preview', parameters)
   } else {

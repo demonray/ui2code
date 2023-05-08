@@ -155,10 +155,10 @@ const tags: TagTemplate = {
   "el-table": (el: ComponentItemJson) => {
     let child = buildElTableChild(el);
     if (child) child = `\n${child}\n`; // 换行
-    const tag = "FTable";
     // data height border size fit highlight-current-row
     const data = `:data="${el.__vModel__}"`;
-    return `<${tag} ${data}>${child}</${tag}>`;
+    const border = `${el.__config__.border ? 'border' : ''}`;
+    return `<FTable ${border} ${data}>${child}</FTable>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);

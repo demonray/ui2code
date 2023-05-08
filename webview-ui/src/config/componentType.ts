@@ -60,7 +60,6 @@ export const inputComponents: ComponentItemJson[] = [
     disabled: false,
     type: "textarea",
   },
-  // todo add counter type
   //   {
   //     "__config__": {
   //       label: "计数器",
@@ -128,7 +127,6 @@ export const selectComponents: ComponentItemJson[] = [
       optionType: "default",
       regList: [],
       required: true,
-      border: false,
     },
     __slot__: {
       options: [
@@ -160,7 +158,6 @@ export const selectComponents: ComponentItemJson[] = [
       required: true,
       regList: [],
       changeTag: true,
-      border: false,
     },
     __slot__: {
       options: [
@@ -333,10 +330,10 @@ export const layoutComponents: ComponentItemJson[] = [
       tagIcon: "table",
       tag: "el-table",
       span: 24,
-      labelWidth: null,
-      showLabel: false,
       label: "表格",
       dataType: "dynamic",
+      url: "",
+      border: true,
       children: [
         {
           __config__: {
@@ -357,7 +354,6 @@ export const layoutComponents: ComponentItemJson[] = [
       ],
     },
     data: [],
-    border: true,
     type: "table",
   },
 ];

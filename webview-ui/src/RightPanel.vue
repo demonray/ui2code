@@ -391,21 +391,23 @@
           </el-form-item>
           <el-form-item
             v-if="
-              activeData.__config__.border !== undefined &&
-              activeData.__config__.optionType === 'default'
+              activeData.__config__.border !== undefined
             "
             label="是否带边框"
           >
             <el-switch v-model="activeData.__config__.border" />
           </el-form-item>
-
           <el-form-item
             v-if="
-              activeData.size !== undefined &&
-              (activeData.__config__.optionType === 'button' ||
-                activeData.__config__.border ||
-                activeData.__config__.tag === 'el-button')
+              activeData.__config__.dataType === 'dynamic' &&
+              activeData.__config__.url !== undefined 
             "
+            label="接口URL"
+          >
+            <el-input v-model="activeData.__config__.url" />
+          </el-form-item>
+          <el-form-item
+            v-if="activeData.size !== undefined"
             label="组件尺寸"
           >
             <el-radio-group v-model="activeData.size">

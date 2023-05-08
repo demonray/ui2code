@@ -64,7 +64,7 @@ function buildAttributes(
       const model = `${scheme.__vModel__}Options`;
       const options = titleCase(model);
       const methodName = `get${options}`;
-      buildOptionMethod(methodName, model, methodList, scheme);
+      buildFetchDataMethod(methodName, model, methodList, scheme);
       callInCreated(methodName, created);
     }
   }
@@ -162,7 +162,7 @@ function buildOptions(scheme: ComponentItemJson, optionsList: string[]) {
   optionsList.push(str);
 }
 
-function buildOptionMethod(
+function buildFetchDataMethod(
   methodName: string,
   model: string,
   methodList: string[],
@@ -177,8 +177,8 @@ function buildOptionMethod(
           method: '${config.method}',
           url: '${config.url}'
         }).then(resp => {
-          var { data } = resp
-          this.${model} = data.${config.dataPath}
+          let { data } = resp
+          // this.${model} = data
         })
       },`;
   }

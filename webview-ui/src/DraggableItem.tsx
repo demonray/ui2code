@@ -69,47 +69,55 @@ const layouts = {
     const className = actived ? "drawing-row-item active-from-item" : "drawing-row-item";
     let child = renderChildren(currentItem, index, opts);
     return (
-      <el-col span={config.span}>
-        <el-row
-          gutter={config.gutter}
-          class={className}
-          onClick={(event: MouseEvent) => {
-            active();
-            event.stopPropagation();
-          }}>
-          <span class="component-name">{config.componentName}</span>
-          <draggable
-            list={config.children || []}
-            animation={340}
-            item-key="name"
-            group="componentsGroup"
-            class="drag-wrapper">
-            {{
-              item: () =>
-                currentItem.lyoutType === "flex" ? (
-                  <el-row
-                    type={currentItem.lyoutType}
-                    justify={currentItem.justify}
-                    align={currentItem.align}>
-                    {child}
-                  </el-row>
-                ) : (
-                  child
-                ),
-            }}
-          </draggable>
-          {components.itemBtns(currentItem, index, opts)}
-        </el-row>
-      </el-col>
+      <el-row
+        gutter={config.gutter}
+        class={className}
+        onClick={(event: MouseEvent) => {
+          active();
+          event.stopPropagation();
+        }}>
+        <span class="component-name">{config.componentName}</span>
+        <draggable
+          list={config.children || []}
+          animation={340}
+          item-key="name"
+          group="componentsGroup"
+          class="drag-wrapper">
+          {{
+            item: () =>
+              currentItem.lyoutType === "flex" ? (
+                <el-row
+                  type={currentItem.lyoutType}
+                  justify={currentItem.justify}
+                  align={currentItem.align}>
+                  {child}
+                </el-row>
+              ) : (
+                child
+              ),
+          }}
+        </draggable>
+        {components.itemBtns(currentItem, index, opts)}
+      </el-row>
     );
   },
   raw(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+    const { active, actived } = opts;
     const config = currentItem.__config__;
     const child = renderChildren(currentItem, index, opts);
+    let className = actived ? "drawing-item active-from-item" : "drawing-item";
     return (
-      <render key={config.renderKey} conf={currentItem}>
-        {child}
-      </render>
+      <div
+        class={className}
+        onClick={(event: MouseEvent) => {
+          active();
+          event.stopPropagation();
+        }}>
+        <render key={config.renderKey} conf={currentItem}>
+          {child}
+        </render>
+        {components.itemBtns(currentItem, index, opts)}
+      </div>
     );
   },
 };

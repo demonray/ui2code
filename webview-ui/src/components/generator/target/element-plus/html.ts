@@ -152,7 +152,8 @@ const tags: TagTemplate = {
     const { tag } = attrBuilder(el);
     // data height border size fit highlight-current-row
     const data = `:data="${el.__vModel__}"`;
-    return `<${tag} ${data}>${child}</${tag}>`;
+    const border = `${el.__config__.border ? 'border' : ''}`;
+    return `<${tag} ${border} ${data}>${child}</${tag}>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
