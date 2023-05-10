@@ -53,7 +53,7 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
         )`;
     }
     dataList.push(str);
-  } else if (config.dataType === "dynamic") {
+  } else if (config.dynamic) {
     const str = `const ${scheme.__vModel__} = reactive(
         ${JSON.stringify(scheme.data)}
       )`;
@@ -83,7 +83,7 @@ function buildOptions(
   if (scheme.__vModel__ === undefined) return;
   let { options } = scheme;
   const { model, method } = getModelKeyAndMethod(scheme);
-  if (scheme.__config__.dataType === "dynamic") {
+  if (scheme.__config__.dynamic) {
     if (scheme.__config__.pagination === "remote" || scheme.__config__.pagination === "none") {
       buildFetchDataMethod(method, scheme.__vModel__, methodList, scheme);
       mounted.push(`// ${method}()`);
@@ -104,27 +104,35 @@ function buildOptions(
   dataList.push(str);
 }
 
+/**
+ * 获取动态数据函数
+ * @param scheme 
+ * @param methodList 
+ */
 function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
   switch (scheme.type) {
     case "pagination":
       const table = confGlobal.fields[scheme.index - 1];
-      const { model, method } = getModelKeyAndMethod(table);
-      if (table.__config__.pagination === "remote") {
-        methodList.push(`function handleChange${scheme.__vModel__}(currentPage, pageSize) {
+      if (table) {
+        const { model, method } = getModelKeyAndMethod(table);
+        if (table.__config__.pagination === "remote") {
+          methodList.push(`function handleChange${scheme.__vModel__}(currentPage, pageSize) {
             ${method}({
                 currentPage,
                 pageSize
             })
           }`);
-      } else if (table.__config__.pagination === "local") {
-        methodList.push(`function handleChange${scheme.__vModel__}(currentPage, pageSize) {
-            console.log(currentPage,pageSize)
+        } else if (table.__config__.pagination === "local") {
+          methodList.push(`function handleChange${scheme.__vModel__}(currentPage, pageSize) {
+            ${scheme.__vModel__}currentPage.value = currentPage
+            ${scheme.__vModel__}PageSize.value = pageSize
           }`);
-        methodList.push(`
+          methodList.push(`
           const ${table.__vModel__} = computed(() => {
             return ${model}.slice(${scheme.__vModel__}PageSize.value * (${scheme.__vModel__}currentPage.value - 1), ${scheme.__vModel__}PageSize.value * ${scheme.__vModel__}currentPage.value)
           })
         `);
+        }
       }
       break;
   }
@@ -165,10 +173,10 @@ export function makeUpJs(formConfig: FormConf, type: string) {
     import {FForm,FFormItem,FCheckboxGroup,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch,FTable,FTableColumn,FDatePicker,FTimePicker,FPagination} from './lib/fes-design.js'
     ${formDataListStr}
     ${formRulesStr}
+    ${dataList.join("\n")}
     ${methodList.join("\n")}
     onMounted(() => {
         ${mounted.join("\n")}
     })
-    ${dataList.join("\n")}
     </script>`;
 }

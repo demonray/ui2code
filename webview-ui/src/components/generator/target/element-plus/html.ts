@@ -152,8 +152,16 @@ const tags: TagTemplate = {
     const { tag } = attrBuilder(el);
     // data height border size fit highlight-current-row
     const data = `:data="${el.__vModel__}"`;
-    const border = `${el.__config__.border ? 'border' : ''}`;
+    const border = `${el.__config__.border ? "border" : ""}`;
     return `<${tag} ${border} ${data}>${child}</${tag}>`;
+  },
+  "el-pagination": (el: ComponentItemJson) => {
+    const { tag } = attrBuilder(el);
+    const data = `v-model:page-size="${el.__vModel__}PageSize" v-model:current-page="${el.__vModel__}currentPage"`;
+    const total = `:total="${el.__vModel__}Total"`;
+    // const change = `@size-change="handleSizeChange${el.__vModel__}" @current-change="handleCurrentChange${el.__vModel__}"`;
+    let layoutItems = `layout="prev,next,pager,${el.__config__.layoutItems.join(",")}"`;
+    return `<${tag} ${data} ${layoutItems} ${total}></${tag}>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -186,7 +194,7 @@ const tags: TagTemplate = {
     const rangeSeparator = el["range-separator"]
       ? `range-separator="${el["range-separator"]}"`
       : "";
-    const isRange = el.type === 'timerange' ? "is-range" : "";
+    const isRange = el.type === "timerange" ? "is-range" : "";
     const format = el.format ? `format="${el.format}"` : "";
     const valueFormat = el["value-format"] ? `value-format="${el["value-format"]}"` : "";
     const pickerOptions = el["picker-options"]
@@ -406,35 +414,41 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
  * @param {String} type 生成类型，文件或弹窗等
  */
 export function makeUpHtml(formConfig: FormConf, type: string) {
-  const htmlList: string[] = [];
+  const formItemList: string[] = [];
   confGlobal = formConfig;
   // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
   someSpanIsNot24 = formConfig.fields.some((item) => item.__config__.span !== 24);
-  // 遍历渲染每个组件成html  table组件代码不在form里
-  const tableList: string[] = [];
+  // 遍历渲染每个组件成html
+  // 默认table, pagination组件不在form里
+  const htmlList: string[] = [];
 
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table") {
+    if (el.type !== "table" && el.type !== "pagination") {
       if (el.__config__.layout) {
-        htmlList.push(layouts[el.__config__.layout](el));
+        formItemList.push(layouts[el.__config__.layout](el));
       }
     } else {
       if (el.__config__.layout) {
-        tableList.push(layouts[el.__config__.layout](el));
+        htmlList.push(layouts[el.__config__.layout](el));
       }
     }
   });
-
+  let temp = "";
+  const itemStr = formItemList.join("\n");
   const htmlStr = htmlList.join("\n");
-  const tableStr = tableList.join("\n");
   // 将组件代码放进form标签
-  let temp = buildFormTemplate(formConfig, htmlStr, type) + tableStr;
+  if (formItemList.length) {
+    temp = buildFormTemplate(formConfig, itemStr, type);
+  }
+  if (htmlList.length) {
+    temp = temp + htmlStr;
+  }
   // dialog标签包裹代码
   if (type === "dialog") {
     temp = dialogWrapper(temp);
   }
   confGlobal = null;
   return `<template>
-    ${temp}
-</template>`;
+      ${temp}
+  </template>`;
 }

@@ -95,6 +95,8 @@ export const selectComponents: ComponentItemJson[] = [
       required: true,
       regList: [],
       changeTag: true,
+    //   dynamic: true,
+    //   url: '',
     },
     __slot__: {
       options: [
@@ -330,7 +332,7 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-table",
       span: 24,
       label: "表格",
-      dataType: "dynamic",
+      dynamic: true,
       url: "",
       border: true,
       pagination: 'remote',
@@ -362,7 +364,8 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-pagination",
       tagIcon: "el-pagination",
       label: "分页条",
-      'page-sizes': [10, 20, 30, 50]
+      'page-sizes': [10, 20, 30, 50],
+      layoutItems: ['total']
     },
     type: "pagination",
   },

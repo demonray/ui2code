@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch, onUnmounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { generatePreview, generateCode, type LibType } from "./components/generator/index";
 import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
@@ -162,10 +162,6 @@ const props = defineProps<{
   status?: string;
 }>();
 
-watch(props.json, (v) => {
-  initDrawingList(v);
-});
-
 const activeData = computed<ComponentItemJson>({
   get: () => drawingList[activeIndex.value],
   set: (val) => {
@@ -183,7 +179,7 @@ type SaveType = {
 let saveType: SaveType = reactive({
   fileName: "",
   type: "file",
-  targetlib: "element-ui"
+  targetlib: "fes-design"
 });
 
 const dialogVisible = ref(false);

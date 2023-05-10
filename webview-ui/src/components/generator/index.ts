@@ -1,8 +1,7 @@
-import generateElementUI from "./target/element-ui";
 import generateElementPlusUI from "./target/element-plus";
 import generateFesDesign from "./target/fes-design";
 
-export type LibType = "element-ui" | "element-plus" | "fes-design";
+export type LibType = "element-plus" | "fes-design";
 
 type LibInterface = {
   // 生成目标组件库代码
@@ -14,7 +13,6 @@ type LibInterface = {
 const map: {
   [propName in LibType]: LibInterface;
 } = {
-  "element-ui": generateElementUI,
   "element-plus": generateElementPlusUI,
   "fes-design": generateFesDesign
 };

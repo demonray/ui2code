@@ -414,7 +414,7 @@ function makeTableConf(data: StructureItem) {
 export default function designData(
   uiResults: DetectItem[],
   textResults: TextItem[],
-  structures: StructureItem[]
+  structures: StructureItem[] = []
 ) {
   fields = [];
   // 按Y排序
@@ -431,7 +431,7 @@ export default function designData(
     }
   }
   convertJsonData(uiResults, textResults);
-  // todo 这里structures table 先不考虑位置，后续优化
+  // todo 这里structures table 先处理简单情况，不考虑位置，后续考虑优化，一个页面多个form，table情况
   structures.forEach((it) => {
     if (it.type === "table") {
       const conf = makeTableConf(it)

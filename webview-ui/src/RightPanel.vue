@@ -389,49 +389,43 @@
           <el-form-item v-if="activeData.range !== undefined" label="范围选择">
             <el-switch v-model="activeData.range" @change="rangeChange" />
           </el-form-item>
-          <el-form-item
-            v-if="
-              activeData.__config__.border !== undefined
-            "
-            label="是否带边框"
-          >
+          <el-form-item v-if="activeData.__config__.border !== undefined" label="是否带边框">
             <el-switch v-model="activeData.__config__.border" />
           </el-form-item>
+          <el-form-item v-if="activeData.__config__.dynamic !== undefined" label="动态数据">
+            <el-switch v-model="activeData.__config__.dynamic" />
+          </el-form-item>
           <el-form-item
-            v-if="
-              activeData.__config__.dataType === 'dynamic' &&
-              activeData.__config__.url !== undefined 
-            "
+            v-if="activeData.__config__.dynamic && activeData.__config__.url !== undefined"
             label="接口URL"
           >
             <el-input v-model="activeData.__config__.url" />
           </el-form-item>
-          <el-form-item
-            v-if="
-              activeData.__config__.pagination !== undefined
-            "
-            label="分页类型"
-          >
+          <el-form-item v-if="activeData.__config__.pagination !== undefined" label="分页类型">
             <el-select
-                slot="append"
-                v-model="activeData.__config__.pagination"
-                :style="{ width: '100px' }"
-                @change="pageChange"
-              >
-                <el-option label="不分页" value="none" />
-                <el-option label="前端分页" value="local" />
-                <el-option label="后端分页" value="remote" />
+              slot="append"
+              v-model="activeData.__config__.pagination"
+              :style="{ width: '100px' }"
+              @change="pageChange"
+            >
+              <el-option label="不分页" value="none" />
+              <el-option label="前端分页" value="local" />
+              <el-option label="后端分页" value="remote" />
             </el-select>
           </el-form-item>
-          <el-form-item
-            v-if="activeData.size !== undefined"
-            label="组件尺寸"
-          >
+          <el-form-item v-if="activeData.size !== undefined" label="组件尺寸">
             <el-radio-group v-model="activeData.size">
               <el-radio-button label="medium"> 中等 </el-radio-button>
               <el-radio-button label="small"> 较小 </el-radio-button>
               <el-radio-button label="mini"> 迷你 </el-radio-button>
             </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="activeData.type === 'pagination'" label="分页属性">
+            <el-checkbox-group v-model="activeData.__config__.layoutItems">
+              <el-checkbox key="total" label="total"> total </el-checkbox>
+              <el-checkbox key="sizes" label="sizes"> sizes </el-checkbox>
+              <el-checkbox key="jumper" label="jumper"> jumper </el-checkbox>
+            </el-checkbox-group>
           </el-form-item>
           <el-form-item v-if="activeData['show-word-limit'] !== undefined" label="输入统计">
             <el-switch v-model="activeData['show-word-limit']" />
@@ -766,8 +760,8 @@ function tagChange(tagIcon: string) {
   emit("tagChange", target);
 }
 function pageChange(type: string) {
-    const target = layoutComponents.find(it => it.type === 'pagination')
-    emit("tagChange", target, type === 'none' ? 'del-pagination':'add-pagination' );
+  const target = layoutComponents.find((it) => it.type === "pagination");
+  emit("tagChange", target, type === "none" ? "del-pagination" : "add-pagination");
 }
 </script>
 

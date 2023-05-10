@@ -25,7 +25,6 @@
           <el-col :span="24">
             <el-form-item label="目标库" prop="type">
               <el-select v-model="formData.targetlib">
-                <el-option value="element-ui">element-ui-vue2</el-option>
                 <el-option value="element-plus">element-plus-vue3-ts</el-option>
                 <el-option value="fes-design">fes-design-vue3</el-option>
               </el-select>
@@ -56,7 +55,7 @@ type SaveType = {
 const formData: SaveType = reactive({
   fileName: "",
   type: "file",
-  targetlib: "element-ui",
+  targetlib: "fes-design",
 });
 
 const rules = {

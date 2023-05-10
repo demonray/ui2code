@@ -164,7 +164,13 @@ const tags: TagTemplate = {
     const data = `:page-size="${el.__vModel__}PageSize" :current-page="${el.__vModel__}currentPage"`;
     const total = `:total-count="${el.__vModel__}Total"`;
     const change = `@change="handleChange${el.__vModel__}"`;
-    return `<FPagination ${data} ${total} ${change}></FPagination>`;
+    let layoutItems = "";
+    if (el.__config__.layoutItems) {
+      layoutItems += el.__config__.layoutItems.includes("jumper") ? "showQuickJumper " : "";
+      layoutItems += el.__config__.layoutItems.includes("sizes") ? "showSizeChanger " : "";
+      layoutItems += el.__config__.layoutItems.includes("total") ? "showTotal " : "";
+    }
+    return `<FPagination ${data} ${layoutItems} ${total} ${change}></FPagination>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -371,7 +377,9 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
   const disabled = scheme.disabled ? `:disabled="${scheme.disabled}"` : "";
   let str = `
 <FForm ref="${scheme.formRef}" :model="${scheme.formModel}"
-    :rules="${scheme.formRules}" size="${scheme.size}" ${disabled} label-width="${scheme.labelWidth}px" ${labelPosition}>
+    :rules="${scheme.formRules}" size="${scheme.size}" ${disabled} label-width="${
+    scheme.labelWidth
+  }px" ${labelPosition}>
     ${child}
     ${buildFromBtns(scheme, type)}
 </FForm>`;
@@ -408,15 +416,15 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
       }
     }
   });
-  let temp = ''
+  let temp = "";
   const itemStr = formItemList.join("\n");
   const htmlStr = htmlList.join("\n");
   // 将组件代码放进form标签
   if (formItemList.length) {
-    temp = buildFormTemplate(formConfig, itemStr, type) 
+    temp = buildFormTemplate(formConfig, itemStr, type);
   }
   if (htmlList.length) {
-    temp = temp + htmlStr
+    temp = temp + htmlStr;
   }
   // dialog标签包裹代码
   if (type === "dialog") {
