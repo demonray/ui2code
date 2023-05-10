@@ -299,7 +299,6 @@ export const layoutComponents: ComponentItemJson[] = [
       layout: "rowItem",
       tagIcon: "row",
       label: "行容器",
-      layoutTree: true,
       children: [],
     },
     type: "row",
@@ -334,6 +333,7 @@ export const layoutComponents: ComponentItemJson[] = [
       dataType: "dynamic",
       url: "",
       border: true,
+      pagination: 'remote',
       children: [
         {
           __config__: {
@@ -355,5 +355,15 @@ export const layoutComponents: ComponentItemJson[] = [
     },
     data: [],
     type: "table",
+  },
+  {
+    __config__: {
+      layout: "raw",
+      tag: "el-pagination",
+      tagIcon: "el-pagination",
+      label: "分页条",
+      'page-sizes': [10, 20, 30, 50]
+    },
+    type: "pagination",
   },
 ];

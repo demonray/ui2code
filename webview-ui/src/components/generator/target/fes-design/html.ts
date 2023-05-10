@@ -157,8 +157,14 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     // data height border size fit highlight-current-row
     const data = `:data="${el.__vModel__}"`;
-    const border = `${el.__config__.border ? 'border' : ''}`;
+    const border = `${el.__config__.border ? "border" : ""}`;
     return `<FTable ${border} ${data}>${child}</FTable>`;
+  },
+  "el-pagination": (el: ComponentItemJson) => {
+    const data = `:page-size="${el.__vModel__}PageSize" :current-page="${el.__vModel__}currentPage"`;
+    const total = `:total-count="${el.__vModel__}Total"`;
+    const change = `@change="handleChange${el.__vModel__}"`;
+    return `<FPagination ${data} ${total} ${change}></FPagination>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -363,16 +369,16 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
     labelPosition = `label-position="${scheme.labelPosition}"`;
   }
   const disabled = scheme.disabled ? `:disabled="${scheme.disabled}"` : "";
-  let str = `<FForm ref="${scheme.formRef}" :model="${scheme.formModel}" :rules="${
-    scheme.formRules
-  }" size="${scheme.size}" ${disabled} label-width="${scheme.labelWidth}px" ${labelPosition}>
-          ${child}
-          ${buildFromBtns(scheme, type)}
-        </FForm>`;
+  let str = `
+<FForm ref="${scheme.formRef}" :model="${scheme.formModel}"
+    :rules="${scheme.formRules}" size="${scheme.size}" ${disabled} label-width="${scheme.labelWidth}px" ${labelPosition}>
+    ${child}
+    ${buildFromBtns(scheme, type)}
+</FForm>`;
   if (someSpanIsNot24) {
     str = `<el-row :gutter="${scheme.gutter}">
-            ${str}
-          </el-row>`;
+    ${str}
+</el-row>`;
   }
   return str;
 }
@@ -383,29 +389,35 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
  * @param {String} type 生成类型，文件或弹窗等
  */
 export function makeUpHtml(formConfig: FormConf, type: string) {
-  const htmlList: string[] = [];
+  const formItemList: string[] = [];
   confGlobal = formConfig;
   // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
   someSpanIsNot24 = formConfig.fields.some((item) => item.__config__.span !== 24);
-  // 遍历渲染每个组件成html  table组件代码不在form里
-  const tableList: string[] = [];
+  // 遍历渲染每个组件成html
+  // 默认table, pagination组件不在form里
+  const htmlList: string[] = [];
 
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table") {
+    if (el.type !== "table" && el.type !== "pagination") {
       if (el.__config__.layout) {
-        htmlList.push(layouts[el.__config__.layout](el));
+        formItemList.push(layouts[el.__config__.layout](el));
       }
     } else {
       if (el.__config__.layout) {
-        tableList.push(layouts[el.__config__.layout](el));
+        htmlList.push(layouts[el.__config__.layout](el));
       }
     }
   });
-
+  let temp = ''
+  const itemStr = formItemList.join("\n");
   const htmlStr = htmlList.join("\n");
-  const tableStr = tableList.join("\n");
   // 将组件代码放进form标签
-  let temp = buildFormTemplate(formConfig, htmlStr, type) + tableStr;
+  if (formItemList.length) {
+    temp = buildFormTemplate(formConfig, itemStr, type) 
+  }
+  if (htmlList.length) {
+    temp = temp + htmlStr
+  }
   // dialog标签包裹代码
   if (type === "dialog") {
     temp = dialogWrapper(temp);

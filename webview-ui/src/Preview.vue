@@ -42,6 +42,7 @@ import {
     computed,
     reactive,
     onMounted,
+    watch,
     toRaw
 } from "vue";
 import DetectService from "./config/modelService";
@@ -82,6 +83,11 @@ const config = reactive({
         showRefreshButton: true,
         consoleShowHeader: false,
     },
+});
+
+watch(() => props.params, (v) => {
+    config.files = toRaw(v.files)
+    config.template = v.template
 });
 
 const codeEditorOptions: ComputedRef < CodeEditorProps > = computed(() => ({

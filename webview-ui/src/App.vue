@@ -55,14 +55,14 @@ function download() {}
 </script>
 
 <template>
-  <div v-if="designPreview">
+  <div v-show="designPreview">
     <div class="action_bar">
       <el-button type="text" @click="back"> 返回设计 </el-button>
       <el-button type="text" @click="download"> 下载代码 </el-button>
     </div>
     <preview :params="previewConf.data"></preview>
   </div>
-  <design v-else :json="designJson" :status="status.msg" @upload="onUpload" @preview="onPreview" />
+  <design v-show="!designPreview" :json="designJson" :status="status.msg" @upload="onUpload" @preview="onPreview" />
 </template>
 
 <style>

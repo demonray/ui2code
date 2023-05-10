@@ -290,9 +290,7 @@ function fillTextToComp(
   });
 
   jsonData.forEach((it) => {
-    // todo 设计器统一组件标签，生成对应组件代码时根据目标组件库映射转换
     const conf = findComponentConf(it.type);
-
     // checkboxgroup radiogroup
     if (it.options && conf) {
       const option: OptionItem[] = [];
@@ -436,7 +434,12 @@ export default function designData(
   // todo 这里structures table 先不考虑位置，后续优化
   structures.forEach((it) => {
     if (it.type === "table") {
-      fields.push(makeTableConf(it));
+      const conf = makeTableConf(it)
+      const hasPaginatin = fields.find(it => it.type === 'pagination')
+      if (!hasPaginatin) {
+        conf.__config__.pagination = 'none'
+      }
+      fields.push(conf);
     }
   });
   return fields;

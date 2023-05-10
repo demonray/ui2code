@@ -215,11 +215,7 @@ onMounted(() => {
 
 function initDrawingList(json: DesignJson) {
   drawingList.length = 0;
-  if (json.fields) {
-    json.fields.forEach((it: any) => {
-      drawingList.push(it);
-    });
-  }
+  drawingList.push(...deepClone(json.fields))
 }
 
 onUnmounted(() => {});
@@ -317,23 +313,37 @@ function drawingItemDelete(index: number, list: []) {
     }
   });
 }
-function tagChange(newTag: ComponentItemJson) {
-  newTag = cloneComponent(newTag);
-  const config = newTag.__config__;
-  newTag.__vModel__ = activeData.value.__vModel__;
-  config.span = activeData.value.__config__.span;
-  activeData.value.__config__.tag = config.tag;
-  activeData.value.__config__.tagIcon = config.tagIcon;
-  if (typeof activeData.value.__config__.defaultValue === typeof config.defaultValue) {
-    config.defaultValue = activeData.value.__config__.defaultValue;
-  }
-  Object.keys(newTag).forEach((key) => {
-    if (activeData.value[key] !== undefined) {
-      newTag[key] = activeData.value[key];
+function tagChange(newTag: ComponentItemJson, type: string = '') {
+  if (type === 'add-pagination') {
+    // 新增:table的分页，分页条在table下方，存在则不增加
+    if (drawingList[activeIndex.value + 1] && drawingList[activeIndex.value + 1].type === 'pagination') {
+        return
     }
-  });
-  activeData.value = newTag;
-  updateDrawingList(newTag, drawingList);
+    newTag = cloneComponent(newTag);
+    drawingList.splice(activeIndex.value + 1, 0, newTag);
+  } else if(type === 'del-pagination') {
+    if (drawingList[activeIndex.value + 1] && drawingList[activeIndex.value + 1].type === 'pagination') {
+      drawingList.splice(activeIndex.value + 1, 1);
+    }
+  } else {
+    // change
+    newTag = cloneComponent(newTag);
+    const config = newTag.__config__;
+    newTag.__vModel__ = activeData.value.__vModel__;
+    config.span = activeData.value.__config__.span;
+    activeData.value.__config__.tag = config.tag;
+    activeData.value.__config__.tagIcon = config.tagIcon;
+    if (typeof activeData.value.__config__.defaultValue === typeof config.defaultValue) {
+        config.defaultValue = activeData.value.__config__.defaultValue;
+    }
+    Object.keys(newTag).forEach((key) => {
+        if (activeData.value[key] !== undefined) {
+        newTag[key] = activeData.value[key];
+        }
+    });
+    activeData.value = newTag;
+    updateDrawingList(newTag, drawingList);
+  }
 }
 function updateDrawingList(newTag: ComponentItemJson, list: ComponentItemJson[]) {
   if (activeIndex.value > -1) {

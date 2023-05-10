@@ -407,6 +407,23 @@
             <el-input v-model="activeData.__config__.url" />
           </el-form-item>
           <el-form-item
+            v-if="
+              activeData.__config__.pagination !== undefined
+            "
+            label="分页类型"
+          >
+            <el-select
+                slot="append"
+                v-model="activeData.__config__.pagination"
+                :style="{ width: '100px' }"
+                @change="pageChange"
+              >
+                <el-option label="不分页" value="none" />
+                <el-option label="前端分页" value="local" />
+                <el-option label="后端分页" value="remote" />
+            </el-select>
+          </el-form-item>
+          <el-form-item
             v-if="activeData.size !== undefined"
             label="组件尺寸"
           >
@@ -542,7 +559,7 @@ import { ref, computed, watch } from "vue";
 
 import { isNumberStr } from "./utilities/index";
 // import IconsDialog from './IconsDialog'
-import { inputComponents, selectComponents } from "./config/componentType";
+import { inputComponents, selectComponents, layoutComponents } from "./config/componentType";
 
 const dateTimeFormat = {
   date: "yyyy-MM-dd",
@@ -747,6 +764,10 @@ function tagChange(tagIcon: string) {
   let target = inputComponents.find((item) => item.__config__.tagIcon === tagIcon);
   if (!target) target = selectComponents.find((item) => item.__config__.tagIcon === tagIcon);
   emit("tagChange", target);
+}
+function pageChange(type: string) {
+    const target = layoutComponents.find(it => it.type === 'pagination')
+    emit("tagChange", target, type === 'none' ? 'del-pagination':'add-pagination' );
 }
 </script>
 
