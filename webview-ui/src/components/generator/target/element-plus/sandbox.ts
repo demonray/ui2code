@@ -42,11 +42,11 @@ export function getSandboxTpl(tpl: string, previewLocal: boolean): string | Sand
     "src/shims-vue.d.ts": {
       isBinary: false,
       code: `declare module '*.vue' {
-              import { DefineComponent } from 'vue'
-              const component: DefineComponent<{}, {}, any>
-              export default component
-            }
-            `,
+  import { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+  }
+  `,
     },
     "package.json": {
       isBinary: false,
@@ -55,21 +55,20 @@ export function getSandboxTpl(tpl: string, previewLocal: boolean): string | Sand
     "tsconfig.json": {
       isBinary: false,
       code: `{
-              "compilerOptions": {
-                "target": "esnext",
-                "module": "esnext",
-                "moduleResolution": "node",
-                "strict": true,
-                "jsx": "preserve",
-                "sourceMap": true,
-                "resolveJsonModule": true,
-                "esModuleInterop": true,
-                "lib": ["esnext", "dom"],
-                "types": ["vite/client"]
-              },
-              "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
-            }
-            `,
+  "compilerOptions": {
+  "target": "esnext",
+  "module": "esnext",
+  "moduleResolution": "node",
+  "strict": true,
+  "jsx": "preserve",
+  "sourceMap": true,
+  "resolveJsonModule": true,
+  "esModuleInterop": true,
+  "lib": ["esnext", "dom"],
+  "types": ["vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
+}`,
     }
   };
   if (previewLocal) {

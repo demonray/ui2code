@@ -23,7 +23,7 @@ declare global {
   type CompItemConf = {
     label: string;
     showLabel?: boolean;
-    tag?: string;
+    tag: string;
     defaultValue?: any;
     required?: boolean;
     layout?: "colItem" | "rowItem" | "raw";

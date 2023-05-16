@@ -35,6 +35,7 @@ const layouts = {
   },
   rowItem(scheme: ComponentItemJson) {
     const config = scheme.__config__;
+    const tag = config.tag;
     const type = scheme.type === "default" ? "" : `type="${scheme.type}"`;
     const justify = scheme.type === "default" ? "" : `justify="${scheme.justify}"`;
     const align = scheme.type === "default" ? "" : `align="${scheme.align}"`;
@@ -42,9 +43,9 @@ const layouts = {
     const children = config.children.map((el: ComponentItemJson) => {
       return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
     });
-    let str = `<el-row ${type} ${justify} ${align} ${gutter}>
+    let str = `<${tag} ${type} ${justify} ${align} ${gutter}>
           ${children.join("\n")}
-        </el-row>`;
+        </${tag}>`;
     str = colWrapper(scheme, str);
     return str;
   },

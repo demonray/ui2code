@@ -40,10 +40,10 @@ export function getSandboxTpl(
     "src/main.ts": {
       isBinary: false,
       code: `import { createApp } from "vue";
-      import App from "./App.vue";
-      import "./lib/fes-design.css";
-      createApp(App).mount("#app");
-      `,
+import App from "./App.vue";
+import "./lib/fes-design.css";
+createApp(App).mount("#app");
+`,
     },
     "src/App.vue": {
       isBinary: false,
@@ -52,11 +52,10 @@ export function getSandboxTpl(
     "src/shims-vue.d.ts": {
       isBinary: false,
       code: `declare module "*.vue" {
-        import type { DefineComponent } from "vue";
-        const component: DefineComponent<{}, {}, any>;
-        export default component;
-      }
-      `,
+  import type { DefineComponent } from "vue";
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}`,
     },
     "package.json": {
       isBinary: false,
@@ -65,84 +64,83 @@ export function getSandboxTpl(
     "tsconfig.json": {
       isBinary: false,
       code: `{
-        "compilerOptions": {
-          "target": "esnext",
-          "module": "esnext",
-          "strict": true,
-          "jsx": "preserve",
-          "importHelpers": true,
-          "moduleResolution": "node",
-          "experimentalDecorators": true,
-          "skipLibCheck": true,
-          "esModuleInterop": true,
-          "allowSyntheticDefaultImports": true,
-          "sourceMap": true,
-          "baseUrl": ".",
-          "types": [
-            "webpack-env"
-          ],
-          "paths": {
-            "@/*": [
-              "src/*"
-            ]
-          },
-          "lib": [
-            "esnext",
-            "dom",
-            "dom.iterable",
-            "scripthost"
-          ]
-        }
-      }`,
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [
+    "webpack-env"
+    ],
+    "paths": {
+    "@/*": [
+        "src/*"
+    ]
+    },
+    "lib": [
+    "esnext",
+    "dom",
+    "dom.iterable",
+    "scripthost"
+    ]
+  }
+}`,
     },
     "babel.config.js": {
       isBinary: false,
       code: `module.exports = {
-            presets: [
-              '@vue/cli-plugin-babel/preset'
-            ]
-          }
-          `,
+  presets: [
+    '@vue/cli-plugin-babel/preset'
+  ]
+}`,
     },
     ".eslintrce.js": {
       isBinary: false,
       code: `module.exports = {
-            root: true,
-          
-            env: {
-              node: true
-            },
-          
-            parserOptions: {
-              parser: "@typescript-eslint/parser"
-            },
-          
-            rules: {
-              "no-console": "off",
-              "no-debugger": "off",
-              "vue/no-multiple-template-root": "off",
-              "no-unused-vars": "off",
-              "@typescript-eslint/no-unused-vars": ["error"]
-            },
-          
-            overrides: [
-              {
-                files: [
-                  "**/__tests__/*.{j,t}s?(x)",
-                  "**/tests/unit/**/*.spec.{j,t}s?(x)"
-                ],
-                env: {}
-              }
-            ],
-          
-            extends: [
-              "plugin:vue/vue3-essential",
-              "eslint:recommended",
-              "@vue/prettier",
-              "@vue/typescript"
-            ]
-          };
-          `,
+  root: true,
+
+  env: {
+    node: true
+  },
+
+  parserOptions: {
+    parser: "@typescript-eslint/parser"
+ },
+
+  rules: {
+    "no-console": "off",
+    "no-debugger": "off",
+    "vue/no-multiple-template-root": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error"]
+  },
+
+  overrides: [
+    {
+    files: [
+        "**/__tests__/*.{j,t}s?(x)",
+        "**/tests/unit/**/*.spec.{j,t}s?(x)"
+    ],
+    env: {}
+    }
+  ],
+
+  extends: [
+    "plugin:vue/vue3-essential",
+    "eslint:recommended",
+    "@vue/prettier",
+    "@vue/typescript"
+  ]
+};
+`,
     },
     "src/lib/fes-design.js": {
         isBinary: false,

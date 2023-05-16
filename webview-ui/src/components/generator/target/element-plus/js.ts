@@ -1,4 +1,5 @@
 import { deepClone, titleCase } from "../../../../utilities/index";
+import ruleTrigger from './ruleTrigger';
 
 let confGlobal: FormConf | null = null;
 
@@ -96,6 +97,37 @@ function buildOptions(
   dataList.push(str);
 }
 
+// 构建校验规则
+function buildRules(scheme: ComponentItemJson, ruleList: string[]) {
+    const config = scheme.__config__;
+    if (scheme.__vModel__ === undefined) return;
+    const rules = [];
+    if (ruleTrigger[config.tag]) {
+      if (config.required) {
+        const type = Array.isArray(config.defaultValue) ? "type: 'array'," : "";
+        let message = Array.isArray(config.defaultValue)
+          ? `请至少选择一个${config.label}`
+          : scheme.placeholder;
+        if (message === undefined) message = `${config.label}不能为空`;
+        rules.push(
+          `{ required: true, ${type} message: '${message}', trigger: '${ruleTrigger[config.tag]}' }`
+        );
+      }
+      if (config.regList && Array.isArray(config.regList)) {
+        config.regList.forEach((item) => {
+          if (item.pattern) {
+            rules.push(
+              `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${
+                ruleTrigger[config.tag]
+              }' }`
+            );
+          }
+        });
+      }
+      ruleList.push(`${scheme.__vModel__}: [${rules.join(",")}],`);
+    }
+  }
+
 /**
  * 获取动态数据函数
  * @param scheme
@@ -104,7 +136,7 @@ function buildOptions(
 function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
   switch (scheme.type) {
     case "pagination":
-      const table = confGlobal.fields[scheme.index - 1];
+      const table = confGlobal && confGlobal.fields[scheme.index - 1];
       if (table) {
         const { model, method } = getModelKeyAndMethod(table);
         if (table.__config__.pagination === "remote") {
@@ -142,12 +174,13 @@ export function makeUpJs(formConfig: FormConf, type: string) {
   formConfig.fields.forEach((item, index) => {
     item.index = index;
     buildData(item, dataList, formDataList);
+    buildRules(item, ruleList);
     buildOptions(item, methodList, dataList, mounted); // 例如select options
     buildEventMethods(item, methodList);
   });
   let formRulesStr = "";
   if (ruleList.length) {
-    formRulesStr = `const ${formConfig.formRules} = reactive(${JSON.stringify(ruleList)})`;
+    formRulesStr = `const ${formConfig.formRules} = reactive({${ruleList.join('\n')}})`;
   }
   let formDataListStr = "";
   if (formDataList.length) {

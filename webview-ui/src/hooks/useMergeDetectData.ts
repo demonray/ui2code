@@ -357,8 +357,6 @@ function processConf(conf: ComponentItemJson) {
   if (/^\*/.test(conf.__config__.label)) {
     conf.__config__.required = true;
     conf.__config__.label = conf.__config__.label.substring(1);
-  } else {
-    conf.__config__.required = true;
   }
 }
 

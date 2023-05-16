@@ -6,9 +6,9 @@ let someSpanIsNot24 = false;
 // span不为24的用el-col包裹
 function colWrapper(scheme: ComponentItemJson, str: string) {
   if (someSpanIsNot24 || scheme.__config__.span !== 24) {
-    return `<el-col :span="${scheme.__config__.span}">
+    return `<f-grid-item :span="${scheme.__config__.span}">
           ${str}
-        </el-col>`;
+        </f-grid-item>`;
   }
   return str;
 }
@@ -35,6 +35,7 @@ const layouts = {
   },
   rowItem(scheme: ComponentItemJson) {
     const config = scheme.__config__;
+    const tag = "f-grid";
     const type = scheme.type === "default" ? "" : `type="${scheme.type}"`;
     const justify = scheme.type === "default" ? "" : `justify="${scheme.justify}"`;
     const align = scheme.type === "default" ? "" : `align="${scheme.align}"`;
@@ -42,9 +43,9 @@ const layouts = {
     const children = config.children.map((el: ComponentItemJson) => {
       return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
     });
-    let str = `<el-row ${type} ${justify} ${align} ${gutter}>
+    let str = `<${tag} ${type} ${justify} ${align} ${gutter}>
           ${children.join("\n")}
-        </el-row>`;
+        </${tag}>`;
     str = colWrapper(scheme, str);
     return str;
   },
@@ -351,9 +352,9 @@ function buildFromBtns(scheme: FormConf, type: string) {
               <el-button @click="resetForm">重置</el-button>
             </FFormItem>`;
     if (someSpanIsNot24) {
-      str = `<el-col :span="24">
+      str = `<f-grid-item :span="24">
               ${str}
-            </el-col>`;
+            </f-grid-item>`;
     }
   }
   return str;
@@ -384,9 +385,9 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
     ${buildFromBtns(scheme, type)}
 </FForm>`;
   if (someSpanIsNot24) {
-    str = `<el-row :gutter="${scheme.gutter}">
+    str = `<f-grid :gutter="${scheme.gutter}">
     ${str}
-</el-row>`;
+</f-grid>`;
   }
   return str;
 }
