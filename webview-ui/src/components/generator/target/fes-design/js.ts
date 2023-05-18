@@ -58,12 +58,17 @@ function buildData(
         )`;
     }
     dataList.push(str);
-  } else if (config.dynamic) {
+  } else if (scheme.type === "dialog") {
+    dataList.push(`
+        const ${scheme.__vModel__} = ref(10)
+    `);
+  } else if(config.dynamic) {
     const str = `const ${scheme.__vModel__} = reactive(
         ${JSON.stringify(scheme.data)}
       )`;
     dataList.push(str);
   } else {
+    // todo dialog vmodel 不是formData里的
     const defaultValue = JSON.stringify(config.defaultValue);
     formDataList.push(`${scheme.__vModel__}: ${defaultValue}`);
   }
@@ -146,6 +151,7 @@ function buildRules(scheme: ComponentItemJson, ruleList: string[]) {
  * @param methodList
  */
 function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
+    // todo 按钮click form 内的按钮提交触发校验
   switch (scheme.type) {
     case "pagination":
       const table = confGlobal && confGlobal.fields[scheme.index - 1];
@@ -177,9 +183,8 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
 /**
  * 组装js
  * @param {Object} formConfig 整个表单配置
- * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpJs(formConfig: FormConf, type: string) {
+export function makeUpJs(formConfig: FormConf) {
   confGlobal = formConfig = deepClone(formConfig);
   const formDataList: string[] = [];
   const dataList: string[] = [];
@@ -193,6 +198,15 @@ export function makeUpJs(formConfig: FormConf, type: string) {
     buildRules(item, ruleList);
     buildOptions(item, methodList, dataList, mounted); // 例如select options
     buildEventMethods(item, methodList);
+    if(item.__config__.children) {
+        item.__config__.children.forEach((it, idx) =>{
+            it.index = index+'_'+idx;
+            buildData(it, dataList, formDataList);
+            buildRules(it, ruleList);
+            buildOptions(it, methodList, dataList, mounted); // 例如select options
+            buildEventMethods(it, methodList);
+        })
+    }
   });
   let formRulesStr = "";
   if (ruleList.length) {
@@ -208,7 +222,7 @@ export function makeUpJs(formConfig: FormConf, type: string) {
   // todo 按需导入
   return `<script lang="ts" setup>
     import { ref, reactive, computed, onMounted } from 'vue'
-    import {FForm,FFormItem,FCheckboxGroup,FInput,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch,FTable,FTableColumn,FDatePicker,FTimePicker,FPagination} from './lib/fes-design.js'
+    import {FForm,FFormItem,FCheckboxGroup,FInput,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch,FTable,FTableColumn,FDatePicker,FTimePicker,FPagination,FModal,FGrid,FGridItem} from './lib/fes-design.js'
     ${formDataListStr}
     ${formRulesStr}
     ${dataList.join("\n")}

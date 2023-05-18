@@ -2,9 +2,9 @@ import { getSandboxTpl } from "./sandbox";
 import { makeUpHtml } from './html';
 import { makeUpJs } from './js';
 
-function generateCode(data: FormConf, type: string): string {
-    const html = makeUpHtml(data, type)
-    const script = makeUpJs(data, type)
+function generateCode(data: FormConf): string {
+    const html = makeUpHtml(data)
+    const script = makeUpJs(data)
     return  html + script
 }
 

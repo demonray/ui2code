@@ -112,7 +112,7 @@
       @tag-change="tagChange"
     />
 
-    <code-type-dialog v-model="dialogVisible" title="选择生成类型" @confirm="confrimGenerate" />
+    <code-type-dialog v-model="dialogVisible" title="选择目标组件库" @confirm="confrimGenerate" />
     <input id="copyNode" type="hidden" />
   </div>
 </template>
@@ -261,6 +261,12 @@ function previewSandbox() {
 function generate(): string {
   const { type, targetlib } = saveType;
   drawingList.forEach((it, index) => {
+    // 简单处理了
+    if (it.__config__.children) {
+        it.__config__.children.forEach((child: { __vModel__: string; },idx: any) => {
+            child.__vModel__ = `field_${index}_${idx}`
+        })
+    }
     it.__vModel__ = `field_${index}`
   })
   const data = {

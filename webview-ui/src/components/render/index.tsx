@@ -21,6 +21,11 @@ function makeDataObj(conf: ComponentItemJson): object {
       options.layout = 'prev,next,pager,' + conf.__config__.layoutItems.join(',');
       options.total = 20;
       break;
+    case "dialog":
+      options.modelValue = conf.__config__.show;
+      options.title = conf.__config__.title;
+      options.closable = conf.__config__.closable;
+      options.footer = conf.__config__.footer;
     default:
       options.type = conf.type;
   }
@@ -65,6 +70,7 @@ export default defineComponent({
     const tag = resolveComponent(this.conf.__config__.tag as string);
     const child: Array<any> | string = makeChild(this.conf);
     const options = makeDataObj(this.conf);
+    console.log(tag, options)
     return h(tag, options, child);
   },
 });

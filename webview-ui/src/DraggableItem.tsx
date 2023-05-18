@@ -67,7 +67,6 @@ const layouts = {
     const { active, actived } = opts;
     const config = currentItem.__config__;
     const className = actived ? "drawing-row-item active-from-item" : "drawing-row-item";
-    let child = renderChildren(currentItem, index, opts);
     return (
       <el-row
         gutter={config.gutter}
@@ -84,17 +83,18 @@ const layouts = {
           group="componentsGroup"
           class="drag-wrapper">
           {{
-            item: () =>
-              currentItem.lyoutType === "flex" ? (
+            item: ({ element }: any) => {
+              return currentItem.layoutType === "flex" ? (
                 <el-row
-                  type={currentItem.lyoutType}
+                  type={currentItem.layoutType}
                   justify={currentItem.justify}
                   align={currentItem.align}>
-                  {child}
+                  {renderChildrenItem(element, index, opts)}
                 </el-row>
               ) : (
-                child
-              ),
+                <>{renderChildrenItem(element, index, opts)}</>
+              );
+            },
           }}
         </draggable>
         {components.itemBtns(currentItem, index, opts)}
@@ -104,8 +104,40 @@ const layouts = {
   raw(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
     const { active, actived } = opts;
     const config = currentItem.__config__;
-    const child = renderChildren(currentItem, index, opts);
     let className = actived ? "drawing-item active-from-item" : "drawing-item";
+    if (currentItem.type === "dialog") {
+      className += " drawing-row-item";
+      return (
+        <div
+          class={className}
+          onClick={(event: MouseEvent) => {
+            active();
+            event.stopPropagation();
+          }}>
+          <draggable
+            list={config.children || []}
+            animation={340}
+            item-key="name"
+            group="componentsGroup"
+            class="drag-wrapper">
+            {{
+              item: ({ element }: any) =>
+                currentItem.layoutType === "flex" ? (
+                  <el-row
+                    type={currentItem.layoutType}
+                    justify={currentItem.justify}
+                    align={currentItem.align}>
+                    {renderChildrenItem(element, index, opts)}
+                  </el-row>
+                ) : (
+                  <>{renderChildrenItem(element, index, opts)}</>
+                ),
+            }}
+          </draggable>
+          {components.itemBtns(currentItem, index, opts)}
+        </div>
+      );
+    }
     return (
       <div
         class={className}
@@ -114,7 +146,7 @@ const layouts = {
           event.stopPropagation();
         }}>
         <render key={config.renderKey} conf={currentItem}>
-          {child}
+          {renderChildren(currentItem, index, opts)}
         </render>
         {components.itemBtns(currentItem, index, opts)}
       </div>
@@ -132,6 +164,14 @@ function renderChildren(currentItem: ComponentItemJson, index: number, opts: Ite
     }
     return layoutIsNotFound(currentItem);
   });
+}
+
+function renderChildrenItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+  const layout = layouts[currentItem.__config__.layout as keyof typeof layouts];
+  if (layout) {
+    return layout(currentItem, index, opts);
+  }
+  return layoutIsNotFound(currentItem);
 }
 
 function layoutIsNotFound(currentItem: ComponentItemJson) {

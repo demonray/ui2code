@@ -6,9 +6,9 @@ let someSpanIsNot24 = false;
 // span不为24的用el-col包裹
 function colWrapper(scheme: ComponentItemJson, str: string) {
   if (someSpanIsNot24 || scheme.__config__.span !== 24) {
-    return `<f-grid-item :span="${scheme.__config__.span}">
+    return `<FGridItem :span="${scheme.__config__.span}">
           ${str}
-        </f-grid-item>`;
+        </FGridItem>`;
   }
   return str;
 }
@@ -35,7 +35,7 @@ const layouts = {
   },
   rowItem(scheme: ComponentItemJson) {
     const config = scheme.__config__;
-    const tag = "f-grid";
+    const tag = "FGrid";
     const type = scheme.type === "default" ? "" : `type="${scheme.type}"`;
     const justify = scheme.type === "default" ? "" : `justify="${scheme.justify}"`;
     const align = scheme.type === "default" ? "" : `align="${scheme.align}"`;
@@ -57,7 +57,7 @@ const layouts = {
 };
 
 type TagTemplate = {
-  [propName: string]: (el: ComponentItemJson) => string;
+  [propName: string]: (el: ComponentItemJson, params?: any) => string;
 };
 
 const tags: TagTemplate = {
@@ -172,6 +172,26 @@ const tags: TagTemplate = {
       layoutItems += el.__config__.layoutItems.includes("total") ? "showTotal " : "";
     }
     return `<FPagination ${data} ${layoutItems} ${total} ${change}></FPagination>`;
+  },
+  "el-dialog": (el: ComponentItemJson) => {
+    const { title, footer, okText, cancelText } = el.__config__;
+    let children = el.__config__.children.map((el: ComponentItemJson) => {
+      return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+    });
+    // todo 是否需要form包裹
+    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"))
+    const footerTpl = footer
+      ? `<template #footer>
+    <FButton style="margin-right: 15px">
+        ${cancelText}
+    </FButton>
+    <FButton type="primary">${okText}</FButton>
+</template>`
+      : "";
+    return `<FModal v-model:show="${el.__vModel__}" title="${title}">
+    ${children}
+    ${footerTpl}
+</FModal>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -336,7 +356,7 @@ function buildElUploadChild(scheme: ComponentItemJson) {
   if (scheme["list-type"] === "picture-card") list.push('<i class="el-icon-plus"></i>');
   else
     list.push(
-      `<el-button size="small" type="primary" icon="el-icon-upload">${config.buttonText}</el-button>`
+      `<FButton size="small" type="primary" icon="el-icon-upload">${config.buttonText}</FButton>`
     );
   if (config.showTip)
     list.push(
@@ -344,33 +364,34 @@ function buildElUploadChild(scheme: ComponentItemJson) {
     );
   return list.join("\n");
 }
-function buildFromBtns(scheme: FormConf, type: string) {
+function buildFromBtns(scheme: FormConf) {
   let str = "";
-  if (scheme.formBtns && type === "file") {
+  if (scheme.formBtns) {
+    // todo js 对应方法 submitForm resetForm
     str = `<FFormItem size="large">
-              <el-button type="primary" @click="submitForm">提交</el-button>
-              <el-button @click="resetForm">重置</el-button>
+              <FButton type="primary" @click="submitForm">提交</FButton>
+              <FButton @click="resetForm">重置</FButton>
             </FFormItem>`;
     if (someSpanIsNot24) {
-      str = `<f-grid-item :span="24">
+      str = `<FGridItem :span="24">
               ${str}
-            </f-grid-item>`;
+            </FGridItem>`;
     }
   }
   return str;
 }
 
 function dialogWrapper(str: string) {
-  return `<el-dialog v-bind="$attrs" v-on="$listeners" @open="onOpen" @close="onClose" title="Dialog Titile">
+  return `<FModal v-model:show="show" title="Dialog Titile">
         ${str}
-        <div slot="footer">
-          <el-button @click="close">取消</el-button>
-          <el-button type="primary" @click="handelConfirm">确定</el-button>
-        </div>
-      </el-dialog>`;
+        <template #footer>
+          <FButton @click="handleCancel">取消</FButton>
+          <FButton type="primary" @click="handelSubmit">确定</FButton>
+        </template>
+      </FModal>`;
 }
 
-function buildFormTemplate(scheme: FormConf, child: string, type: string) {
+function buildFormTemplate(scheme: FormConf, child: string) {
   let labelPosition = "";
   if (scheme.labelPosition !== "right") {
     labelPosition = `label-position="${scheme.labelPosition}"`;
@@ -382,22 +403,21 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
     scheme.labelWidth
   }px" ${labelPosition}>
     ${child}
-    ${buildFromBtns(scheme, type)}
+    ${buildFromBtns(scheme)}
 </FForm>`;
-  if (someSpanIsNot24) {
-    str = `<f-grid :gutter="${scheme.gutter}">
-    ${str}
-</f-grid>`;
-  }
+  //   if (someSpanIsNot24) {
+  //     str = `<FGrid :gutter="${scheme.gutter}">
+  //     ${str}
+  // </FGrid>`;
+  //  }
   return str;
 }
 
 /**
  * 组装Template代码
  * @param {Object} formConfig 整个表单配置
- * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpHtml(formConfig: FormConf, type: string) {
+export function makeUpHtml(formConfig: FormConf) {
   const formItemList: string[] = [];
   confGlobal = formConfig;
   // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
@@ -407,7 +427,7 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
   const htmlList: string[] = [];
 
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table" && el.type !== "pagination") {
+    if (el.type !== "table" && el.type !== "pagination" && el.type !== 'dialog') {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }
@@ -422,14 +442,10 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
   const htmlStr = htmlList.join("\n");
   // 将组件代码放进form标签
   if (formItemList.length) {
-    temp = buildFormTemplate(formConfig, itemStr, type);
+    temp = buildFormTemplate(formConfig, itemStr);
   }
   if (htmlList.length) {
     temp = temp + htmlStr;
-  }
-  // dialog标签包裹代码
-  if (type === "dialog") {
-    temp = dialogWrapper(temp);
   }
   confGlobal = null;
   return `<template>

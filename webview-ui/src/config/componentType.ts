@@ -369,4 +369,21 @@ export const layoutComponents: ComponentItemJson[] = [
     },
     type: "pagination",
   },
+  {
+    __config__: {
+      layout: "raw",
+      tagIcon: "row",
+      label: "弹窗",
+      tag: "el-dialog",
+      children: [],
+      title: "Dialog Titile",
+      desc: '',
+      show: false,
+      closable: true,
+      footer: true,
+      okText: "确定",
+      cancelText: "取消"
+    },
+    type: "dialog"
+  },
 ];

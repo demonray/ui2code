@@ -1,5 +1,5 @@
 import { deepClone, titleCase } from "../../../../utilities/index";
-import ruleTrigger from './ruleTrigger';
+import ruleTrigger from "./ruleTrigger";
 
 let confGlobal: FormConf | null = null;
 
@@ -23,6 +23,10 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
         )`;
     }
     dataList.push(str);
+  } else if (scheme.type === "dialog") {
+    dataList.push(`
+        const ${scheme.__vModel__} = ref(10)
+    `);
   } else if (config.dynamic) {
     const str = `const ${scheme.__vModel__} = reactive(
         ${JSON.stringify(scheme.data)}
@@ -99,34 +103,34 @@ function buildOptions(
 
 // 构建校验规则
 function buildRules(scheme: ComponentItemJson, ruleList: string[]) {
-    const config = scheme.__config__;
-    if (scheme.__vModel__ === undefined) return;
-    const rules = [];
-    if (ruleTrigger[config.tag]) {
-      if (config.required) {
-        const type = Array.isArray(config.defaultValue) ? "type: 'array'," : "";
-        let message = Array.isArray(config.defaultValue)
-          ? `请至少选择一个${config.label}`
-          : scheme.placeholder;
-        if (message === undefined) message = `${config.label}不能为空`;
-        rules.push(
-          `{ required: true, ${type} message: '${message}', trigger: '${ruleTrigger[config.tag]}' }`
-        );
-      }
-      if (config.regList && Array.isArray(config.regList)) {
-        config.regList.forEach((item) => {
-          if (item.pattern) {
-            rules.push(
-              `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${
-                ruleTrigger[config.tag]
-              }' }`
-            );
-          }
-        });
-      }
-      ruleList.push(`${scheme.__vModel__}: [${rules.join(",")}],`);
+  const config = scheme.__config__;
+  if (scheme.__vModel__ === undefined) return;
+  const rules = [];
+  if (ruleTrigger[config.tag]) {
+    if (config.required) {
+      const type = Array.isArray(config.defaultValue) ? "type: 'array'," : "";
+      let message = Array.isArray(config.defaultValue)
+        ? `请至少选择一个${config.label}`
+        : scheme.placeholder;
+      if (message === undefined) message = `${config.label}不能为空`;
+      rules.push(
+        `{ required: true, ${type} message: '${message}', trigger: '${ruleTrigger[config.tag]}' }`
+      );
     }
+    if (config.regList && Array.isArray(config.regList)) {
+      config.regList.forEach((item) => {
+        if (item.pattern) {
+          rules.push(
+            `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${
+              ruleTrigger[config.tag]
+            }' }`
+          );
+        }
+      });
+    }
+    ruleList.push(`${scheme.__vModel__}: [${rules.join(",")}],`);
   }
+}
 
 /**
  * 获取动态数据函数
@@ -161,9 +165,8 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
 /**
  * 组装js
  * @param {Object} formConfig 整个表单配置
- * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpJs(formConfig: FormConf, type: string) {
+export function makeUpJs(formConfig: FormConf) {
   confGlobal = formConfig = deepClone(formConfig);
   const formDataList: string[] = [];
   const dataList: string[] = [];
@@ -177,10 +180,19 @@ export function makeUpJs(formConfig: FormConf, type: string) {
     buildRules(item, ruleList);
     buildOptions(item, methodList, dataList, mounted); // 例如select options
     buildEventMethods(item, methodList);
+    if (item.__config__.children) {
+      item.__config__.children.forEach((it, idx) => {
+        it.index = index + "_" + idx;
+        buildData(it, dataList, formDataList);
+        buildRules(it, ruleList);
+        buildOptions(it, methodList, dataList, mounted); // 例如select options
+        buildEventMethods(it, methodList);
+      });
+    }
   });
   let formRulesStr = "";
   if (ruleList.length) {
-    formRulesStr = `const ${formConfig.formRules} = reactive({${ruleList.join('\n')}})`;
+    formRulesStr = `const ${formConfig.formRules} = reactive({${ruleList.join("\n")}})`;
   }
   let formDataListStr = "";
   if (formDataList.length) {

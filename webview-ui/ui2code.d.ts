@@ -17,6 +17,7 @@ declare global {
     | "daterange"
     | "table"
     | "pagination"
+    | "dialog"
     | "row"
     | "default";
 

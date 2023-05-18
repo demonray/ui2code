@@ -56,16 +56,16 @@
             <el-input-number v-model="activeData.gutter" :min="0" placeholder="栅格间隔" />
           </el-form-item>
           <el-form-item
-            v-if="activeData.__config__.layout === 'rowItem' && activeData.lyoutType !== undefined"
+            v-if="activeData.__config__.layout === 'rowItem' && activeData.layoutType !== undefined"
             label="布局模式"
           >
-            <el-radio-group v-model="activeData.lyoutType">
+            <el-radio-group v-model="activeData.layoutType">
               <el-radio-button label="default" />
               <el-radio-button label="flex" />
             </el-radio-group>
           </el-form-item>
           <el-form-item
-            v-if="activeData.justify !== undefined && activeData.lyoutType === 'flex'"
+            v-if="activeData.justify !== undefined && activeData.layoutType === 'flex'"
             label="水平排列"
           >
             <el-select
@@ -82,7 +82,7 @@
             </el-select>
           </el-form-item>
           <el-form-item
-            v-if="activeData.align !== undefined && activeData.lyoutType === 'flex'"
+            v-if="activeData.align !== undefined && activeData.layoutType === 'flex'"
             label="垂直排列"
           >
             <el-radio-group v-model="activeData.align">
