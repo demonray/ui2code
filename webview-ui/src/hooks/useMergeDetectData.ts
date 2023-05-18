@@ -23,6 +23,7 @@ interface UiItem {
   type: UiType;
   options?: MatchedOptions;
   textMatched?: Partial<Matchs>;
+  [propName: string]: any;
 }
 
 let fields: ComponentItemJson[] = [];
@@ -47,6 +48,12 @@ function textItemXY(region: TextRegion): PointXY {
   };
 }
 
+/**
+ * box1,box2 相交部分 / box1
+ * @param box1
+ * @param box2
+ * @returns
+ */
 function calcIoU(box1: XYXY, box2: XYXY) {
   let [x1min, y1min, x1max, y1max] = box1;
   let [x2min, y2min, x2max, y2max] = box2;
@@ -196,6 +203,10 @@ function convertJsonData(uiResults: DetectItem[], textResults: TextItem[]) {
   // text in ui component
   const textIn: Record<number, boolean> = {};
   for (let uiIndex = 0; uiIndex < uiResults.length; uiIndex++) {
+    if (uiResults[uiIndex].class === "table") {
+      uiTextMap[uiIndex] = {};
+      continue;
+    }
     // 未匹配的文本数据直接插入UI组件列表？
     const matchs: Partial<Matchs> = {};
     textResults.forEach((item, index) => {
@@ -281,6 +292,12 @@ function fillTextToComp(
           ],
         });
       }
+    } else if (it.class === "table") {
+      jsonData.push({
+        type: it.class,
+        textMatched: uiTextMap[index],
+        table_struct: it.table_struct,
+      });
     } else {
       jsonData.push({
         type: it.class,
@@ -289,8 +306,19 @@ function fillTextToComp(
     }
   });
 
-  jsonData.forEach((it) => {
-    const conf = findComponentConf(it.type);
+  for (let idx = 0; idx < jsonData.length; idx++) {
+    const it = jsonData[idx];
+    let conf = findComponentConf(it.type);
+    if (it.type === "table") {
+      conf = makeTableConf(it.table_struct);
+      // todo uiResults是否有分页组件
+      //       const hasPaginatin
+      //       if (!hasPaginatin) {
+      //         conf.__config__.pagination = 'none'
+      //       }
+      fields.push(conf);
+      continue;
+    }
     // checkboxgroup radiogroup
     if (it.options && conf) {
       const option: OptionItem[] = [];
@@ -343,7 +371,7 @@ function fillTextToComp(
       processConf(conf);
       fields.push(conf);
     }
-  });
+  }
 }
 
 /**
@@ -414,6 +442,38 @@ export default function designData(
   textResults: TextItem[],
   structures: StructureItem[] = []
 ) {
+  // 表格区域内组件及文本识别结果textResults,uiResults忽略
+  structures.forEach((it) => {
+    if (it.type === "table") {
+      uiResults = uiResults.filter((item) => {
+        const boxUI = xywh2xyxy({
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+        });
+        return calcIoU(boxUI, it.bbox) < 0.1;
+      });
+      textResults = textResults.filter((item) => {
+        const boxText: XYXY = [
+          item.text_region[0][0],
+          item.text_region[0][1],
+          item.text_region[2][0],
+          item.text_region[2][1],
+        ];
+        return calcIoU(boxText, it.bbox) < 0.1;
+      });
+      uiResults.push({
+        x: it.bbox[0],
+        y: it.bbox[1],
+        w: it.bbox[2] - it.bbox[0],
+        h: it.bbox[3] - it.bbox[1],
+        prob: 1,
+        class: "table",
+        table_struct: it,
+      });
+    }
+  });
   fields = [];
   // 按Y排序
   uiResults.sort((a, b) => {
@@ -429,16 +489,6 @@ export default function designData(
     }
   }
   convertJsonData(uiResults, textResults);
-  // todo 这里structures table 先处理简单情况，不考虑位置，后续考虑优化，一个页面多个form，table情况
-  structures.forEach((it) => {
-    if (it.type === "table") {
-      const conf = makeTableConf(it)
-      const hasPaginatin = fields.find(it => it.type === 'pagination')
-      if (!hasPaginatin) {
-        conf.__config__.pagination = 'none'
-      }
-      fields.push(conf);
-    }
-  });
+
   return fields;
 }

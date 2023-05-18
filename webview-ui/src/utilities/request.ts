@@ -1,8 +1,8 @@
 import axios, { type AxiosRequestConfig } from "axios";
 
 const networkConfig = {
-  serverUrl: "http://127.0.0.1:9001",
-  requestTimeout: 20000,
+  serverUrl: "/",
+  requestTimeout: 60000,
 };
 
 // 创建axios实例

@@ -70,7 +70,6 @@ export default defineComponent({
     const tag = resolveComponent(this.conf.__config__.tag as string);
     const child: Array<any> | string = makeChild(this.conf);
     const options = makeDataObj(this.conf);
-    console.log(tag, options)
     return h(tag, options, child);
   },
 });

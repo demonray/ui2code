@@ -166,22 +166,24 @@ const tags: TagTemplate = {
   },
   "el-dialog": (el: ComponentItemJson) => {
     const { tag } = attrBuilder(el);
-    const {title, footer, okText, cancelText } = el.__config__;
+    const { title, footer, okText, cancelText } = el.__config__;
     let children = el.__config__.children.map((el: ComponentItemJson) => {
-        return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
-      });
-      // todo 是否需要form包裹
-    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"))
-    const footerTpl = footer ? `<template #footer>
+      return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+    });
+    // todo 是否需要form包裹
+    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), 'dialog');
+    const footerTpl = footer
+      ? `<template #footer>
     <el-button style="margin-right: 15px">
         ${cancelText}
     </el-button>
     <el-button type="primary">${okText}</el-button>
-</template>` : ''
+</template>`
+      : "";
     return `<${tag} v-model="${el.__vModel__}" title="${title}">
     ${children}
     ${footerTpl}
-</${tag}>`
+</${tag}>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -382,9 +384,9 @@ function buildElUploadChild(scheme: ComponentItemJson) {
     );
   return list.join("\n");
 }
-function buildFromBtns(scheme: FormConf) {
+function buildFromBtns(scheme: FormConf, type: string) {
   let str = "";
-  if (scheme.formBtns) {
+  if (scheme.formBtns && type === "file") {
     str = `<el-form-item size="large">
               <el-button type="primary" @click="submitForm">提交</el-button>
               <el-button @click="resetForm">重置</el-button>
@@ -400,16 +402,16 @@ function buildFromBtns(scheme: FormConf) {
 
 // todo
 function dialogWrapper(str: string) {
-  return `<el-dialog v-bind="$attrs" v-on="$listeners" @open="onOpen" @close="onClose" title="Dialog Titile">
+  return `<el-dialog v-model="showModal" title="Dialog Titile">
         ${str}
         <div slot="footer">
-          <el-button @click="close">取消</el-button>
-          <el-button type="primary" @click="handelConfirm">确定</el-button>
+          <el-button @click="handleCancel">取消</el-button>
+          <el-button type="primary" @click="handelSubmit">确定</el-button>
         </div>
       </el-dialog>`;
 }
 
-function buildFormTemplate(scheme: FormConf, child: string) {
+function buildFormTemplate(scheme: FormConf, child: string, type: string) {
   let labelPosition = "";
   if (scheme.labelPosition !== "right") {
     labelPosition = `label-position="${scheme.labelPosition}"`;
@@ -419,21 +421,22 @@ function buildFormTemplate(scheme: FormConf, child: string) {
     scheme.formRules
   }" size="${scheme.size}" ${disabled} label-width="${scheme.labelWidth}px" ${labelPosition}>
           ${child}
-          ${buildFromBtns(scheme)}
+          ${buildFromBtns(scheme, type)}
         </el-form>`;
-//   if (someSpanIsNot24) {
-//     str = `<el-row :gutter="${scheme.gutter}">
-//             ${str}
-//           </el-row>`;
-//   }
+  //   if (someSpanIsNot24) {
+  //     str = `<el-row :gutter="${scheme.gutter}">
+  //             ${str}
+  //           </el-row>`;
+  //   }
   return str;
 }
 
 /**
  * 组装Template代码
  * @param {Object} formConfig 整个表单配置
+ * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpHtml(formConfig: FormConf) {
+export function makeUpHtml(formConfig: FormConf, type: string) {
   const formItemList: string[] = [];
   confGlobal = formConfig;
   // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
@@ -443,7 +446,7 @@ export function makeUpHtml(formConfig: FormConf) {
   const htmlList: string[] = [];
 
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table" && el.type !== "pagination" && el.type !== 'dialog') {
+    if (el.type !== "table" && el.type !== "pagination" && el.type !== "dialog") {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }
@@ -458,10 +461,14 @@ export function makeUpHtml(formConfig: FormConf) {
   const htmlStr = htmlList.join("\n");
   // 将组件代码放进form标签
   if (formItemList.length) {
-    temp = buildFormTemplate(formConfig, itemStr);
+    temp = buildFormTemplate(formConfig, itemStr, type);
   }
   if (htmlList.length) {
     temp = temp + htmlStr;
+  }
+  // dialog标签包裹代码
+  if (type === "dialog") {
+    temp = dialogWrapper(temp);
   }
   confGlobal = null;
   return `<template>

@@ -60,6 +60,7 @@ declare global {
     h: number;
     prob: number;
     class: UiType;
+    [propName: string]: any;
   }
 
   type TextRegion = [[number, number], [number, number], [number, number], [number, number]];

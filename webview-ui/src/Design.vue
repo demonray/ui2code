@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { generatePreview, generateCode, type LibType } from "./components/generator/index";
 import { deepClone } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
@@ -207,6 +207,10 @@ onMounted(() => {
   loadBeautifier(btf => {
     beautifier = btf
   })
+});
+
+watch(props.json, (v) => {
+  initDrawingList(v);
 });
 
 function initDrawingList(json: DesignJson) {
