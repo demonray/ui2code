@@ -165,8 +165,9 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
 /**
  * 组装js
  * @param {Object} formConfig 整个表单配置
+ * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpJs(formConfig: FormConf) {
+export function makeUpJs(formConfig: FormConf, type: string) {
   confGlobal = formConfig = deepClone(formConfig);
   const formDataList: string[] = [];
   const dataList: string[] = [];
@@ -199,6 +200,9 @@ export function makeUpJs(formConfig: FormConf) {
     formDataListStr = `const ${formConfig.formModel} = reactive({
         ${formDataList}     
     })`;
+  }
+  if (type ==="dialog") {
+    dataList.push(`const showModal = ref(false)`)
   }
   confGlobal = null;
   return `<script lang="ts" setup>

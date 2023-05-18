@@ -364,9 +364,9 @@ function buildElUploadChild(scheme: ComponentItemJson) {
     );
   return list.join("\n");
 }
-function buildFromBtns(scheme: FormConf) {
+function buildFromBtns(scheme: FormConf, type: string) {
   let str = "";
-  if (scheme.formBtns) {
+  if (scheme.formBtns && type === 'file') {
     // todo js 对应方法 submitForm resetForm
     str = `<FFormItem size="large">
               <FButton type="primary" @click="submitForm">提交</FButton>
@@ -382,7 +382,7 @@ function buildFromBtns(scheme: FormConf) {
 }
 
 function dialogWrapper(str: string) {
-  return `<FModal v-model:show="show" title="Dialog Titile">
+  return `<FModal v-model:show="showModal" title="Dialog Titile">
         ${str}
         <template #footer>
           <FButton @click="handleCancel">取消</FButton>
@@ -391,7 +391,7 @@ function dialogWrapper(str: string) {
       </FModal>`;
 }
 
-function buildFormTemplate(scheme: FormConf, child: string) {
+function buildFormTemplate(scheme: FormConf, child: string, type: string) {
   let labelPosition = "";
   if (scheme.labelPosition !== "right") {
     labelPosition = `label-position="${scheme.labelPosition}"`;
@@ -403,7 +403,7 @@ function buildFormTemplate(scheme: FormConf, child: string) {
     scheme.labelWidth
   }px" ${labelPosition}>
     ${child}
-    ${buildFromBtns(scheme)}
+    ${buildFromBtns(scheme, type)}
 </FForm>`;
   //   if (someSpanIsNot24) {
   //     str = `<FGrid :gutter="${scheme.gutter}">
@@ -416,8 +416,9 @@ function buildFormTemplate(scheme: FormConf, child: string) {
 /**
  * 组装Template代码
  * @param {Object} formConfig 整个表单配置
+ * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpHtml(formConfig: FormConf) {
+export function makeUpHtml(formConfig: FormConf, type: string) {
   const formItemList: string[] = [];
   confGlobal = formConfig;
   // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
@@ -442,10 +443,14 @@ export function makeUpHtml(formConfig: FormConf) {
   const htmlStr = htmlList.join("\n");
   // 将组件代码放进form标签
   if (formItemList.length) {
-    temp = buildFormTemplate(formConfig, itemStr);
+    temp = buildFormTemplate(formConfig, itemStr, type);
   }
   if (htmlList.length) {
     temp = temp + htmlStr;
+  }
+  // dialog标签包裹代码
+  if (type === "dialog") {
+    temp = dialogWrapper(temp);
   }
   confGlobal = null;
   return `<template>
