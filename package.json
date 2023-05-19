@@ -9,17 +9,73 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:codehelper.uitocode"
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "menus": {
+      "editor/context": [
+        {
+          "command": "chatgpt-vscode-plugin.whyBroken",
+          "group": "chat-gpt-menu-group@1"
+        },
+        {
+          "command": "chatgpt-vscode-plugin.explainPls",
+          "group": "chat-gpt-menu-group@2"
+        },
+        {
+          "command": "chatgpt-vscode-plugin.refactor",
+          "group": "chat-gpt-menu-group@3"
+        },
+        {
+          "command": "chatgpt-vscode-plugin.addTests",
+          "group": "chat-gpt-menu-group@4"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "codehelper.uitocode",
-        "title": "Code Helper"
+        "command": "chatgpt-vscode-plugin.askGPT",
+        "title": "ChatGPT: Query"
+      },
+      {
+        "command": "chatgpt-vscode-plugin.addTests",
+        "title": "ChatGPT: Add tests"
+      },
+      {
+        "command": "chatgpt-vscode-plugin.whyBroken",
+        "title": "ChatGPT: Why is it broken?"
+      },
+      {
+        "command": "chatgpt-vscode-plugin.explainPls",
+        "title": "ChatGPT: Explain code"
+      },
+      {
+        "command": "chatgpt-vscode-plugin.refactor",
+        "title": "ChatGPT: Refactor"
+      },
+      {
+        "command": "chatgpt-vscode-plugin.resetToken",
+        "title": "ChatGPT: Set API Key"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "chatgpt-vscode-plugin",
+          "title": "ChatGPT",
+          "icon": "images/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "chatgpt-vscode-plugin": [
+        {
+          "type": "webview",
+          "id": "chatgpt-vscode-plugin.view",
+          "name": "ChatGPT"
+        }
+      ]
+    }
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",
@@ -42,5 +98,9 @@
     "prettier": "^2.2.1",
     "typescript": "^4.1.3",
     "vscode-test": "^1.5.0"
+  },
+  "dependencies": {
+    "openai": "^3.1.0"
   }
+
 }
