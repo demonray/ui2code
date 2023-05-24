@@ -7,7 +7,7 @@ import { getParameters } from "codesandbox/lib/api/define";
  * @returns
  */
 export function getSandboxTpl(tpl: string, previewLocal: boolean): string | SandboxTemplateConfig {
-  const files: IFiles = {
+  const files = {
     "index.html": {
       isBinary: false,
       code: `<!DOCTYPE html>
@@ -69,23 +69,25 @@ export function getSandboxTpl(tpl: string, previewLocal: boolean): string | Sand
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }`,
-    }
+    },
   };
   if (previewLocal) {
-    return { 
-        files,
-        main: "/src/App.vue",
-        template: "vue-ts",
-        environment: "vue-cli"
+    return {
+      files,
+      main: "/src/App.vue",
+      template: "vue-ts",
+      environment: "vue-cli",
     };
   } else {
     Object.keys(files).forEach((it) => {
+      //@ts-ignore
       const item = files[it];
       item.content = item.code;
       delete item.code;
     });
   }
   const parameters = getParameters({
+    //@ts-ignore
     files,
   });
   return parameters;

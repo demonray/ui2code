@@ -27,10 +27,11 @@ const layouts = {
     }
     const required = config.tag && !ruleTrigger[config.tag] && config.required ? "required" : "";
     const tagDom = config.tag && tags[config.tag] ? tags[config.tag](scheme) : null;
+    // todo not form item
     let str = `<FFormItem ${labelWidth} ${label} prop="${scheme.__vModel__}" ${required}>
             ${tagDom}
           </FFormItem>`;
-    str = colWrapper(scheme, str);
+    // str = colWrapper(scheme, str);
     return str;
   },
   rowItem(scheme: ComponentItemJson) {
@@ -41,12 +42,15 @@ const layouts = {
     const align = scheme.type === "default" ? "" : `align="${scheme.align}"`;
     const gutter = scheme.gutter ? `:gutter="${scheme.gutter}"` : "";
     const children = config.children.map((el: ComponentItemJson) => {
-      return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+      let str = el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+      if (str.indexOf("<FGridItem") !== 0) {
+        str = colWrapper(el, str);
+      }
+      return str;
     });
     let str = `<${tag} ${type} ${justify} ${align} ${gutter}>
           ${children.join("\n")}
         </${tag}>`;
-    str = colWrapper(scheme, str);
     return str;
   },
   raw(scheme: ComponentItemJson) {
@@ -63,8 +67,8 @@ type TagTemplate = {
 const tags: TagTemplate = {
   "el-button": (el: ComponentItemJson) => {
     const tag = "FButton";
-    const { disabled } = attrBuilder(el);
-    const type = el.type ? `type="${el.type}"` : "";
+    const { disabled, type } = attrBuilder(el);
+    const typeStr = type ? `type="${type}"` : "";
     const icon = el.icon ? `icon="${el.icon}"` : "";
     const round = el.round ? "round" : "";
     const size = el.size ? `size="${el.size}"` : "";
@@ -73,7 +77,7 @@ const tags: TagTemplate = {
     let child = buildElButtonChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
-    return `<${tag} ${type} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
+    return `<${tag} ${typeStr} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
   },
   "el-input": (el: ComponentItemJson) => {
     const tag = "FInput";
@@ -179,7 +183,7 @@ const tags: TagTemplate = {
       return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
     });
     // todo 是否需要form包裹
-    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"))
+    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), "dialog");
     const footerTpl = footer
       ? `<template #footer>
     <FButton style="margin-right: 15px">
@@ -366,7 +370,7 @@ function buildElUploadChild(scheme: ComponentItemJson) {
 }
 function buildFromBtns(scheme: FormConf, type: string) {
   let str = "";
-  if (scheme.formBtns && type === 'file') {
+  if (scheme.formBtns && type === "file") {
     // todo js 对应方法 submitForm resetForm
     str = `<FFormItem size="large">
               <FButton type="primary" @click="submitForm">提交</FButton>
@@ -426,9 +430,9 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
   // 遍历渲染每个组件成html
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
-
+ 
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table" && el.type !== "pagination" && el.type !== 'dialog') {
+    if (el.type !== "table" && el.type !== "pagination" && el.type !== "dialog") {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }
@@ -438,6 +442,7 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
       }
     }
   });
+
   let temp = "";
   const itemStr = formItemList.join("\n");
   const htmlStr = htmlList.join("\n");

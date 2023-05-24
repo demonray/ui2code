@@ -27,6 +27,7 @@ const layouts = {
     }
     const required = config.tag && !ruleTrigger[config.tag] && config.required ? "required" : "";
     const tagDom = config.tag && tags[config.tag] ? tags[config.tag](scheme) : null;
+    // todo not form item
     let str = `<el-form-item ${labelWidth} ${label} prop="${scheme.__vModel__}" ${required}>
             ${tagDom}
           </el-form-item>`;
@@ -41,12 +42,15 @@ const layouts = {
     const align = scheme.type === "default" ? "" : `align="${scheme.align}"`;
     const gutter = scheme.gutter ? `:gutter="${scheme.gutter}"` : "";
     const children = config.children.map((el: ComponentItemJson) => {
-      return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+      let str = el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+      if (str.indexOf("<el-col") !== 0) {
+        str = colWrapper(el, str);
+      }
+      return str;
     });
     let str = `<${tag} ${type} ${justify} ${align} ${gutter}>
           ${children.join("\n")}
         </${tag}>`;
-    str = colWrapper(scheme, str);
     return str;
   },
   raw(scheme: ComponentItemJson) {
@@ -62,8 +66,8 @@ type TagTemplate = {
 
 const tags: TagTemplate = {
   "el-button": (el: ComponentItemJson) => {
-    const { tag, disabled } = attrBuilder(el);
-    const type = el.type ? `type="${el.type}"` : "";
+    const { tag, type, disabled } = attrBuilder(el);
+    const typeStr = type ? `type="${type}"` : "";
     const icon = el.icon ? `icon="${el.icon}"` : "";
     const round = el.round ? "round" : "";
     const size = el.size ? `size="${el.size}"` : "";
@@ -72,7 +76,7 @@ const tags: TagTemplate = {
     let child = buildElButtonChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
-    return `<${tag} ${type} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
+    return `<${tag} ${typeStr} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
   },
   "el-input": (el: ComponentItemJson) => {
     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -171,7 +175,7 @@ const tags: TagTemplate = {
       return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
     });
     // todo 是否需要form包裹
-    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), 'dialog');
+    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), "dialog");
     const footerTpl = footer
       ? `<template #footer>
     <el-button style="margin-right: 15px">

@@ -26,8 +26,12 @@ function makeDataObj(conf: ComponentItemJson): object {
       options.title = conf.__config__.title;
       options.closable = conf.__config__.closable;
       options.footer = conf.__config__.footer;
+      break;
+    case "button":
+      options.type = conf.__config__.type;
+      break;
     default:
-      options.type = conf.type;
+      options.type = conf.type
   }
   return options;
 }

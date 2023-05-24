@@ -2,7 +2,7 @@ import { reactive, watch } from "vue";
 import type { UploadFile } from "element-plus";
 import { getBase64 } from "../utilities/index";
 import Axios from "../utilities/request";
-import DetectService from "../config/modelService";
+import DetectConfig from "../config";
 
 type DetectStatus = {
   text: "PROCESSING" | "SUCCESS";
@@ -249,7 +249,7 @@ export default function useDetectService(): DetectService {
     detectStatus.text = "PROCESSING";
     const images = await getBase64(uploadFile.raw as Blob);
     Axios({
-      url: `${DetectService.OCR}predict-by-base64`,
+      url: `${DetectConfig.OCR}predict-by-base64`,
       method: "post",
       data: {
         base64_str: images.replace(/data:image\/.+;base64,/, ""),
@@ -279,7 +279,7 @@ export default function useDetectService(): DetectService {
       data.append("file", uploadFile.raw);
     }
     Axios({
-      url: `${DetectService.OCR}predict-structure`,
+      url: `${DetectConfig.OCR}predict-structure`,
       method: "post",
       data,
       headers: {
@@ -306,7 +306,7 @@ export default function useDetectService(): DetectService {
       formData.append("files", uploadFile.raw!);
     }
     Axios({
-      url: DetectService.UI_DETECT_URL,
+      url: DetectConfig.UI_DETECT_URL,
       method: "post",
       data: formData,
       headers: {
@@ -329,7 +329,7 @@ export default function useDetectService(): DetectService {
    */
   function checkDetectStatus(taskid: string) {
     Axios({
-      url: DetectService.UI_DETECT_STATUS + taskid,
+      url: DetectConfig.UI_DETECT_STATUS + taskid,
       method: "get",
     })
       .then((res) => {
@@ -354,7 +354,7 @@ export default function useDetectService(): DetectService {
    */
   function getUIDetectResult(taskid: string) {
     Axios({
-      url: DetectService.UI_DETECT_RESULT + taskid,
+      url: DetectConfig.UI_DETECT_RESULT + taskid,
       method: "get",
     })
       .then((res) => {

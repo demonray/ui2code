@@ -26,84 +26,80 @@
 </template>
 <script setup lang="ts">
 import {
-    type CodeEditorProps,
-    SANDBOX_TEMPLATES,
-    SandpackCodeEditor,
-    SandpackFileExplorer,
-    SandpackLayout,
-    SandpackTests,
-    SandpackPreview,
-    SandpackProvider,
-    SandpackConsole,
-    Sandpack,
+  type CodeEditorProps,
+  SANDBOX_TEMPLATES,
+  SandpackCodeEditor,
+  SandpackFileExplorer,
+  SandpackLayout,
+  SandpackTests,
+  SandpackPreview,
+  SandpackProvider,
+  SandpackConsole,
+  Sandpack,
 } from "sandpack-vue3";
-import {
-    type ComputedRef,
-    computed,
-    reactive,
-    onMounted,
-    watch,
-    toRaw
-} from "vue";
-import DetectService from "./config/modelService";
+import { type ComputedRef, computed, reactive, onMounted, watch, toRaw } from "vue";
+import DetectService from "./config";
 
 interface Props {
-    params: SandboxTemplateConfig;
+  params: SandboxTemplateConfig;
 }
-const props = defineProps < Props > ();
+const props = defineProps<Props>();
 
 const config = reactive({
-    Components: {
-        FileExplorer: true,
-        Editor: true,
-        Preview: true,
-        Console: false,
-        Tests: false,
+  Components: {
+    FileExplorer: true,
+    Editor: true,
+    Preview: true,
+    Console: false,
+    Tests: false,
+  },
+  files: toRaw(props.params.files),
+  template: props.params.template,
+  Options: {
+    providerOptions: {
+      bundlerTimeOut: 600000,
+      // bundlerURL: DetectService.BUNDLERURL,
+      // bundlerURL: 'https://2-0-17-sandpack.codesandbox.io/',
+      bundlerURL: "https://2-1-9-sandpack.codesandbox.io/",
     },
-    files: toRaw(props.params.files),
-    template: props.params.template,
-    Options: {
-        providerOptions: {
-            bundlerTimeOut: 600000,
-            // bundlerURL: DetectService.BUNDLERURL,
-            // bundlerURL: 'https://2-0-17-sandpack.codesandbox.io/',
-            bundlerURL: 'https://2-1-9-sandpack.codesandbox.io/',
-        },
-        showTabs: true,
-        showLineNumbers: true,
-        showInlineErrors: true,
-        closableTabs: true,
-        wrapContent: false,
-        readOnly: false,
-        showReadOnly: true,
-        showConsoleButton: true,
-        showConsole: true,
-        showOpenInCodeSandbox: false,
-        showNavigator: true,
-        showRefreshButton: true,
-        consoleShowHeader: false,
-    },
+    showTabs: true,
+    showLineNumbers: true,
+    showInlineErrors: true,
+    closableTabs: true,
+    wrapContent: false,
+    readOnly: false,
+    showReadOnly: true,
+    showConsoleButton: true,
+    showConsole: true,
+    showOpenInCodeSandbox: false,
+    showNavigator: true,
+    showRefreshButton: true,
+    consoleShowHeader: false,
+  },
 });
 
-watch(() => props.params, (v) => {
-    config.files = toRaw(v.files)
-    config.template = v.template
-});
+watch(
+  () => props.params,
+  (v) => {
+    config.files = toRaw(v.files);
+    config.template = v.template;
+  }
+);
 
-const codeEditorOptions: ComputedRef < CodeEditorProps > = computed(() => ({
-    showTabs: config.Options.showTabs,
-    showLineNumbers: config.Options.showLineNumbers,
-    showInlineErrors: config.Options.showInlineErrors,
-    wrapContent: config.Options.wrapContent,
-    closableTabs: config.Options.closableTabs,
-    readOnly: config.Options.readOnly,
-    showReadOnly: config.Options.showReadOnly,
+const codeEditorOptions: ComputedRef<CodeEditorProps> = computed(() => ({
+  showTabs: config.Options.showTabs,
+  showLineNumbers: config.Options.showLineNumbers,
+  showInlineErrors: config.Options.showInlineErrors,
+  wrapContent: config.Options.wrapContent,
+  closableTabs: config.Options.closableTabs,
+  readOnly: config.Options.readOnly,
+  showReadOnly: config.Options.showReadOnly,
 }));
 
 onMounted(() => {
-    window.addEventListener("message", (event) => {
-        // console.log(event)
-    })
+  window.addEventListener("message", (event) => {
+    // console.log(event)
+  });
 });
 </script>
 <style scoped>

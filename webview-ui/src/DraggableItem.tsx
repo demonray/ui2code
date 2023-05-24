@@ -5,20 +5,20 @@ import render from "./components/render/index";
 
 interface ItemOpts {
   actived: boolean;
-  active: () => void;
-  deleteItem: () => void;
-  copy: () => void;
+  active: (item: ComponentItemJson) => void;
+  deleteItem: (item: ComponentItemJson) => void;
+  copy: (item: ComponentItemJson) => void;
 }
 
 const components = {
-  itemBtns(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+  itemBtns(currentItem: ComponentItemJson, opts: ItemOpts) {
     const { copy, deleteItem } = opts;
     return [
       <span
         class="drawing-item-copy"
         title="复制"
         onClick={(event) => {
-          copy();
+          copy(currentItem);
           event.stopPropagation();
         }}>
         <svg-icon name="copy" />
@@ -27,7 +27,7 @@ const components = {
         class="drawing-item-delete"
         title="删除"
         onClick={(event) => {
-          deleteItem();
+          deleteItem(currentItem);
           event.stopPropagation();
         }}>
         <svg-icon name="delete" />
@@ -36,34 +36,35 @@ const components = {
   },
 };
 const layouts = {
-  colItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+  colItem(currentItem: ComponentItemJson, opts: ItemOpts) {
     const { active, actived } = opts;
     const config = currentItem.__config__;
-    const child = renderChildren(currentItem, index, opts);
+    const child = renderChildren(currentItem, opts);
     let className = actived ? "drawing-item active-from-item" : "drawing-item";
     let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null;
     if (config.showLabel === false) labelWidth = "0";
+    // todo 有无form-item
     return (
       <el-col
         span={config.span}
         class={className}
         onClick={(event: MouseEvent) => {
-          active();
+          active(currentItem);
           event.stopPropagation();
         }}>
         <el-form-item
           label-width={labelWidth}
           label={config.showLabel ? config.label : ""}
           required={config.required}>
-          <render key={config.renderKey} conf={currentItem}>
+          <render key={config.guid} conf={currentItem}>
             {child}
           </render>
         </el-form-item>
-        {components.itemBtns(currentItem, index, opts)}
+        {components.itemBtns(currentItem, opts)}
       </el-col>
     );
   },
-  rowItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+  rowItem(currentItem: ComponentItemJson, opts: ItemOpts) {
     const { active, actived } = opts;
     const config = currentItem.__config__;
     const className = actived ? "drawing-row-item active-from-item" : "drawing-row-item";
@@ -72,16 +73,16 @@ const layouts = {
         gutter={config.gutter}
         class={className}
         onClick={(event: MouseEvent) => {
-          active();
+          active(currentItem);
           event.stopPropagation();
         }}>
         <span class="component-name">{config.componentName}</span>
         <draggable
           list={config.children || []}
           animation={340}
-          item-key="name"
+          item-key="guid"
           group="componentsGroup"
-          class="drag-wrapper">
+          class="drag-wrapper el-row">
           {{
             item: ({ element }: any) => {
               return currentItem.layoutType === "flex" ? (
@@ -89,19 +90,19 @@ const layouts = {
                   type={currentItem.layoutType}
                   justify={currentItem.justify}
                   align={currentItem.align}>
-                  {renderChildrenItem(element, index, opts)}
+                  {renderChildrenItem(element, opts)}
                 </el-row>
               ) : (
-                <>{renderChildrenItem(element, index, opts)}</>
+                <>{renderChildrenItem(element, opts)}</>
               );
             },
           }}
         </draggable>
-        {components.itemBtns(currentItem, index, opts)}
+        {components.itemBtns(currentItem, opts)}
       </el-row>
     );
   },
-  raw(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+  raw(currentItem: ComponentItemJson, opts: ItemOpts) {
     const { active, actived } = opts;
     const config = currentItem.__config__;
     let className = actived ? "drawing-item active-from-item" : "drawing-item";
@@ -111,13 +112,13 @@ const layouts = {
         <div
           class={className}
           onClick={(event: MouseEvent) => {
-            active();
+            active(currentItem);
             event.stopPropagation();
           }}>
           <draggable
             list={config.children || []}
             animation={340}
-            item-key="name"
+            item-key="guid"
             group="componentsGroup"
             class="drag-wrapper">
             {{
@@ -127,14 +128,14 @@ const layouts = {
                     type={currentItem.layoutType}
                     justify={currentItem.justify}
                     align={currentItem.align}>
-                    {renderChildrenItem(element, index, opts)}
+                    {renderChildrenItem(element, opts)}
                   </el-row>
                 ) : (
-                  <>{renderChildrenItem(element, index, opts)}</>
+                  <>{renderChildrenItem(element, opts)}</>
                 ),
             }}
           </draggable>
-          {components.itemBtns(currentItem, index, opts)}
+          {components.itemBtns(currentItem, opts)}
         </div>
       );
     }
@@ -142,54 +143,50 @@ const layouts = {
       <div
         class={className}
         onClick={(event: MouseEvent) => {
-          active();
+          active(currentItem);
           event.stopPropagation();
         }}>
-        <render key={config.renderKey} conf={currentItem}>
-          {renderChildren(currentItem, index, opts)}
+        <render key={config.guid} conf={currentItem}>
+          {renderChildren(currentItem, opts)}
         </render>
-        {components.itemBtns(currentItem, index, opts)}
+        {components.itemBtns(currentItem, opts)}
       </div>
     );
   },
 };
 
-function renderChildren(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
+function renderChildren(currentItem: ComponentItemJson, opts: ItemOpts) {
   const config = currentItem.__config__;
   if (!Array.isArray(config.children)) return null;
   return config.children.map((el, i) => {
     const layout = layouts[el.__config__.layout as keyof typeof layouts];
     if (layout) {
-      return layout(el, i, opts);
+      return layout(el, opts);
     }
     return layoutIsNotFound(currentItem);
   });
 }
 
-function renderChildrenItem(currentItem: ComponentItemJson, index: number, opts: ItemOpts) {
-  const layout = layouts[currentItem.__config__.layout as keyof typeof layouts];
+function renderChildrenItem(item: ComponentItemJson, opts: ItemOpts) {
+  const layout = layouts[item.__config__.layout as keyof typeof layouts];
   if (layout) {
-    return layout(currentItem, index, opts);
+    return layout(item, opts);
   }
-  return layoutIsNotFound(currentItem);
+  return layoutIsNotFound(item);
 }
 
-function layoutIsNotFound(currentItem: ComponentItemJson) {
-  throw new Error(`没有与${currentItem.__config__.layout}匹配的layout`);
+function layoutIsNotFound(item: ComponentItemJson) {
+  throw new Error(`没有与${item.__config__.layout}匹配的layout`);
 }
 
 export default defineComponent({
   props: {
-    index: {
-      type: Number,
-      required: true,
-    },
     currentItem: {
       type: Object as PropType<ComponentItemJson>,
       required: true,
     },
-    activeIndex: {
-      type: Number,
+    activeId: {
+      type: String,
       required: true,
     },
   },
@@ -198,20 +195,20 @@ export default defineComponent({
     draggable,
   },
   setup(props, context) {
-    function active() {
-      context.emit("activeItem", props.index);
+    function active(currentItem: ComponentItemJson) {
+      context.emit("activeItem", currentItem);
     }
     /**
      * 删除
      */
-    function deleteItem() {
-      context.emit("deleteItem", props.index);
+    function deleteItem(currentItem: ComponentItemJson) {
+      context.emit("deleteItem", currentItem);
     }
     /**
      * 复制
      */
-    function copy() {
-      context.emit("copyItem", props.currentItem);
+    function copy(currentItem: ComponentItemJson) {
+      context.emit("copyItem", currentItem);
     }
 
     const config = computed(() => {
@@ -226,18 +223,18 @@ export default defineComponent({
       };
     });
     let itemOpts: ItemOpts = reactive({
-      actived: props.activeIndex === props.index,
+      actived: props.activeId === props.currentItem.guid,
       active,
       deleteItem,
       copy,
     });
     watch(props, (v) => {
-      itemOpts.actived = v.activeIndex === v.index;
+      itemOpts.actived = v.activeId === v.currentItem.guid;
     });
     const layout = layouts[config.value.layout as keyof typeof layouts];
 
     if (layout) {
-      return () => layout(props.currentItem, props.index, itemOpts);
+      return () => layout(props.currentItem, itemOpts);
     }
     return layoutIsNotFound(props.currentItem);
   },

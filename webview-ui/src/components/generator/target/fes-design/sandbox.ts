@@ -1,17 +1,14 @@
 import { getParameters } from "codesandbox/lib/api/define";
-import FesDesignJsCode from './lib/fes-design.js?raw';
-import FesDesignCssCode from './lib/fes-design.css?raw';
+import FesDesignJsCode from "./lib/fes-design.js?raw";
+import FesDesignCssCode from "./lib/fes-design.css?raw";
 /**
  * 生成sandbox预览文件
  * @param tpl
  * @param previewLocal
  * @returns
  */
-export function getSandboxTpl(
-  tpl: string,
-  previewLocal: boolean
-): string | SandboxTemplateConfig {
-  const files: IFiles = {
+export function getSandboxTpl(tpl: string, previewLocal: boolean): string | SandboxTemplateConfig {
+  const files = {
     "index.html": {
       isBinary: false,
       code: `<!DOCTYPE html>
@@ -143,13 +140,13 @@ createApp(App).mount("#app");
 `,
     },
     "src/lib/fes-design.js": {
-        isBinary: false,
-        code: FesDesignJsCode
+      isBinary: false,
+      code: FesDesignJsCode,
     },
     "src/lib/fes-design.css": {
-        isBinary: false,
-        code: FesDesignCssCode
-    }
+      isBinary: false,
+      code: FesDesignCssCode,
+    },
   };
   if (previewLocal) {
     return {
@@ -160,12 +157,14 @@ createApp(App).mount("#app");
     };
   } else {
     Object.keys(files).forEach((it) => {
+      //@ts-ignore
       const item = files[it];
       item.content = item.code;
       delete item.code;
     });
   }
   const parameters = getParameters({
+    //@ts-ignore
     files,
   });
   return parameters;

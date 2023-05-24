@@ -11,7 +11,7 @@
             <draggable
               class="components-draggable"
               :list="item.list"
-              item-key="name"
+              item-key="guid"
               :group="{ name: 'componentsGroup', pull: 'clone', put: false }"
               :clone="cloneComponent"
               :sort="false"
@@ -81,16 +81,15 @@
             <draggable
               class="drawing-board"
               :list="drawingList"
-              item-key="name"
+              item-key="guid"
               :animation="340"
               group="componentsGroup"
             >
-              <template #item="{ index, element }">
+              <template #item="{ element }">
                 <draggable-item
-                  :index="index"
                   :current-item="element"
-                  :active-index="activeIndex"
-                  @active-item="activeFormItem"
+                  :active-id="activeItemId"
+                  @active-item="activeItem"
                   @copy-item="drawingItemCopy"
                   @delete-item="drawingItemDelete"
                 />
@@ -105,8 +104,8 @@
     </div>
 
     <right-panel
-      v-if="activeData"
-      :active-data="activeData"
+      v-if="activeData.data"
+      :active-data="activeData.data"
       :form-conf="formConf"
       :show-field="!!drawingList.length"
       @tag-change="tagChange"
@@ -120,7 +119,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { generatePreview, generateCode, type LibType } from "./components/generator/index";
-import { deepClone } from "./utilities/index";
+import { deepClone, guid } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
 import ClipboardJS from "clipboard";
@@ -132,10 +131,11 @@ import {
   layoutComponents,
   formConfig,
 } from "./config/componentType";
+import DetectConfig from "./config";
 import CodeTypeDialog from "./CodeTypeDialog.vue";
 import DraggableItem from "./DraggableItem";
-import loadBeautifier from './utilities/loadBeautifier';
-import { beautifierConf } from './utilities/pluginsConfig';
+import loadBeautifier from "./utilities/loadBeautifier";
+import { beautifierConf } from "./utilities/pluginsConfig";
 
 const leftComponents = [
   {
@@ -162,11 +162,10 @@ const props = defineProps<{
   status?: string;
 }>();
 
-const activeData = computed<ComponentItemJson>({
-  get: () => drawingList[activeIndex.value],
-  set: (val) => {
-    drawingList[activeIndex.value].value = val;
-  },
+const activeData: {
+  data: ComponentItemJson | null;
+} = reactive({
+  data: null,
 });
 
 let optration: "copy" | "download" | "preview";
@@ -179,12 +178,12 @@ type SaveType = {
 let saveType: SaveType = reactive({
   fileName: "",
   type: "file",
-  targetlib: "fes-design"
+  targetlib: "fes-design",
 });
 
 const dialogVisible = ref(false);
 const sandboxForm = ref(null);
-let beautifier:any
+let beautifier: any;
 
 onMounted(() => {
   const { proxy } = useCurrentInstance();
@@ -204,9 +203,9 @@ onMounted(() => {
     proxy?.$message.error("代码复制失败");
   });
   initDrawingList(props.json);
-  loadBeautifier(btf => {
-    beautifier = btf
-  })
+  loadBeautifier((btf) => {
+    beautifier = btf;
+  });
 });
 
 watch(props.json, (v) => {
@@ -215,40 +214,67 @@ watch(props.json, (v) => {
 
 function initDrawingList(json: DesignJson) {
   drawingList.length = 0;
-  drawingList.push(...deepClone(json.fields))
+  let rows = [];
+  let lastRow = [];
+  let lastRowY = 0;
+  for (let i = 0; i < json.fields.length; i++) {
+    // guid
+    json.fields[i].guid = json.fields[i].guid || guid();
+    if (json.fields[i].uiItem.y - lastRowY < DetectConfig.RowThreshold && lastRowY) {
+      lastRow.push(json.fields[i]);
+    } else {
+      lastRowY = json.fields[i].uiItem.y;
+      lastRow = [json.fields[i]];
+      rows.push(lastRow);
+    }
+  }
+  rows = rows.map((rowItems) => {
+    if (rowItems.length > 1) {
+      let row = layoutComponents.find((it) => it.type === "row") as ComponentItemJson;
+      if (row) {
+        row = deepClone(row);
+        row.__config__.children = [...rowItems];
+        rowItems = [row];
+      }
+    }
+    return rowItems[0];
+  });
+  drawingList.push(...rows);
 }
 
 onUnmounted(() => {});
 
 function cloneComponent(origin: ComponentItemJson): ComponentItemJson {
   const clone = deepClone(origin);
+  clone.guid = guid();
   return clone;
 }
 
-let activeIndex = ref(0);
+let activeItemId = ref("");
 
 function addComponent(item: ComponentItemJson) {
   const clone = cloneComponent(item);
   drawingList.push(clone);
-  activeFormItem(drawingList.length - 1);
+  activeItem(clone);
 }
 
-function activeFormItem(index: number) {
-  activeIndex.value = index;
+function activeItem(item: ComponentItemJson) {
+  activeData.data = item;
+  activeItemId.value = item.guid;
 }
 
 function preview() {
-    dialogVisible.value = true;
-    optration = "preview";
+  dialogVisible.value = true;
+  optration = "preview";
 }
 
 function previewSandbox() {
   const { targetlib } = saveType;
-  const code = generate()
-  const previewLocal = true
-  const parameters = generatePreview(targetlib, code, previewLocal)
+  const code = generate();
+  const previewLocal = true;
+  const parameters = generatePreview(targetlib, code, previewLocal);
   if (previewLocal) {
-    emit('preview', parameters)
+    emit("preview", parameters);
   } else {
     if (sandboxForm.value) {
       const form = sandboxForm.value as HTMLFormElement;
@@ -267,18 +293,26 @@ function generate(): string {
   drawingList.forEach((it, index) => {
     // 简单处理了
     if (it.__config__.children) {
-        it.__config__.children.forEach((child: { __vModel__: string; },idx: any) => {
-            child.__vModel__ = `field_${index}_${idx}`
-        })
+      // todo 有无vmodel
+      it.__config__.children.forEach(
+        (
+          child: {
+            __vModel__: string;
+          },
+          idx: any
+        ) => {
+          child.__vModel__ = `field_${index}_${idx}`;
+        }
+      );
     }
-    it.__vModel__ = `field_${index}`
-  })
+    it.__vModel__ = `field_${index}`;
+  });
   const data = {
     fields: drawingList,
     ...formConf,
   };
   const code = generateCode(data, type, targetlib);
-  return code && beautifier ? beautifier.html(code, beautifierConf.html): code || 'null'
+  return code && beautifier ? beautifier.html(code, beautifierConf.html) : code || "null";
 }
 
 function confrimGenerate(save: SaveType) {
@@ -287,8 +321,8 @@ function confrimGenerate(save: SaveType) {
     document.getElementById("copyNode")?.click();
   } else if (optration === "download") {
     generate();
-  } else if(optration === "preview") {
-    previewSandbox()
+  } else if (optration === "preview") {
+    previewSandbox();
   }
 }
 
@@ -304,64 +338,92 @@ function empty() {
   drawingList.length = 0;
 }
 
-function drawingItemCopy(item: ComponentItemJson, list: []) {
+function drawingItemCopy(item: ComponentItemJson) {
   let clone = deepClone(item);
+  clone.guid = guid();
   drawingList.push(clone);
-  activeFormItem(drawingList.length - 1);
+  activeItem(clone);
 }
 
-function drawingItemDelete(index: number, list: []) {
-  drawingList.splice(index, 1);
-  nextTick(() => {
-    const len = drawingList.length;
-    if (len) {
-      activeFormItem(len - 1);
+function drawingItemDelete(item: ComponentItemJson) {
+  const index = drawingList.findIndex((it) => it.guid === item.guid);
+  if (index > -1) {
+    drawingList.splice(index, 1);
+    nextTick(() => {
+      const len = drawingList.length;
+      if (len) {
+        activeItem(drawingList[len - 1]);
+      }
+    });
+  } else {
+    for (let i = 0; i < drawingList.length; i++) {
+      const children = drawingList[i].__config__.children;
+      if (children) {
+        const index = children.findIndex((it: ComponentItemJson) => it.guid === item.guid);
+        if (index > -1) {
+          console.log(index);
+          children.splice(index, 1);
+          break;
+        }
+      }
     }
-  });
+    activeItem(drawingList[0]);
+  }
 }
-function tagChange(newTag: ComponentItemJson, type: string = '') {
-  if (type === 'add-pagination') {
+
+function tagChange(newTag: ComponentItemJson, type: string = "") {
+  if (type === "add-pagination") {
     // 新增:table的分页，分页条在table下方，存在则不增加
-    if (drawingList[activeIndex.value + 1] && drawingList[activeIndex.value + 1].type === 'pagination') {
-        return
+    const { index, next } = nextComp();
+    if (next && next.type === "pagination") {
+      return;
     }
     newTag = cloneComponent(newTag);
-    drawingList.splice(activeIndex.value + 1, 0, newTag);
-  } else if(type === 'del-pagination') {
-    if (drawingList[activeIndex.value + 1] && drawingList[activeIndex.value + 1].type === 'pagination') {
-      drawingList.splice(activeIndex.value + 1, 1);
+    drawingList.splice(index + 1, 0, newTag);
+  } else if (type === "del-pagination") {
+    const { index, next } = nextComp();
+    if (next && next.type === "pagination") {
+      drawingList.splice(index + 1, 1);
     }
   } else {
     // change
     newTag = cloneComponent(newTag);
     const config = newTag.__config__;
-    newTag.__vModel__ = activeData.value.__vModel__;
-    config.span = activeData.value.__config__.span;
-    activeData.value.__config__.tag = config.tag;
-    activeData.value.__config__.tagIcon = config.tagIcon;
-    if (typeof activeData.value.__config__.defaultValue === typeof config.defaultValue) {
-        config.defaultValue = activeData.value.__config__.defaultValue;
-    }
-    Object.keys(newTag).forEach((key) => {
-        if (activeData.value[key] !== undefined) {
-        newTag[key] = activeData.value[key];
-        }
-    });
-    activeData.value = newTag;
-    updateDrawingList(newTag, drawingList);
-  }
-}
-function updateDrawingList(newTag: ComponentItemJson, list: ComponentItemJson[]) {
-  if (activeIndex.value > -1) {
-    list.splice(activeIndex.value, 1, newTag);
-  } else {
-    list.forEach((item) => {
-      if (Array.isArray(item.__config__.children)) {
-        updateDrawingList(newTag, item.__config__.children);
+    if (activeData.data) {
+      newTag.__vModel__ = activeData.data.__vModel__;
+      config.span = activeData.data.__config__.span;
+      activeData.data.__config__.tag = config.tag;
+      activeData.data.__config__.tagIcon = config.tagIcon;
+      if (typeof activeData.data.__config__.defaultValue === typeof config.defaultValue) {
+        config.defaultValue = activeData.data.__config__.defaultValue;
       }
-    });
+      Object.keys(newTag).forEach((key) => {
+        if (activeData.data && activeData.data[key] !== undefined) {
+          newTag[key] = activeData.data[key];
+        }
+      });
+    }
+    activeData.data = newTag;
   }
 }
+
+/**
+ * 获取下一个组件
+ */
+function nextComp() {
+  const index = drawingList.findIndex((it) => it.guid === activeItemId.value);
+  if (index > -1) {
+    return {
+      index,
+      next: drawingList[index + 1],
+    };
+  }
+  return {
+    index,
+    next: undefined,
+  };
+}
+
 // 选中文件后把参数赋值
 const handleChange = (uploadFile: UploadFile) => {
   emit("upload", uploadFile);

@@ -306,6 +306,7 @@ export const layoutComponents: ComponentItemJson[] = [
     type: "row",
     justify: "start",
     align: "top",
+    gutter: "20"
   },
   {
     __config__: {
@@ -316,6 +317,7 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-button",
       tagIcon: "button",
       span: 24,
+      type: "primary",
       layout: "colItem",
     },
     __slot__: {

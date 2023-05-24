@@ -1,4 +1,5 @@
 import { inputComponents, selectComponents, layoutComponents } from "../config/componentType";
+import DetectConfig from "../config";
 
 interface DirDis {
   dir: Direction;
@@ -25,8 +26,6 @@ interface UiItem {
   textMatched?: Partial<Matchs>;
   [propName: string]: any;
 }
-
-let fields: ComponentItemJson[] = [];
 
 /**
  * 查找对应组件设计器配置
@@ -192,7 +191,11 @@ function xywh2xyxy(box: { x: number; y: number; w: number; h: number }): XYXY {
  * @param uiResults
  * @param textResults
  */
-function convertJsonData(uiResults: DetectItem[], textResults: TextItem[]) {
+function convertJsonData(
+  uiResults: DetectItem[],
+  textResults: TextItem[],
+  fields: ComponentItemJson[]
+) {
   // todo 检测同一组件识别出多标签的情况，保留得分高的
 
   // 遍历文本识别结果数据，判断与组件识别结果关系：
@@ -240,10 +243,9 @@ function convertJsonData(uiResults: DetectItem[], textResults: TextItem[]) {
       }
     });
     uiTextMap[uiIndex] = matchs;
-    // console.log(uiTextMap);
   }
 
-  fillTextToComp(uiTextMap, uiResults, textResults);
+  fillTextToComp(uiTextMap, uiResults, textResults, fields);
 }
 
 /**
@@ -254,7 +256,8 @@ function convertJsonData(uiResults: DetectItem[], textResults: TextItem[]) {
 function fillTextToComp(
   uiTextMap: UITextMap,
   uiResults: DetectItem[],
-  textResults: TextItem[]
+  textResults: TextItem[],
+  fields: ComponentItemJson[]
 ): void {
   // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
@@ -270,6 +273,7 @@ function fillTextToComp(
       } else {
         jsonData.push({
           type: it.class,
+          uiItem: it,
           options: [
             {
               textMatched: uiTextMap[index],
@@ -285,6 +289,7 @@ function fillTextToComp(
       } else {
         jsonData.push({
           type: it.class,
+          uiItem: it,
           options: [
             {
               textMatched: uiTextMap[index],
@@ -295,12 +300,14 @@ function fillTextToComp(
     } else if (it.class === "table") {
       jsonData.push({
         type: it.class,
+        uiItem: it,
         textMatched: uiTextMap[index],
         table_struct: it.table_struct,
       });
     } else {
       jsonData.push({
         type: it.class,
+        uiItem: it,
         textMatched: uiTextMap[index],
       });
     }
@@ -310,13 +317,7 @@ function fillTextToComp(
     const it = jsonData[idx];
     let conf = findComponentConf(it.type);
     if (it.type === "table") {
-      conf = makeTableConf(it.table_struct);
-      // todo uiResults是否有分页组件
-      //       const hasPaginatin
-      //       if (!hasPaginatin) {
-      //         conf.__config__.pagination = 'none'
-      //       }
-      fields.push(conf);
+      fields.push(processConf(conf, it));
       continue;
     }
     // checkboxgroup radiogroup
@@ -368,8 +369,7 @@ function fillTextToComp(
       if (it.textMatched && it.textMatched.right) {
         // console.log(it, textResults[it.textMatched.right.index])
       }
-      processConf(conf);
-      fields.push(conf);
+      fields.push(processConf(conf, it));
     }
   }
 }
@@ -380,12 +380,23 @@ function fillTextToComp(
  * ...
  * @param conf
  */
-function processConf(conf: ComponentItemJson) {
-  // required处理
-  if (/^\*/.test(conf.__config__.label)) {
-    conf.__config__.required = true;
-    conf.__config__.label = conf.__config__.label.substring(1);
+function processConf(conf: ComponentItemJson, item: UiItem) {
+  if (item.type === "table") {
+    // todo uiResults是否有分页组件
+    //       const hasPaginatin
+    //       if (!hasPaginatin) {
+    //         conf.__config__.pagination = 'none'
+    //       }
+    conf = makeTableConf(item.table_struct);
+  } else {
+    // required处理
+    if (/^\*/.test(conf.__config__.label)) {
+      conf.__config__.required = true;
+      conf.__config__.label = conf.__config__.label.substring(1);
+    }
   }
+  conf.uiItem = item.uiItem;
+  return conf;
 }
 
 /**
@@ -474,7 +485,9 @@ export default function designData(
       });
     }
   });
-  fields = [];
+
+  const fields: ComponentItemJson[] = [];
+
   // 按Y排序
   uiResults.sort((a, b) => {
     return a.y - b.y;
@@ -482,13 +495,13 @@ export default function designData(
 
   // 组件Y值在误差范围内的算一行，按X排序
   for (let i = 1; i < uiResults.length; i++) {
-    if (uiResults[i].y - uiResults[i - 1].y < 5 && uiResults[i].x < uiResults[i - 1].x) {
+    if (uiResults[i].y - uiResults[i - 1].y < DetectConfig.RowThreshold && uiResults[i].x < uiResults[i - 1].x) {
       const tmp = uiResults[i];
       uiResults[i] = uiResults[i - 1];
       uiResults[i - 1] = tmp;
     }
   }
-  convertJsonData(uiResults, textResults);
+  convertJsonData(uiResults, textResults, fields);
 
   return fields;
 }

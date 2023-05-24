@@ -282,7 +282,7 @@
             v-if="activeData.type !== undefined && activeData.__config__.tag === 'el-button'"
             label="按钮类型"
           >
-            <el-select v-model="activeData.type" :style="{ width: '100%' }">
+            <el-select v-model="activeData.__config__.type" :style="{ width: '100%' }">
               <el-option label="primary" value="primary" />
               <el-option label="success" value="success" />
               <el-option label="warning" value="warning" />

@@ -1,4 +1,4 @@
-import { SandpackPredefinedTemplate, SandboxEnvironment } from "sandpack-vue3";
+import { SandpackPredefinedTemplate, SandboxEnvironment, SandpackFiles } from "sandpack-vue3";
 
 declare global {
   var beautifier: any;
@@ -120,16 +120,8 @@ declare global {
     fields: ComponentItemJson[];
   }
 
-  interface IFiles {
-    [key: string]: {
-      content?: string;
-      code?: string;
-      isBinary: boolean;
-    };
-  }
-
   interface SandboxTemplateConfig {
-    files: IFiles;
+    files: SandpackFiles;
     main: string;
     template: SandpackPredefinedTemplate;
     environment: SandboxEnvironment;
