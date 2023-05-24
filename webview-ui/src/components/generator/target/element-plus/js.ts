@@ -11,7 +11,7 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
     dataList.push(`
     const ${scheme.__vModel__}PageSize = ref(10)
     const ${scheme.__vModel__}currentPage = ref(1)
-    const ${scheme.__vModel__}Total = ref(100)
+    const ${scheme.__vModel__}Total = ref(0)
     `);
   } else if (scheme.type === "table") {
     let str = "";
@@ -25,7 +25,7 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
     dataList.push(str);
   } else if (scheme.type === "dialog") {
     dataList.push(`
-        const ${scheme.__vModel__} = ref(10)
+        const ${scheme.__vModel__} = ref(true)
     `);
   } else if (config.dynamic) {
     const str = `const ${scheme.__vModel__} = reactive(
@@ -61,7 +61,7 @@ function buildFetchDataMethod(
   methodList.push(str);
 }
 
-function getModelKeyAndMethod(scheme: ComponentItemJson) {
+function getOptionsModelKeyAndMethod(scheme: ComponentItemJson) {
   const optModel = `${scheme.__vModel__}Options`;
   const methodName = `get${titleCase(optModel)}`;
   return {
@@ -79,7 +79,7 @@ function buildOptions(
 ) {
   if (scheme.__vModel__ === undefined) return;
   let { options } = scheme;
-  const { model, method } = getModelKeyAndMethod(scheme);
+  const { model, method } = getOptionsModelKeyAndMethod(scheme);
   if (scheme.__config__.dynamic) {
     if (scheme.__config__.pagination === "remote" || scheme.__config__.pagination === "none") {
       buildFetchDataMethod(method, scheme.__vModel__, methodList, scheme);
@@ -142,7 +142,7 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
     case "pagination":
       const table = confGlobal && confGlobal.fields[scheme.index - 1];
       if (table) {
-        const { model, method } = getModelKeyAndMethod(table);
+        const { model, method } = getOptionsModelKeyAndMethod(table);
         if (table.__config__.pagination === "remote") {
           methodList.push(`watch([() => ${scheme.__vModel__}currentPage, () => ${scheme.__vModel__}PageSize], (v) => {
             console.log(v)
@@ -159,6 +159,15 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
           `);
         }
       }
+      break;
+    case "dialog":
+      methodList.push(`function onCancel${scheme.__vModel__}() {
+        ${scheme.__vModel__}.value = false
+        }`);
+      methodList.push(`function onOk${scheme.__vModel__}() {
+        //
+        ${scheme.__vModel__}.value = false
+        }`);
       break;
   }
 }
@@ -182,7 +191,7 @@ export function makeUpJs(formConfig: FormConf, type: string) {
     buildOptions(item, methodList, dataList, mounted); // 例如select options
     buildEventMethods(item, methodList);
     if (item.__config__.children) {
-      item.__config__.children.forEach((it, idx) => {
+      item.__config__.children.forEach((it: ComponentItemJson, idx: number) => {
         it.index = index + "_" + idx;
         buildData(it, dataList, formDataList);
         buildRules(it, ruleList);
@@ -201,8 +210,8 @@ export function makeUpJs(formConfig: FormConf, type: string) {
         ${formDataList}     
     })`;
   }
-  if (type ==="dialog") {
-    dataList.push(`const showModal = ref(false)`)
+  if (type === "dialog") {
+    dataList.push(`const showModal = ref(false)`);
   }
   confGlobal = null;
   return `<script lang="ts" setup>

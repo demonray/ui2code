@@ -1,16 +1,11 @@
 import ruleTrigger from "./ruleTrigger";
 
 let confGlobal: FormConf | null = null;
-let someSpanIsNot24 = false;
 
-// span不为24的用el-col包裹
 function colWrapper(scheme: ComponentItemJson, str: string) {
-  if (someSpanIsNot24 || scheme.__config__.span !== 24) {
     return `<el-col :span="${scheme.__config__.span}">
-          ${str}
-        </el-col>`;
-  }
-  return str;
+    ${str}
+</el-col>`;
 }
 
 const layouts = {
@@ -31,7 +26,7 @@ const layouts = {
     let str = `<el-form-item ${labelWidth} ${label} prop="${scheme.__vModel__}" ${required}>
             ${tagDom}
           </el-form-item>`;
-    str = colWrapper(scheme, str);
+    // str = colWrapper(scheme, str);
     return str;
   },
   rowItem(scheme: ComponentItemJson) {
@@ -176,12 +171,14 @@ const tags: TagTemplate = {
     });
     // todo 是否需要form包裹
     children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), "dialog");
+    const cancelEvent = `@click="onCancel${el.__vModel__}"`;
+    const okEvent = `@click="onOK${el.__vModel__}"`;
     const footerTpl = footer
       ? `<template #footer>
-    <el-button style="margin-right: 15px">
+    <el-button style="margin-right: 15px" ${cancelEvent}>
         ${cancelText}
     </el-button>
-    <el-button type="primary">${okText}</el-button>
+    <el-button type="primary" ${okEvent}>${okText}</el-button>
 </template>`
       : "";
     return `<${tag} v-model="${el.__vModel__}" title="${title}">
@@ -395,11 +392,6 @@ function buildFromBtns(scheme: FormConf, type: string) {
               <el-button type="primary" @click="submitForm">提交</el-button>
               <el-button @click="resetForm">重置</el-button>
             </el-form-item>`;
-    if (someSpanIsNot24) {
-      str = `<el-col :span="24">
-              ${str}
-            </el-col>`;
-    }
   }
   return str;
 }
@@ -427,11 +419,6 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
           ${child}
           ${buildFromBtns(scheme, type)}
         </el-form>`;
-  //   if (someSpanIsNot24) {
-  //     str = `<el-row :gutter="${scheme.gutter}">
-  //             ${str}
-  //           </el-row>`;
-  //   }
   return str;
 }
 
@@ -443,8 +430,6 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
 export function makeUpHtml(formConfig: FormConf, type: string) {
   const formItemList: string[] = [];
   confGlobal = formConfig;
-  // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
-  someSpanIsNot24 = formConfig.fields.some((item) => item.__config__.span !== 24);
   // 遍历渲染每个组件成html
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];

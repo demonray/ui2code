@@ -1,16 +1,11 @@
 import ruleTrigger from "./ruleTrigger";
 
 let confGlobal: FormConf | null = null;
-let someSpanIsNot24 = false;
 
-// span不为24的用el-col包裹
 function colWrapper(scheme: ComponentItemJson, str: string) {
-  if (someSpanIsNot24 || scheme.__config__.span !== 24) {
-    return `<FGridItem :span="${scheme.__config__.span}">
-          ${str}
-        </FGridItem>`;
-  }
-  return str;
+  return `<FGridItem :span="${scheme.__config__.span}">
+    ${str}
+</FGridItem>`;
 }
 
 const layouts = {
@@ -31,7 +26,6 @@ const layouts = {
     let str = `<FFormItem ${labelWidth} ${label} prop="${scheme.__vModel__}" ${required}>
             ${tagDom}
           </FFormItem>`;
-    // str = colWrapper(scheme, str);
     return str;
   },
   rowItem(scheme: ComponentItemJson) {
@@ -184,12 +178,14 @@ const tags: TagTemplate = {
     });
     // todo 是否需要form包裹
     children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), "dialog");
+    const cancelEvent = `@click="onCancel${el.__vModel__}"`;
+    const okEvent = `@click="onOK${el.__vModel__}"`;
     const footerTpl = footer
       ? `<template #footer>
-    <FButton style="margin-right: 15px">
+    <FButton style="margin-right: 15px" ${cancelEvent}>
         ${cancelText}
     </FButton>
-    <FButton type="primary">${okText}</FButton>
+    <FButton type="primary" ${okEvent}>${okText}</FButton>
 </template>`
       : "";
     return `<FModal v-model:show="${el.__vModel__}" title="${title}">
@@ -376,11 +372,6 @@ function buildFromBtns(scheme: FormConf, type: string) {
               <FButton type="primary" @click="submitForm">提交</FButton>
               <FButton @click="resetForm">重置</FButton>
             </FFormItem>`;
-    if (someSpanIsNot24) {
-      str = `<FGridItem :span="24">
-              ${str}
-            </FGridItem>`;
-    }
   }
   return str;
 }
@@ -401,19 +392,13 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
     labelPosition = `label-position="${scheme.labelPosition}"`;
   }
   const disabled = scheme.disabled ? `:disabled="${scheme.disabled}"` : "";
-  let str = `
-<FForm ref="${scheme.formRef}" :model="${scheme.formModel}"
+  let str = `<FForm ref="${scheme.formRef}" :model="${scheme.formModel}"
     :rules="${scheme.formRules}" size="${scheme.size}" ${disabled} label-width="${
     scheme.labelWidth
   }px" ${labelPosition}>
     ${child}
     ${buildFromBtns(scheme, type)}
 </FForm>`;
-  //   if (someSpanIsNot24) {
-  //     str = `<FGrid :gutter="${scheme.gutter}">
-  //     ${str}
-  // </FGrid>`;
-  //  }
   return str;
 }
 
@@ -425,12 +410,10 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
 export function makeUpHtml(formConfig: FormConf, type: string) {
   const formItemList: string[] = [];
   confGlobal = formConfig;
-  // 判断布局是否都沾满了24个栅格，以备后续简化代码结构
-  someSpanIsNot24 = formConfig.fields.some((item) => item.__config__.span !== 24);
   // 遍历渲染每个组件成html
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
- 
+
   formConfig.fields.forEach((el) => {
     if (el.type !== "table" && el.type !== "pagination" && el.type !== "dialog") {
       if (el.__config__.layout) {

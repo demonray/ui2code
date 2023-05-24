@@ -220,6 +220,7 @@ function initDrawingList(json: DesignJson) {
   for (let i = 0; i < json.fields.length; i++) {
     // guid
     json.fields[i].guid = json.fields[i].guid || guid();
+    // 同一行判断
     if (json.fields[i].uiItem.y - lastRowY < DetectConfig.RowThreshold && lastRowY) {
       lastRow.push(json.fields[i]);
     } else {
@@ -233,6 +234,14 @@ function initDrawingList(json: DesignJson) {
       let row = layoutComponents.find((it) => it.type === "row") as ComponentItemJson;
       if (row) {
         row = deepClone(row);
+        // 根据组件宽度占比计算span
+        let allWidth = 0
+        rowItems.forEach(it => {
+          allWidth += it.uiItem.w
+        })
+        rowItems.forEach(it => {
+          it.__config__.span = Math.floor(it.uiItem.w / allWidth * 24)
+        })
         row.__config__.children = [...rowItems];
         rowItems = [row];
       }
@@ -293,19 +302,20 @@ function generate(): string {
   drawingList.forEach((it, index) => {
     // 简单处理了
     if (it.__config__.children) {
-      // todo 有无vmodel
       it.__config__.children.forEach(
         (
-          child: {
-            __vModel__: string;
-          },
-          idx: any
+          child: ComponentItemJson,
+          idx: number
         ) => {
-          child.__vModel__ = `field_${index}_${idx}`;
+          if (hasVmodel(child.type)) {
+            child.__vModel__ = `field_${index}_${idx}`;
+          }
         }
       );
     }
-    it.__vModel__ = `field_${index}`;
+    if (hasVmodel(it.type)) {
+      it.__vModel__ = `field_${index}`;
+    }
   });
   const data = {
     fields: drawingList,
@@ -390,7 +400,7 @@ function tagChange(newTag: ComponentItemJson, type: string = "") {
     newTag = cloneComponent(newTag);
     const config = newTag.__config__;
     if (activeData.data) {
-      newTag.__vModel__ = activeData.data.__vModel__;
+      newTag.__vModel__ = hasVmodel(newTag.type) ? activeData.data.__vModel__ : undefined;
       config.span = activeData.data.__config__.span;
       activeData.data.__config__.tag = config.tag;
       activeData.data.__config__.tagIcon = config.tagIcon;
@@ -422,6 +432,10 @@ function nextComp() {
     index,
     next: undefined,
   };
+}
+
+function hasVmodel(type: string) {
+    return !['button'].includes(type)
 }
 
 // 选中文件后把参数赋值

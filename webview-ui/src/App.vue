@@ -21,6 +21,7 @@ watch([() => status.component, () => status.text, () => status.structure], (v) =
   }
 });
 
+// dev test
 const { uiResults, textResults, structures } = getResult();
 const fields = useMergeDetectData(uiResults, textResults, []);
 designJson.fields = fields;
