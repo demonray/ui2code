@@ -53,7 +53,7 @@ function textItemXY(region: TextRegion): PointXY {
  * @param box2
  * @returns
  */
-function calcIoU(box1: XYXY, box2: XYXY) {
+function calcIoU(box1: XYXY, box2: XYXY, type?: number) {
   let [x1min, y1min, x1max, y1max] = box1;
   let [x2min, y2min, x2max, y2max] = box2;
   // 计算两个框的面积
@@ -73,8 +73,7 @@ function calcIoU(box1: XYXY, box2: XYXY) {
   const union = s1 + s2 - intersection;
 
   // 计算iou
-  // return intersection / union
-  return intersection / s1;
+  return type === 1 ? intersection / s1 : intersection / union;
 }
 
 /**
@@ -101,7 +100,7 @@ function isInUIBox(text: TextItem, uiItem: DetectItem): boolean {
     text.text_region[2][1],
   ];
 
-  const iou = calcIoU(boxText, boxUI);
+  const iou = calcIoU(boxText, boxUI, 1);
   return iou > 0.6;
 }
 
@@ -196,8 +195,6 @@ function convertJsonData(
   textResults: TextItem[],
   fields: ComponentItemJson[]
 ) {
-  // todo 检测同一组件识别出多标签的情况，保留得分高的
-
   // 遍历文本识别结果数据，判断与组件识别结果关系：
   // in，left，right，top，bottom
   const uiTextMap: UITextMap = {};
@@ -463,7 +460,7 @@ export default function designData(
           w: item.w,
           h: item.h,
         });
-        return calcIoU(boxUI, it.bbox) < 0.1;
+        return calcIoU(boxUI, it.bbox, 1) < 0.1;
       });
       textResults = textResults.filter((item) => {
         const boxText: XYXY = [
@@ -472,7 +469,7 @@ export default function designData(
           item.text_region[2][0],
           item.text_region[2][1],
         ];
-        return calcIoU(boxText, it.bbox) < 0.1;
+        return calcIoU(boxText, it.bbox, 1) < 0.1;
       });
       uiResults.push({
         x: it.bbox[0],
@@ -495,13 +492,42 @@ export default function designData(
 
   // 组件Y值在误差范围内的算一行，按X排序
   for (let i = 1; i < uiResults.length; i++) {
-    if (uiResults[i].y - uiResults[i - 1].y < DetectConfig.RowThreshold && uiResults[i].x < uiResults[i - 1].x) {
+    if (
+      uiResults[i].y - uiResults[i - 1].y < DetectConfig.RowThreshold &&
+      uiResults[i].x < uiResults[i - 1].x
+    ) {
       const tmp = uiResults[i];
       uiResults[i] = uiResults[i - 1];
       uiResults[i - 1] = tmp;
     }
   }
-  convertJsonData(uiResults, textResults, fields);
+
+  // todo 检测同一组件识别出多标签的情况, 暂时取得分判断
+  const uiItems = [uiResults[0]];
+  for (let i = 1; i < uiResults.length; i++) {
+    const box_1 = xywh2xyxy({
+      x: uiResults[i - 1].x,
+      y: uiResults[i - 1].y,
+      w: uiResults[i - 1].w,
+      h: uiResults[i - 1].h,
+    });
+    const box_2 = xywh2xyxy({
+      x: uiResults[i].x,
+      y: uiResults[i].y,
+      w: uiResults[i].w,
+      h: uiResults[i].h,
+    });
+
+    if (calcIoU(box_1, box_2) > 0.9) {
+      if (uiResults[i].prob > uiResults[i - 1].prob) {
+        uiItems[uiItems.length - 1] = uiResults[i];
+      }
+    } else {
+      uiItems.push(uiResults[i]);
+    }
+  }
+
+  convertJsonData(uiItems, textResults, fields);
 
   return fields;
 }

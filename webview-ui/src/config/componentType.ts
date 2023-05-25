@@ -54,6 +54,7 @@ export const inputComponents: ComponentItemJson[] = [
       span: 24,
       regList: [],
       changeTag: true,
+      type: "textarea",
     },
     placeholder: "请输入",
     readonly: false,

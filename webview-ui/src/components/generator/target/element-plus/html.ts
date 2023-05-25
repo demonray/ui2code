@@ -74,14 +74,14 @@ const tags: TagTemplate = {
     return `<${tag} ${typeStr} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
   },
   "el-input": (el: ComponentItemJson) => {
-    const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
+    const { tag, disabled, vModel, clearable, placeholder, width, type } = attrBuilder(el);
     const maxlength = el.maxlength ? `:maxlength="${el.maxlength}"` : "";
     const showWordLimit = el["show-word-limit"] ? "show-word-limit" : "";
     const readonly = el.readonly ? "readonly" : "";
     const prefixIcon = el["prefix-icon"] ? `prefix-icon='${el["prefix-icon"]}'` : "";
     const suffixIcon = el["suffix-icon"] ? `suffix-icon='${el["suffix-icon"]}'` : "";
     const showPassword = el["show-password"] ? "show-password" : "";
-    const type = el.type ? `type="${el.type}"` : "";
+    const typeStr = type ? `type="${type}"` : "";
     const autosize =
       el.autosize && el.autosize.minRows
         ? `:autosize="{minRows: ${el.autosize.minRows}, maxRows: ${el.autosize.maxRows}}"`
@@ -89,7 +89,7 @@ const tags: TagTemplate = {
     let child = buildElInputChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
-    return `<${tag} ${vModel} ${type} ${placeholder} ${maxlength} ${showWordLimit} ${readonly} ${disabled} ${clearable} ${prefixIcon} ${suffixIcon} ${showPassword} ${autosize} ${width}>${child}</${tag}>`;
+    return `<${tag} ${vModel} ${typeStr} ${placeholder} ${maxlength} ${showWordLimit} ${readonly} ${disabled} ${clearable} ${prefixIcon} ${suffixIcon} ${showPassword} ${autosize} ${width}>${child}</${tag}>`;
   },
   //   "el-input-number": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, placeholder } = attrBuilder(el);
