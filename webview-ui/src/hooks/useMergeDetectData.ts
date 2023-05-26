@@ -518,9 +518,11 @@ export default function designData(
       h: uiResults[i].h,
     });
 
-    if (calcIoU(box_1, box_2) > 0.9) {
+    if (calcIoU(box_1, box_2) > 0.3) {
       if (uiResults[i].prob > uiResults[i - 1].prob) {
         uiItems[uiItems.length - 1] = uiResults[i];
+      } else {
+        uiItems[uiItems.length - 1] = uiResults[i - 1];
       }
     } else {
       uiItems.push(uiResults[i]);

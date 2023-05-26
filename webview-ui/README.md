@@ -4,7 +4,7 @@
 
 ## todo
 
-- [ ] 增加支持的组件类型 Steps、Pagination、Tabs、Modal、Table、Progress、Menu
+- [ ] 增加支持的组件类型 Steps、Pagination、Tabs、Modal、Progress、Menu
 - [ ] 组件识别准确率提高及纠错
 - [ ] 生成代码完善各个组件props属性、状态信息、默认值
 - [ ] Form表单校验 提交

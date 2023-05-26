@@ -7,31 +7,27 @@
       :modal-append-to-body="false"
       @open="onOpen"
     >
-      <el-row :gutter="15">
-        <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
-          <el-col :span="24">
-            <el-form-item label="生成类型" prop="type">
-              <el-radio-group v-model="formData.type">
-                <el-radio-button
-                  v-for="(item, index) in typeOptions"
-                  :key="index"
-                  :label="item.value"
-                >
-                  {{ item.label }}
-                </el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="目标库" prop="type">
-              <el-select v-model="formData.targetlib">
-                <el-option value="element-plus">element-plus-vue3-ts</el-option>
-                <el-option value="fes-design">fes-design-vue3</el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-form>
-      </el-row>
+      <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
+        <el-form-item label="生成类型">
+          <el-radio-group v-model="formData.type">
+            <el-radio-button v-for="(item, index) in typeOptions" :key="index" :label="item.value">
+              {{ item.label }}
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="目标库">
+          <el-select v-model="formData.targetlib">
+            <el-option value="element-plus">element-plus-vue3-ts</el-option>
+            <el-option value="fes-design">fes-design-vue3</el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="props.operation === 'preview'" label="预览方式">
+          <el-radio-group v-model="formData.preview">
+            <el-radio label="playground">playground</el-radio>
+            <el-radio label="codesandbox">codesandbox</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
 
       <template #footer>
         <el-button @click="close"> 取消 </el-button>
@@ -43,29 +39,23 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 import type { ElForm } from "element-plus";
-import type { LibType } from "./components/generator";
+import type { SaveConfig } from "./components/generator";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 
-type SaveType = {
-  fileName: string;
-  type: "file" | "dialog";
-  targetlib: LibType;
-};
+interface Props {
+  operation: string;
+}
+const props = withDefaults(defineProps<Props>(), {
+  operation: "preview",
+});
 
-const formData: SaveType = reactive({
-  fileName: "",
+const formData: SaveConfig = reactive({
+  preview: "playground",
   type: "file",
   targetlib: "fes-design",
 });
 
 const rules = {
-  fileName: [
-    {
-      required: true,
-      message: "请输入文件名",
-      trigger: "blur",
-    },
-  ],
   type: [
     {
       required: true,

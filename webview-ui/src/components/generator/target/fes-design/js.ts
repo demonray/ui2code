@@ -191,13 +191,34 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
  * @param {Object} formConfig 整个表单配置
  * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpJs(formConfig: FormConf, type: string) {
+export function makeUpJs(formConfig: FormConf, type: string, html: string) {
   confGlobal = formConfig = deepClone(formConfig);
   const formDataList: string[] = [];
   const dataList: string[] = [];
   const ruleList: string[] = [];
   const methodList: string[] = [];
   const mounted: string[] = [];
+  const usedComponents: string[] = [
+    "FForm",
+    "FFormItem",
+    "FCheckboxGroup",
+    "FInput",
+    "FSelect",
+    "FButton",
+    "FRadioButton",
+    "FRadio",
+    "FOption",
+    "FRadioGroup",
+    "FSwitch",
+    "FTable",
+    "FTableColumn",
+    "FDatePicker",
+    "FTimePicker",
+    "FPagination",
+    "FModal",
+    "FGrid",
+    "FGridItem",
+  ].filter((item) => html.indexOf(item) > -1);
 
   formConfig.fields.forEach((item, index) => {
     item.index = index;
@@ -229,10 +250,11 @@ export function makeUpJs(formConfig: FormConf, type: string) {
     dataList.push(`const showModal = ref(false)`);
   }
   confGlobal = null;
-  // todo 按需导入
+
+  // codesandbox 打包fesdesign 时less loader 有bug 
   return `<script lang="ts" setup>
     import { ref, reactive, computed, onMounted } from 'vue'
-    import {FForm,FFormItem,FCheckboxGroup,FInput,FSelect,FButton,FRadioButton,FRadio,FOption,FRadioGroup,FSwitch,FTable,FTableColumn,FDatePicker,FTimePicker,FPagination,FModal,FGrid,FGridItem} from './lib/fes-design.js'
+    import {${usedComponents.join(",")}} from './lib/fes-design.js'
     ${formDataListStr}
     ${formRulesStr}
     ${dataList.join("\n")}

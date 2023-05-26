@@ -57,10 +57,6 @@
             预览
           </el-button>
         </form>
-        <!-- <el-button type="text" @click="download">
-          <svg-icon name="download" />
-          生成vue文件
-        </el-button> -->
         <el-button class="action-btn-item" type="text" @click="copyCode">
           <svg-icon name="copy" />
           复制代码
@@ -111,14 +107,14 @@
       @tag-change="tagChange"
     />
 
-    <code-type-dialog v-model="dialogVisible" title="选择目标组件库" @confirm="confrimGenerate" />
+    <code-type-dialog v-model="dialogVisible" :operation="operation" title="选择目标组件库" @confirm="confrimGenerate" />
     <input id="copyNode" type="hidden" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
-import { generatePreview, generateCode, type LibType } from "./components/generator/index";
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick, type ComponentOptionsBase, type ComponentPublicInstance } from "vue";
+import { generatePreview, generateCode, getPreviewPlaygoundUrl, type SaveConfig } from "./components/generator/index";
 import { deepClone, guid } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
@@ -168,15 +164,10 @@ const activeData: {
   data: null,
 });
 
-let optration: "copy" | "download" | "preview";
-type SaveType = {
-  fileName: string;
-  type: "file" | "dialog";
-  targetlib: LibType;
-};
+let operation = ref("preview");
 
-let saveType: SaveType = reactive({
-  fileName: "",
+let saveType: SaveConfig = reactive({
+  preview: "playground",
   type: "file",
   targetlib: "fes-design",
 });
@@ -185,8 +176,10 @@ const dialogVisible = ref(false);
 const sandboxForm = ref(null);
 let beautifier: any;
 
+let contextIns: any;
 onMounted(() => {
   const { proxy } = useCurrentInstance();
+  contextIns = proxy
   const clipboard = new ClipboardJS("#copyNode", {
     text: () => {
       const codeStr = generate();
@@ -235,13 +228,13 @@ function initDrawingList(json: DesignJson) {
       if (row) {
         row = deepClone(row);
         // 根据组件宽度占比计算span
-        let allWidth = 0
-        rowItems.forEach(it => {
-          allWidth += it.uiItem.w
-        })
-        rowItems.forEach(it => {
-          it.__config__.span = Math.floor(it.uiItem.w / allWidth * 24)
-        })
+        let allWidth = 0;
+        rowItems.forEach((it) => {
+          allWidth += it.uiItem.w;
+        });
+        rowItems.forEach((it) => {
+          it.__config__.span = Math.floor((it.uiItem.w / allWidth) * 24);
+        });
         row.__config__.children = [...rowItems];
         rowItems = [row];
       }
@@ -274,22 +267,31 @@ function activeItem(item: ComponentItemJson) {
 
 function preview() {
   dialogVisible.value = true;
-  optration = "preview";
+  operation.value = "preview";
 }
 
 function previewSandbox() {
-  const { targetlib } = saveType;
+  const { targetlib, preview } = saveType;
   const code = generate();
-  const previewLocal = true;
-  const parameters = generatePreview(targetlib, code, previewLocal);
-  if (previewLocal) {
-    emit("preview", parameters);
+  if (preview === "playground") {
+    const url = getPreviewPlaygoundUrl(targetlib, code);
+    if (url) {
+      window.open(url, "_blank")
+    } else {
+      contextIns?.$message.error('dd')
+    }
   } else {
-    if (sandboxForm.value) {
-      const form = sandboxForm.value as HTMLFormElement;
-      const p = form.children[0] as HTMLInputElement;
-      p.value = parameters as string;
-      form.submit();
+    const previewLocal = true; // 默认本地
+    const parameters = generatePreview(targetlib, code, previewLocal);
+    if (preview === "codesandbox" && previewLocal) {
+      emit("preview", parameters);
+    } else {
+      if (sandboxForm.value) {
+        const form = sandboxForm.value as HTMLFormElement;
+        const p = form.children[0] as HTMLInputElement;
+        p.value = parameters as string;
+        form.submit();
+      }
     }
   }
 }
@@ -302,16 +304,11 @@ function generate(): string {
   drawingList.forEach((it, index) => {
     // 简单处理了
     if (it.__config__.children) {
-      it.__config__.children.forEach(
-        (
-          child: ComponentItemJson,
-          idx: number
-        ) => {
-          if (hasVmodel(child.type)) {
-            child.__vModel__ = `field_${index}_${idx}`;
-          }
+      it.__config__.children.forEach((child: ComponentItemJson, idx: number) => {
+        if (hasVmodel(child.type)) {
+          child.__vModel__ = `field_${index}_${idx}`;
         }
-      );
+      });
     }
     if (hasVmodel(it.type)) {
       it.__vModel__ = `field_${index}`;
@@ -325,13 +322,11 @@ function generate(): string {
   return code && beautifier ? beautifier.html(code, beautifierConf.html) : code || "null";
 }
 
-function confrimGenerate(save: SaveType) {
+function confrimGenerate(save: SaveConfig) {
   saveType = save;
-  if (optration === "copy") {
+  if (operation.value === "copy") {
     document.getElementById("copyNode")?.click();
-  } else if (optration === "download") {
-    generate();
-  } else if (optration === "preview") {
+  } else if (operation.value === "preview") {
     previewSandbox();
   }
 }
@@ -341,7 +336,7 @@ function confrimGenerate(save: SaveType) {
  */
 function copyCode() {
   dialogVisible.value = true;
-  optration = "copy";
+  operation.value = "copy";
 }
 
 function empty() {
@@ -435,7 +430,7 @@ function nextComp() {
 }
 
 function hasVmodel(type: string) {
-    return !['button'].includes(type)
+  return !["button"].includes(type);
 }
 
 // 选中文件后把参数赋值

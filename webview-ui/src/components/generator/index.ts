@@ -3,18 +3,25 @@ import generateFesDesign from "./target/fes-design";
 
 export type LibType = "element-plus" | "fes-design";
 
+export type SaveConfig = {
+  preview: string;
+  type: "file" | "dialog";
+  targetlib: LibType;
+};
+
 type LibInterface = {
   // 生成目标组件库代码
   generateCode: (data: FormConf, type: string) => string;
   // 生成sanbbox预览文件
-  getSandboxTpl: (tpl: string, preview: boolean) => string | SandboxTemplateConfig;
+  getSandboxTpl: (code: string, local: boolean) => string | SandboxTemplateConfig;
+  getPlaygoundUrl?: (code: string) => string;
 };
 
 const map: {
   [propName in LibType]: LibInterface;
 } = {
   "element-plus": generateElementPlusUI,
-  "fes-design": generateFesDesign
+  "fes-design": generateFesDesign,
 };
 
 /**
@@ -35,12 +42,24 @@ export function generateCode(data: FormConf, type: string, lib: LibType): string
  * 生成sandbox预览文件
  * @param type
  * @param lib
- * @param preview 是否私有化部署sandbox
+ * @param local 是否私有化部署sandbox
  * @returns
  */
-export function generatePreview(lib: LibType, code: string, preview: boolean): string | SandboxTemplateConfig {
+export function generatePreview(
+  lib: LibType,
+  code: string,
+  local: boolean
+): string | SandboxTemplateConfig {
   if (map[lib]) {
-    return map[lib].getSandboxTpl(code, preview);
+    return map[lib].getSandboxTpl(code, local);
+  }
+  return "";
+}
+
+export function getPreviewPlaygoundUrl(lib: LibType, code: string): string {
+  const libItem = map[lib];
+  if (libItem.getPlaygoundUrl) {
+    return libItem.getPlaygoundUrl(code);
   }
   return "";
 }
