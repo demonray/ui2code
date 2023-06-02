@@ -10,12 +10,17 @@ function generateCode(data: FormConf, type: string): string {
 }
 
 function getPlaygoundUrl(code: string) {
-  code = code.replace('./lib/fes-design.js', 'https://cdn.jsdelivr.net/npm/@fesjs/fes-design@0.7.28/dist/fes-design.esm-browser.js')
+  code = code.replace("./lib/fes-design.js", "@fesjs/fes-design");
   code += `<style>
-  @import url('https://cdn.jsdelivr.net/npm/@fesjs/fes-design@0.7.23/dist/fes-design.css')
-  </style>`
+  @import url('https://cdn.jsdelivr.net/npm/@fesjs/fes-design@0.7.28/dist/fes-design.css')
+  </style>`;
   const state = {
     "App.vue": code,
+    "import-map.json": `{"imports": {
+        "vue": "https://play.vuejs.org/vue.runtime.esm-browser.js",
+        "vue/server-renderer": "https://play.vuejs.org/server-renderer.esm-browser.js",
+        "@fesjs/fes-design": "https://cdn.jsdelivr.net/npm/@fesjs/fes-design@0.7.28/dist/fes-design.esm-browser.js"
+      }}`,
     "_o": {},
   };
   const hash = utoa(JSON.stringify(state));

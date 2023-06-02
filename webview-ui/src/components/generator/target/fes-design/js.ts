@@ -202,6 +202,7 @@ export function makeUpJs(formConfig: FormConf, type: string, html: string) {
     "FForm",
     "FFormItem",
     "FCheckboxGroup",
+    "FCheckbox",
     "FInput",
     "FSelect",
     "FButton",

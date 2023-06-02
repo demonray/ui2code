@@ -27,12 +27,12 @@ export function getSandboxTpl(tpl: string, previewLocal: boolean): string | Sand
     "src/main.ts": {
       isBinary: false,
       code: `import { createApp } from "vue";
-      import ElementPlus from 'element-plus'
+      //import ElementPlus from 'element-plus'
       import 'element-plus/dist/index.css'
       import App from "./App.vue";
       const app = createApp(App);
       
-      app.use(ElementPlus);
+      //app.use(ElementPlus);
       app.mount('#app');`,
     },
     "src/App.vue": {

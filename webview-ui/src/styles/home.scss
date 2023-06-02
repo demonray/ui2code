@@ -335,3 +335,8 @@ html,body, #app {
     vertical-align: middle;
   }
 }
+
+.playground-grid div[title="Open in CodeSandbox"] {
+  top: 10px;
+  left: 10px
+}

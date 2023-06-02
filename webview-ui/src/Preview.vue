@@ -58,9 +58,7 @@ const config = reactive({
   Options: {
     providerOptions: {
       bundlerTimeOut: 600000,
-      // bundlerURL: DetectService.BUNDLERURL,
-      // bundlerURL: 'https://2-0-17-sandpack.codesandbox.io/',
-      bundlerURL: "https://2-1-9-sandpack.codesandbox.io/",
+      bundlerURL: DetectService.bundlerURL,
     },
     showTabs: true,
     showLineNumbers: true,
