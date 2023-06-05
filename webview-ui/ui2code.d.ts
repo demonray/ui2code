@@ -1,5 +1,5 @@
 import { SandpackPredefinedTemplate, SandboxEnvironment, SandpackFiles } from "sandpack-vue3";
-
+import { ElForm } from "element-plus"
 declare global {
   var beautifier: any;
 
@@ -106,8 +106,8 @@ declare global {
   interface FormConfig {
     formRef: string;
     formModel: string;
-    size: string;
-    labelPosition: string;
+    size: ElForm.size;
+    labelPosition: ElForm.labelPosition;
     labelWidth: number;
     formRules: string;
     gutter: number;

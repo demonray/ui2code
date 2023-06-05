@@ -1,6 +1,5 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts","ui2code.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -9,6 +8,14 @@
     "ignoreDeprecations": "5.0",
     "types": ["element-plus/global"]
   },
+  "include": [
+    "env.d.ts",
+    "ui2code.d.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
 
   "references": [
     {

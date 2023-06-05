@@ -116,7 +116,7 @@
               :value="activeData.min"
               :min="0"
               placeholder="至少应选"
-              @input="(v:number) => (activeData.min = v ? v : undefined)"
+              @input="(v:number | null | undefined) => (activeData.min = v ? v : undefined)"
             />
           </el-form-item>
           <el-form-item v-if="activeData.__config__.tag === 'el-checkbox-group'" label="最多可选">
@@ -124,7 +124,7 @@
               :value="activeData.max"
               :min="0"
               placeholder="最多可选"
-              @input="(v:number) => (activeData.max = v ? v : undefined)"
+              @input="(v:number | null | undefined) => (activeData.max = v ? v : undefined)"
             />
           </el-form-item>
           <el-form-item
@@ -726,11 +726,11 @@ function setTimeValue(val: string, type?: string) {
   props.activeData.format = val;
 }
 
-function spanChange(val: number) {
-  props.formConf.span = val;
+function spanChange(val: number | number[]) {
+  props.formConf.span = val as number;
 }
 
-function multipleChange(val: boolean) {
+function multipleChange(val: string | number | boolean) {
   props.activeData.__config__.defaultValue = val ? [] : "";
 }
 
@@ -738,7 +738,7 @@ function dateTypeChange(val: keyof typeof dateTimeFormat) {
   setTimeValue(dateTimeFormat[val], val);
 }
 
-function rangeChange(val: boolean) {
+function rangeChange(val: string | number | boolean) {
   props.activeData.__config__.defaultValue = val
     ? [props.activeData.min, props.activeData.max]
     : props.activeData.min;

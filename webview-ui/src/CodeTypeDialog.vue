@@ -7,7 +7,7 @@
       :modal-append-to-body="false"
       @open="onOpen"
     >
-      <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
+      <el-form ref="elForm" :model="formData" :rules="rules" label-width="100px">
         <el-form-item label="生成类型">
           <el-radio-group v-model="formData.type">
             <el-radio-button v-for="(item, index) in typeOptions" :key="index" :label="item.value">
