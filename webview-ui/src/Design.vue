@@ -249,8 +249,9 @@ function preview() {
 function previewSandbox() {
   const { targetlib } = saveType;
   const code = generate()
-  const previewLocal = false
+  const previewLocal = true
   const parameters = generatePreview(targetlib, code, previewLocal)
+  console.log(parameters)
   if (previewLocal) {
     emit('preview', parameters)
   } else {
