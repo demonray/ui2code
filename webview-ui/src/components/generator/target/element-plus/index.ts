@@ -1,6 +1,7 @@
 import { getSandboxTpl } from "./sandbox";
 import { makeUpHtml } from "./html";
 import { makeUpJs } from "./js";
+import DetectConfig from "../../../../config";
 import { utoa } from "../../../../utilities/index";
 
 function generateCode(data: FormConf, type: string): string {
@@ -10,19 +11,27 @@ function generateCode(data: FormConf, type: string): string {
 }
 
 function getPlaygoundUrl(code: string) {
+  let libUrl = "https://cdn.jsdelivr.net/npm/";
+  let playground = "https://play.vuejs.org/";
+  if (DetectConfig.playground) {
+    playground = DetectConfig.playground;
+    if (DetectConfig.playground.indexOf("play.vuejs.org") < 0) {
+      libUrl = DetectConfig.playground;
+    }
+  }
+
   code += `<style>
-@import url('https://cdn.jsdelivr.net/npm/element-plus@2.3.5/dist/index.css')</style>`;
+@import url('${libUrl}element-plus@2.3.5/dist/index.css')</style>`;
   const state = {
     "App.vue": code,
     "import-map.json": `{"imports": {
-        "vue": "https://play.vuejs.org/vue.runtime.esm-browser.js",
-        "vue/server-renderer": "https://play.vuejs.org/server-renderer.esm-browser.js",
-        "element-plus": "https://cdn.jsdelivr.net/npm/element-plus@2.3.5/dist/index.full.mjs"
+        "vue": "${playground}vue.runtime.esm-browser.js",
+        "vue/server-renderer": "${playground}server-renderer.esm-browser.js",
+        "element-plus": "${libUrl}element-plus@2.3.5/dist/index.full.mjs"
       }}`,
-    "_o": {},
   };
   const hash = utoa(JSON.stringify(state));
-  return `https://play.vuejs.org/#${hash}`;
+  return `${playground}#${hash}`;
 }
 
 export default {
