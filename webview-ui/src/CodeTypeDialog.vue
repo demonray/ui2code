@@ -6,6 +6,7 @@
       :close-on-click-modal="false"
       :modal-append-to-body="false"
       @open="onOpen"
+      @close="close"
     >
       <el-form ref="elForm" :model="formData" :rules="rules" label-width="100px">
         <el-form-item label="生成类型">
