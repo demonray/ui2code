@@ -6,11 +6,7 @@ import { createSvg } from "./src/components/svgIcon/index";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueJsx(),
-    createSvg("./src/icons/svg/"),
-  ],
+  plugins: [vue(), vueJsx(), createSvg("./src/icons/svg/")],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -21,10 +17,10 @@ export default defineConfig({
     outDir: "build",
     rollupOptions: {
       output: {
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`,
       },
     },
-  },
+  }
 });
