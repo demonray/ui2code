@@ -502,7 +502,7 @@ export default function designData(
     }
   }
 
-  // todo 检测同一组件识别出多标签的情况, 暂时取得分判断
+  // 检测同一组件识别出多标签的情况, 暂时取得分判断
   const uiItems = [uiResults[0]];
   for (let i = 1; i < uiResults.length; i++) {
     const box_1 = xywh2xyxy({

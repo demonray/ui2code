@@ -7,7 +7,7 @@ import { utoa } from "../../../../utilities/index";
 function generateCode(data: FormConf, type: string): string {
   const html = makeUpHtml(data, type);
   const script = makeUpJs(data, type, html);
-  return html + script;
+  return html + '\n' + script;
 }
 
 function getPlaygoundUrl(code: string) {

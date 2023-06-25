@@ -107,14 +107,24 @@
       @tag-change="tagChange"
     />
 
-    <code-type-dialog v-model="dialogVisible" :operation="operation" title="选择目标组件库" @confirm="confrimGenerate" />
+    <code-type-dialog
+      v-model="dialogVisible"
+      :operation="operation"
+      title="选择目标组件库"
+      @confirm="confrimGenerate"
+    />
     <input id="copyNode" type="hidden" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick, type ComponentOptionsBase, type ComponentPublicInstance } from "vue";
-import { generatePreview, generateCode, getPreviewPlaygoundUrl, type SaveConfig } from "./components/generator/index";
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import {
+  generatePreview,
+  generateCode,
+  getPreviewPlaygoundUrl,
+} from "./components/generator/index";
+import type { SaveConfig } from './components/generator/index'
 import { deepClone, guid } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
@@ -179,7 +189,7 @@ let beautifier: any;
 let contextIns: any;
 onMounted(() => {
   const { proxy } = useCurrentInstance();
-  contextIns = proxy
+  contextIns = proxy;
   const clipboard = new ClipboardJS("#copyNode", {
     text: () => {
       const codeStr = generate();
@@ -276,9 +286,9 @@ function previewSandbox() {
   if (preview === "playground") {
     const url = getPreviewPlaygoundUrl(targetlib, code);
     if (url) {
-      window.open(url, "_blank")
+      window.open(url, "_blank");
     } else {
-      contextIns?.$message.error('dd')
+      contextIns?.$message.error("未配置playground url");
     }
   } else {
     const previewLocal = true; // 默认本地

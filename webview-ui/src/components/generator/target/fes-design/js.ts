@@ -64,8 +64,6 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
       )`;
     dataList.push(str);
   } else {
-    // todo dialog vmodel 不是formData里的
-    console.log(scheme);
     const defaultValue = JSON.stringify(config.defaultValue);
     formDataList.push(`${scheme.__vModel__}: ${defaultValue}`);
   }

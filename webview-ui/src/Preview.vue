@@ -26,8 +26,6 @@
 </template>
 <script setup lang="ts">
 import {
-  type CodeEditorProps,
-  SANDBOX_TEMPLATES,
   SandpackCodeEditor,
   SandpackFileExplorer,
   SandpackLayout,
@@ -35,9 +33,10 @@ import {
   SandpackPreview,
   SandpackProvider,
   SandpackConsole,
-  Sandpack,
 } from "sandpack-vue3";
-import { type ComputedRef, computed, reactive, onMounted, watch, toRaw } from "vue";
+import type { CodeEditorProps} from "sandpack-vue3";
+import { computed, reactive, onMounted, watch, toRaw } from "vue";
+import type { ComputedRef } from "vue";
 import DetectService from "./config";
 
 interface Props {

@@ -551,7 +551,6 @@
 import { ref, computed, watch } from "vue";
 
 import { isNumberStr } from "./utilities/index";
-// import IconsDialog from './IconsDialog'
 import { inputComponents, selectComponents, layoutComponents } from "./config/componentType";
 
 const dateTimeFormat = {
