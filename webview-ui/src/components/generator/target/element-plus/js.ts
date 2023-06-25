@@ -232,7 +232,13 @@ export function makeUpJs(formConfig: FormConf, type: string, html: string) {
     })`;
   }
   if (type === "dialog") {
-    dataList.push(`const showModal = ref(false)`);
+    dataList.push(`const showModal = ref(true)`);
+    methodList.push(`function handelSubmit() {}`);
+    methodList.push(`function handleCancel() {}`);
+  }
+  if (formConfig.formBtns && type === "file") {
+    methodList.push(`function submitForm() {}`);
+    methodList.push(`function resetForm() {}`);
   }
   confGlobal = null;
   return `<script lang="ts" setup>

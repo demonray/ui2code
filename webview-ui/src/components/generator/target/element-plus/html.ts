@@ -396,7 +396,6 @@ function buildFromBtns(scheme: FormConf, type: string) {
   return str;
 }
 
-// todo
 function dialogWrapper(str: string) {
   return `<el-dialog v-model="showModal" title="Dialog Titile">
         ${str}

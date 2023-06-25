@@ -367,7 +367,6 @@ function buildElUploadChild(scheme: ComponentItemJson) {
 function buildFromBtns(scheme: FormConf, type: string) {
   let str = "";
   if (scheme.formBtns && type === "file") {
-    // todo js 对应方法 submitForm resetForm
     str = `<FFormItem size="large">
               <FButton type="primary" @click="submitForm">提交</FButton>
               <FButton @click="resetForm">重置</FButton>
