@@ -402,11 +402,41 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
 }
 
 /**
+ * 从生成的模版里获取使用到的组件
+ * @param html 
+ * @returns 
+ */
+function getUsedComp(html: string) {
+    return [
+      "FForm",
+      "FFormItem",
+      "FCheckboxGroup",
+      "FCheckbox",
+      "FInput",
+      "FSelect",
+      "FButton",
+      "FRadioButton",
+      "FRadio",
+      "FOption",
+      "FRadioGroup",
+      "FSwitch",
+      "FTable",
+      "FTableColumn",
+      "FDatePicker",
+      "FTimePicker",
+      "FPagination",
+      "FModal",
+      "FGrid",
+      "FGridItem",
+    ].filter((item) => html.indexOf(item) > -1);
+  }
+
+/**
  * 组装Template代码
  * @param {Object} formConfig 整个表单配置
  * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpHtml(formConfig: FormConf, type: string) {
+export function makeUpHtml(formConfig: FormConf, type: string): MakeHtmlResult {
   const formItemList: string[] = [];
   confGlobal = formConfig;
   // 遍历渲染每个组件成html
@@ -440,7 +470,14 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
     temp = dialogWrapper(temp);
   }
   confGlobal = null;
-  return `<template>
-    ${temp}
+  temp = `<template>
+  ${temp}
 </template>`;
+
+  return {
+    html: temp,
+    info: {
+      usedComponents: getUsedComp(temp),
+    },
+  };
 }

@@ -5,8 +5,8 @@ import DetectConfig from "../../../../config";
 import { utoa } from "../../../../utilities/index";
 
 function generateCode(data: FormConf, type: string): string {
-  const html = makeUpHtml(data, type);
-  const script = makeUpJs(data, type, html);
+  const { html, info } = makeUpHtml(data, type);
+  const script = makeUpJs(data, type, { html, info});
   return html + '\n' + script;
 }
 

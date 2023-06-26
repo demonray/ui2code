@@ -126,4 +126,10 @@ declare global {
     template: SandpackPredefinedTemplate;
     environment: SandboxEnvironment;
   }
+  interface MakeHtmlResult {
+    html: string;
+    info: {
+      usedComponents: string[]
+    }
+  }
 }

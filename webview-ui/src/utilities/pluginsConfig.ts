@@ -1,4 +1,4 @@
-const CDN = "https://lib.baomitu.com/"; // CDN Homepage: https://cdn.baomitu.com/
+const CDN = "https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/"; // CDN Homepage: https://cdn.baomitu.com/
 
 function splicingPluginUrl(PluginName: string, version: string, fileName: string): string {
   return `${CDN}${PluginName}/${version}/${fileName}`;

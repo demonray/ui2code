@@ -1,6 +1,6 @@
 // 表单属性【右面板】
 export const formConfig: FormConfig = {
-  formRef: "elForm",
+  formRef: "elFormRef",
   formModel: "formData",
   size: "small",
   labelPosition: "right",

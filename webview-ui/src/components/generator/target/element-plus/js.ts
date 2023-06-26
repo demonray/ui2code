@@ -176,34 +176,13 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
  * @param {Object} formConfig 整个表单配置
  * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpJs(formConfig: FormConf, type: string, html: string) {
+export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResult) {
   confGlobal = formConfig = deepClone(formConfig);
   const formDataList: string[] = [];
   const dataList: string[] = [];
   const ruleList: string[] = [];
   const methodList: string[] = [];
   const mounted: string[] = [];
-  const usedComponents: string[] = [
-    "el-form",
-    "el-form-item",
-    "el-checkbox-group",
-    "el-checkbox",
-    "el-input",
-    "el-select",
-    "el-button",
-    "el-radio-button",
-    "el-radio",
-    "el-option",
-    "el-radio-group",
-    "el-switch",
-    "el-table",
-    "el-pagination",
-    "el-time-picker",
-    "el-date-picker",
-    "el-dialog",
-  ].filter((item) => html.indexOf(item) > -1).map(it => {
-    return it.split('-').map(c => c.slice(0,1).toUpperCase() +c.slice(1).toLowerCase()).join('')
-  });
 
   formConfig.fields.forEach((item, index) => {
     item.index = index;
@@ -231,19 +210,58 @@ export function makeUpJs(formConfig: FormConf, type: string, html: string) {
         ${formDataList}     
     })`;
   }
+  // form ref
+  if (data.info.usedComponents.includes("ElForm")) {
+    dataList.push(`const ${formConfig.formRef} = ref(null)`);
+  }
   if (type === "dialog") {
     dataList.push(`const showModal = ref(true)`);
-    methodList.push(`function handelSubmit() {}`);
-    methodList.push(`function handleCancel() {}`);
+    // 是否存在Form
+    if (data.info.usedComponents.includes("ElForm")) {
+      methodList.push(`function handelSubmit() {
+              ${formConfig.formRef}.value
+                  .validate()
+                  .then((result) => {
+                      console.log('表单验证成功~');
+                      ${formConfig.formRef}.value.resetFields();
+                  })
+                  .catch((error) => {
+                      console.log('表单验证失败: ', error);
+                  });
+  
+          }`);
+      methodList.push(`function handleCancel() {
+              ${formConfig.formRef}.value.clearValidate();
+          }`);
+    } else {
+      methodList.push(`function handelSubmit() {}`);
+      methodList.push(`function handleCancel() {}`);
+    }
   }
   if (formConfig.formBtns && type === "file") {
-    methodList.push(`function submitForm() {}`);
-    methodList.push(`function resetForm() {}`);
+    if (data.info.usedComponents.includes("ElForm")) {
+      methodList.push(`function submitForm() {
+          ${formConfig.formRef}.value
+              .validate()
+              .then((result) => {
+                  console.log('表单验证成功~');
+                  ${formConfig.formRef}.value.resetFields();
+              })
+              .catch((error) => {
+                  console.log('表单验证失败: ', error);
+              });
+  
+        }`);
+      methodList.push(`function resetForm() {
+          ${formConfig.formRef}.value.resetFields();
+          ${formConfig.formRef}.value.clearValidate();
+        }`);
+    }
   }
   confGlobal = null;
   return `<script lang="ts" setup>
     import { ref, reactive, onMounted, computed, watch} from 'vue'
-    import {${usedComponents.join(",")}} from 'element-plus'
+    import {${data.info.usedComponents.join(",")}} from 'element-plus'
     ${formDataListStr}
     ${formRulesStr}
     ${dataList.join("\n")}

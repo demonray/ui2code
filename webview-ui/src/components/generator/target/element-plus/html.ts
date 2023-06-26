@@ -3,7 +3,7 @@ import ruleTrigger from "./ruleTrigger";
 let confGlobal: FormConf | null = null;
 
 function colWrapper(scheme: ComponentItemJson, str: string) {
-    return `<el-col :span="${scheme.__config__.span}">
+  return `<el-col :span="${scheme.__config__.span}">
     ${str}
 </el-col>`;
 }
@@ -422,17 +422,46 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
 }
 
 /**
+ * 从生成的模版里获取使用到的组件
+ * @param html 
+ * @returns 
+ */
+function getUsedComp(html: string) {
+  return [
+    "el-form",
+    "el-form-item",
+    "el-checkbox-group",
+    "el-checkbox",
+    "el-input",
+    "el-select",
+    "el-button",
+    "el-radio-button",
+    "el-radio",
+    "el-option",
+    "el-radio-group",
+    "el-switch",
+    "el-table",
+    "el-pagination",
+    "el-time-picker",
+    "el-date-picker",
+    "el-dialog",
+  ].filter((item) => html.indexOf(item) > -1).map(it => {
+    return it.split('-').map(c => c.slice(0,1).toUpperCase() +c.slice(1).toLowerCase()).join('')
+  });
+}
+
+/**
  * 组装Template代码
  * @param {Object} formConfig 整个表单配置
  * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpHtml(formConfig: FormConf, type: string) {
+export function makeUpHtml(formConfig: FormConf, type: string): MakeHtmlResult {
   const formItemList: string[] = [];
   confGlobal = formConfig;
   // 遍历渲染每个组件成html
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
-
+  // 常见form表单组件顺序是连续的，若不连续以下处理会导致输出结果不正确
   formConfig.fields.forEach((el) => {
     if (el.type !== "table" && el.type !== "pagination" && el.type !== "dialog") {
       if (el.__config__.layout) {
@@ -459,7 +488,14 @@ export function makeUpHtml(formConfig: FormConf, type: string) {
     temp = dialogWrapper(temp);
   }
   confGlobal = null;
-  return `<template>
-      ${temp}
-  </template>`;
+  temp = `<template>
+  ${temp}
+</template>`;
+
+  return {
+    html: temp,
+    info: {
+      usedComponents: getUsedComp(temp),
+    },
+  };
 }
