@@ -4,8 +4,8 @@ import { makeUpJs } from "./js";
 import DetectConfig from "../../../../config";
 import { utoa } from "../../../../utilities/index";
 
-function generateCode(data: FormConf, type: string): string {
-  const { html, info} = makeUpHtml(data, type);
+function generateCode(data: FormConf, type: string, metaInfo: any): string {
+  const { html, info} = makeUpHtml(data, type, metaInfo);
   const script = makeUpJs(data, type, {html, info});
   return html + '\n' + script;
 }

@@ -1,6 +1,7 @@
 import ruleTrigger from "./ruleTrigger";
 
 let confGlobal: FormConf | null = null;
+let metaInfo: { [index: string]: any } = {};
 
 function colWrapper(scheme: ComponentItemJson, str: string) {
   return `<el-col :span="${scheme.__config__.span}">
@@ -306,10 +307,28 @@ function buildElButtonChild(scheme: ComponentItemJson) {
 function buildElTableChild(scheme: ComponentItemJson) {
   let children: string[] = [];
   if (scheme.__config__.children) {
+    metaInfo.tableAction = [];
     children = scheme.__config__.children.map((it: ComponentItemJson) => {
       const prop = it.prop ? `prop="${it.prop}"` : "";
       const label = it.label ? `label="${it.label}"` : "";
-      return `<${it.__config__.tag} ${prop} ${label}/>`;
+      // todo 操作 等特殊列 判断条件
+      if (it.label.trim() == "操作") {
+        let actionBtn = "";
+        if (metaInfo.actionLabels) {
+          metaInfo.actionLabels.forEach((it: string, idx: number) => {
+            metaInfo.tableAction.push(`${scheme.__vModel__}_colAction_${idx}`);
+            actionBtn += `<el-button link type="primary" size="small" @click="${scheme.__vModel__}_colAction_${idx}(scope.$index,scope.row)">${it}</el-button>`;
+          });
+        }
+        return `<${it.__config__.tag} ${label}>
+          <template #default="scope">
+            ${actionBtn}
+        </template>
+      </${it.__config__.tag}>
+        `;
+      } else {
+        return `<${it.__config__.tag} ${prop} ${label}/>`;
+      }
     });
   }
   return children.join("\n");
@@ -423,8 +442,8 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
 
 /**
  * 从生成的模版里获取使用到的组件
- * @param html 
- * @returns 
+ * @param html
+ * @returns
  */
 function getUsedComp(html: string) {
   return [
@@ -445,9 +464,15 @@ function getUsedComp(html: string) {
     "el-time-picker",
     "el-date-picker",
     "el-dialog",
-  ].filter((item) => html.indexOf(item) > -1).map(it => {
-    return it.split('-').map(c => c.slice(0,1).toUpperCase() +c.slice(1).toLowerCase()).join('')
-  });
+    "el-table-column",
+  ]
+    .filter((item) => html.indexOf(item) > -1)
+    .map((it) => {
+      return it
+        .split("-")
+        .map((c) => c.slice(0, 1).toUpperCase() + c.slice(1).toLowerCase())
+        .join("");
+    });
 }
 
 /**
@@ -455,7 +480,8 @@ function getUsedComp(html: string) {
  * @param {Object} formConfig 整个表单配置
  * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpHtml(formConfig: FormConf, type: string): MakeHtmlResult {
+export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeHtmlResult {
+  metaInfo = info;
   const formItemList: string[] = [];
   confGlobal = formConfig;
   // 遍历渲染每个组件成html
@@ -496,6 +522,7 @@ export function makeUpHtml(formConfig: FormConf, type: string): MakeHtmlResult {
     html: temp,
     info: {
       usedComponents: getUsedComp(temp),
+      ...metaInfo,
     },
   };
 }

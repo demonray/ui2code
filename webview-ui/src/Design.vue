@@ -328,7 +328,7 @@ function generate(): string {
     fields: drawingList,
     ...formConf,
   };
-  const code = generateCode(data, type, targetlib);
+  const code = generateCode(data, type, targetlib, props.json.metaInfo);
   return code && beautifier ? beautifier.html(code, beautifierConf.html) : code || "null";
 }
 

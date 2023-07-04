@@ -27,6 +27,8 @@ interface UiItem {
   [propName: string]: any;
 }
 
+let metaInfo: { [index: string]: any } = {};
+
 /**
  * 查找对应组件设计器配置
  */
@@ -419,20 +421,27 @@ function makeTableConf(data: StructureItem) {
   const conf = findComponentConf("table");
   if (trs.length) {
     const data: Array<{}> = [];
+    let actionCol = -1;
     trs.forEach((it, index) => {
       if (index === 0) {
         // 第一行为表头
         conf.__config__.children = it.map((item, colIndex) => {
+          if (actionCol < 0 && item.indexOf('操作') > -1) {
+            actionCol = colIndex
+          }
           return {
             __config__: {
               layout: "raw",
               tag: "el-table-column",
             },
-            prop: `col_${colIndex}`, // todo
+            prop: `col_${colIndex}`,
             label: item,
           };
         });
       } else {
+        if (!metaInfo.actionLabels && actionCol > -1) {
+          metaInfo.actionLabels = it[actionCol].trim().split(/\s/);
+        }
         const obj: { [propName: string]: any } = {};
         it.forEach((item, colIndex) => {
           obj[`col_${colIndex}`] = item;
@@ -445,11 +454,19 @@ function makeTableConf(data: StructureItem) {
   return conf;
 }
 
-export default function designData(
+/**
+ * 处理识别结果数据，生成组件描述信息
+ * @param uiResults UI组件识别结果
+ * @param textResults 文本识别结果
+ * @param structures Layout识别结果
+ * @returns
+ */
+export default function mergeDetectData(
   uiResults: DetectItem[],
   textResults: TextItem[],
   structures: StructureItem[] = []
 ) {
+  metaInfo = {}
   // 表格区域内组件及文本识别结果textResults,uiResults忽略
   structures.forEach((it) => {
     if (it.type === "table") {
@@ -530,6 +547,8 @@ export default function designData(
   }
 
   convertJsonData(uiItems, textResults, fields);
-
-  return fields;
+  return {
+    fields,
+    metaInfo
+  };
 }

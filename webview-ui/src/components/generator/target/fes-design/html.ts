@@ -1,6 +1,7 @@
 import ruleTrigger from "./ruleTrigger";
 
 let confGlobal: FormConf | null = null;
+let metaInfo: {[index: string]: any} = {};
 
 function colWrapper(scheme: ComponentItemJson, str: string) {
   return `<FGridItem :span="${scheme.__config__.span}">
@@ -299,10 +300,16 @@ function buildElInputChild(scheme: ComponentItemJson) {
 function buildElTableChild(scheme: ComponentItemJson) {
   let children: string[] = [];
   if (scheme.__config__.children) {
-    children = scheme.__config__.children.map((it: ComponentItemJson) => {
-      const prop = it.prop ? `prop="${it.prop}"` : "";
+    children = scheme.__config__.children.map((it: ComponentItemJson, index: number) => {
+      let prop = it.prop ? `prop="${it.prop}"` : "";
       const label = it.label ? `label="${it.label}"` : "";
-      return `<FTableColumn ${prop} ${label}/>`;
+      let action = ''
+      // todo 操作 等特殊列 判断条件
+      if (it.label.trim() == '操作') {
+        metaInfo.talbeAction = `${scheme.__vModel__}_col_${index}_actions`
+        action = `:action="${scheme.__vModel__}_col_${index}_actions"`
+      }
+      return `<FTableColumn ${prop} ${label} ${action} />`;
     });
   }
   return children.join("\n");
@@ -436,7 +443,8 @@ function getUsedComp(html: string) {
  * @param {Object} formConfig 整个表单配置
  * @param {String} type 生成类型，文件或弹窗等
  */
-export function makeUpHtml(formConfig: FormConf, type: string): MakeHtmlResult {
+export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeHtmlResult {
+  metaInfo = info;
   const formItemList: string[] = [];
   confGlobal = formConfig;
   // 遍历渲染每个组件成html
@@ -478,6 +486,7 @@ export function makeUpHtml(formConfig: FormConf, type: string): MakeHtmlResult {
     html: temp,
     info: {
       usedComponents: getUsedComp(temp),
+      ...metaInfo
     },
   };
 }

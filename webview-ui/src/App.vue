@@ -11,20 +11,23 @@ const { status, detectUI, detectText, detectStructure, getResult } = useDetectSe
 
 let designJson: DesignJson = reactive({
   fields: [],
+  metaInfo: {}
 });
 
 watch([() => status.component, () => status.text, () => status.structure], (v) => {
   const { uiResults, textResults, structures } = getResult();
   if (v[0] === "FINISH" && v[1] === "SUCCESS" && v[2] === "SUCCESS") {
-    const fields = useMergeDetectData(uiResults, textResults, structures);
+    const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, structures);
     designJson.fields = fields;
+    designJson.metaInfo = metaInfo;
   }
 });
 
 // dev test
 const { uiResults, textResults, structures } = getResult();
-const fields = useMergeDetectData(uiResults, textResults, []);
+const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, structures);
 designJson.fields = fields;
+designJson.metaInfo = metaInfo;
 
 const designPreview = ref(false);
 

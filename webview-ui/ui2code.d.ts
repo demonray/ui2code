@@ -87,6 +87,7 @@ declare global {
 
   interface DesignJson {
     fields: ComponentItemJson[];
+    metaInfo: any
   }
 
   type PointXY = {
@@ -130,6 +131,7 @@ declare global {
     html: string;
     info: {
       usedComponents: string[]
+      [index:string]: any
     }
   }
 }

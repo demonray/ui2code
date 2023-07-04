@@ -100,16 +100,7 @@ export const selectComponents: ComponentItemJson[] = [
     //   url: '',
     },
     __slot__: {
-      options: [
-        {
-          label: "选项一",
-          value: 1,
-        },
-        {
-          label: "选项二",
-          value: 2,
-        },
-      ],
+      options: [],
     },
     placeholder: "请选择",
     disabled: false,
@@ -132,16 +123,7 @@ export const selectComponents: ComponentItemJson[] = [
       required: true,
     },
     __slot__: {
-      options: [
-        {
-          label: "选项一",
-          value: 1,
-        },
-        {
-          label: "选项二",
-          value: 2,
-        },
-      ],
+      options: [],
     },
     disabled: false,
     readonly: false,
@@ -163,16 +145,7 @@ export const selectComponents: ComponentItemJson[] = [
       changeTag: true,
     },
     __slot__: {
-      options: [
-        {
-          label: "选项一",
-          value: 1,
-        },
-        {
-          label: "选项二",
-          value: 2,
-        },
-      ],
+      options: [],
     },
     disabled: false,
     readonly: false,
@@ -339,24 +312,7 @@ export const layoutComponents: ComponentItemJson[] = [
       url: "",
       border: true,
       pagination: 'remote',
-      children: [
-        {
-          __config__: {
-            layout: "raw",
-            tag: "el-table-column",
-          },
-          prop: "date",
-          label: "日期",
-        },
-        {
-          __config__: {
-            layout: "raw",
-            tag: "el-table-column",
-          },
-          prop: "address",
-          label: "地址",
-        },
-      ],
+      children: [],
     },
     data: [],
     type: "table",

@@ -227,6 +227,20 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
   if (data.info.usedComponents.includes("FForm")) {
     dataList.push(`const ${formConfig.formRef} = ref(null)`);
   }
+  // table action
+  if (data.info.talbeAction && data.info.actionLabels) {
+    const labels = data.info.actionLabels.map((item: string) => {
+      return `{
+            label: "${item}",
+            func: (row) => {
+                console.log(row);
+            },
+        }`;
+    });
+    dataList.push(`const ${data.info.talbeAction} = [
+      ${labels.join(",")}
+    ];`);
+  }
   if (type === "dialog") {
     dataList.push(`const showModal = ref(true)`);
     // 是否存在Form
