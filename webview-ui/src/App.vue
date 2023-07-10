@@ -1,33 +1,15 @@
 <script setup lang="ts">
 // import { vscode } from "./utilities/vscode";
-import { ref, reactive, watch } from "vue";
+import { ref, reactive } from "vue";
 import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Preview from "./Preview.vue";
-import useDetectService from "./hooks/useDetectService";
-import useMergeDetectData from "./hooks/useMergeDetectData";
-
-const { status, detectUI, detectText, detectStructure, getResult } = useDetectService();
+import Detect from "./lib";
 
 let designJson: DesignJson = reactive({
   fields: [],
-  metaInfo: {}
+  metaInfo: {},
 });
-
-watch([() => status.component, () => status.text, () => status.structure], (v) => {
-  const { uiResults, textResults, structures } = getResult();
-  if (v[0] === "FINISH" && v[1] === "SUCCESS" && v[2] === "SUCCESS") {
-    const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, structures);
-    designJson.fields = fields;
-    designJson.metaInfo = metaInfo;
-  }
-});
-
-// dev test
-const { uiResults, textResults, structures } = getResult();
-const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, structures);
-designJson.fields = fields;
-designJson.metaInfo = metaInfo;
 
 const designPreview = ref(false);
 
@@ -40,10 +22,15 @@ let previewConf = reactive<{ data: SandboxTemplateConfig }>({
   },
 });
 
+const status = ref('')
+
 function onUpload(uploadFile: UploadFile) {
-  detectUI(uploadFile);
-  detectText(uploadFile);
-  detectStructure(uploadFile);
+  status.value = '识别中，请稍候...'
+  Detect(uploadFile).then(({ fields, metaInfo }) => {
+    status.value = '';
+    designJson.fields = fields;
+    designJson.metaInfo = metaInfo;
+  });
 }
 
 function onPreview(params: SandboxTemplateConfig) {
@@ -64,7 +51,13 @@ function download() {}
     </div>
     <preview :params="previewConf.data"></preview>
   </div>
-  <design v-show="!designPreview" :json="designJson" :status="status.msg" @upload="onUpload" @preview="onPreview" />
+  <design
+    v-show="!designPreview"
+    :json="designJson"
+    :status="status"
+    @upload="onUpload"
+    @preview="onPreview"
+  />
 </template>
 
 <style>

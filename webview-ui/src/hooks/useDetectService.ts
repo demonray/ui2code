@@ -1,4 +1,3 @@
-import { reactive, watch } from "vue";
 import type { UploadFile } from "element-plus";
 import { getBase64 } from "../utilities/index";
 import Axios from "../utilities/request";
@@ -8,28 +7,26 @@ type DetectStatus = {
   text: "PROCESSING" | "SUCCESS";
   component: "PROCESSING" | "PENDING" | "SUCCESS" | "FINISH";
   structure: "PROCESSING" | "SUCCESS";
-  msg: string;
 };
 
 type DetectService = {
-  detectUI: (file: UploadFile) => void;
-  detectText: (file: UploadFile) => void;
+  detectUI: (file: UploadFile) => Promise<any>;
+  detectText: (file: UploadFile) => Promise<any>;
   getResult: () => {
     uiResults: DetectItem[];
     textResults: TextItem[];
     structures: StructureItem[]
   };
-  detectStructure: (file: UploadFile) => void;
+  detectStructure: (file: UploadFile) => Promise<any>;
   status: DetectStatus
 };
 
 export default function useDetectService(): DetectService {
-  const detectStatus: DetectStatus = reactive({
+  const detectStatus: DetectStatus = {
     component: "PROCESSING",
     text: "PROCESSING",
     structure: "PROCESSING",
-    msg: "",
-  });
+  };
 
   let uiResults: DetectItem[] = [
     {
@@ -248,7 +245,7 @@ export default function useDetectService(): DetectService {
     textResults = [];
     detectStatus.text = "PROCESSING";
     const images = await getBase64(uploadFile.raw as Blob);
-    Axios({
+    return Axios({
       url: `${DetectConfig.OCR}predict-by-base64`,
       method: "post",
       data: {
@@ -278,7 +275,7 @@ export default function useDetectService(): DetectService {
     if (uploadFile.raw) {
       data.append("file", uploadFile.raw);
     }
-    Axios({
+    return Axios({
       url: `${DetectConfig.OCR}predict-structure`,
       method: "post",
       data,
@@ -305,7 +302,7 @@ export default function useDetectService(): DetectService {
     if (uploadFile.raw) {
       formData.append("files", uploadFile.raw!);
     }
-    Axios({
+    return Axios({
       url: DetectConfig.UI_DETECT_URL,
       method: "post",
       data: formData,
@@ -378,14 +375,6 @@ export default function useDetectService(): DetectService {
         console.log(error);
       });
   }
-
-  watch([() => detectStatus.component, () => detectStatus.text, () => detectStatus.structure], (v) => {
-    if (v[0] === "FINISH" && v[1] === "SUCCESS" && v[2] === "SUCCESS") {
-      detectStatus.msg = "";
-    } else {
-      detectStatus.msg = "模型识别中...";
-    }
-  });
 
   return {
     status: detectStatus,
