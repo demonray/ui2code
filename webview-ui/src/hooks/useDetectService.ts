@@ -1,4 +1,3 @@
-import type { UploadFile } from "element-plus";
 import { getBase64 } from "../utilities/index";
 import Axios from "../utilities/request";
 import DetectConfig from "../config";
@@ -10,14 +9,14 @@ type DetectStatus = {
 };
 
 type DetectService = {
-  detectUI: (file: UploadFile) => Promise<any>;
-  detectText: (file: UploadFile) => Promise<any>;
+  detectUI: (file: File) => Promise<any>;
+  detectText: (file: File) => Promise<any>;
   getResult: () => {
     uiResults: DetectItem[];
     textResults: TextItem[];
     structures: StructureItem[]
   };
-  detectStructure: (file: UploadFile) => Promise<any>;
+  detectStructure: (file: File) => Promise<any>;
   status: DetectStatus
 };
 
@@ -241,10 +240,10 @@ export default function useDetectService(): DetectService {
   /**
    * 获取文本检查结果
    */
-  async function getTextDetectData(uploadFile: UploadFile) {
+  async function getTextDetectData(file: File) {
     textResults = [];
     detectStatus.text = "PROCESSING";
-    const images = await getBase64(uploadFile.raw as Blob);
+    const images = await getBase64(file as Blob);
     return Axios({
       url: `${DetectConfig.OCR}predict-by-base64`,
       method: "post",
@@ -268,12 +267,12 @@ export default function useDetectService(): DetectService {
   /**
    * 表格识别
    */
-  async function getStructureData(uploadFile: UploadFile) {
+  async function getStructureData(file: File) {
     structures = [];
     detectStatus.text = "PROCESSING";
     let data = new FormData();
-    if (uploadFile.raw) {
-      data.append("file", uploadFile.raw);
+    if (file) {
+      data.append("file", file);
     }
     return Axios({
       url: `${DetectConfig.OCR}predict-structure`,
@@ -296,11 +295,11 @@ export default function useDetectService(): DetectService {
   /**
    * 提交图片提交UI模型检查
    */
-  function processUIDetect(uploadFile: UploadFile) {
+  function processUIDetect(file: File) {
     uiResults = [];
     let formData = new FormData();
-    if (uploadFile.raw) {
-      formData.append("files", uploadFile.raw!);
+    if (file) {
+      formData.append("files", file);
     }
     return Axios({
       url: DetectConfig.UI_DETECT_URL,

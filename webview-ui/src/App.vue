@@ -26,7 +26,7 @@ const status = ref('')
 
 function onUpload(uploadFile: UploadFile) {
   status.value = '识别中，请稍候...'
-  Detect(uploadFile).then(({ fields, metaInfo }) => {
+  Detect(uploadFile.raw as File).then(({ fields, metaInfo }) => {
     status.value = '';
     designJson.fields = fields;
     designJson.metaInfo = metaInfo;

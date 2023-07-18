@@ -1,12 +1,10 @@
-import type { UploadFile } from "element-plus";
-
 import useDetectService from "./hooks/useDetectService";
 import useMergeDetectData from "./hooks/useMergeDetectData";
 
 const { status, detectUI, detectText, detectStructure, getResult } = useDetectService();
 
 export default async function detect(
-  uploadFile: UploadFile
+  uploadFile: File
 ): Promise<{ fields: ComponentItemJson[]; metaInfo: { [index: string]: any } }> {
   await Promise.all([detectUI(uploadFile), detectText(uploadFile), detectStructure(uploadFile)]);
   return new Promise(function (resolve) {
@@ -14,7 +12,7 @@ export default async function detect(
     const checkResult = () => {
       if (count++ > 15) {
         resolve({ fields: [], metaInfo: {} });
-        return
+        return;
       }
       const { uiResults, textResults, structures } = getResult();
       if (
