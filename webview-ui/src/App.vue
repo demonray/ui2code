@@ -5,6 +5,8 @@ import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Preview from "./Preview.vue";
 import Detect from "./lib";
+// for dev test
+// import Detect from "./libTest";
 
 let designJson: DesignJson = reactive({
   fields: [],
@@ -22,16 +24,23 @@ let previewConf = reactive<{ data: SandboxTemplateConfig }>({
   },
 });
 
-const status = ref('')
+const status = ref("");
 
 function onUpload(uploadFile: UploadFile) {
-  status.value = '识别中，请稍候...'
+  status.value = "识别中，请稍候...";
   Detect(uploadFile.raw as File).then(({ fields, metaInfo }) => {
-    status.value = '';
+    status.value = "";
     designJson.fields = fields;
     designJson.metaInfo = metaInfo;
   });
 }
+
+// for dev test
+// Detect().then(({ fields, metaInfo }) => {
+//   status.value = "";
+//   designJson.fields = fields;
+//   designJson.metaInfo = metaInfo;
+// });
 
 function onPreview(params: SandboxTemplateConfig) {
   designPreview.value = true;

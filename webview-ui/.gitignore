@@ -15,6 +15,7 @@ build
 build-ssr
 coverage
 *.local
+src/libTest.ts
 
 /cypress/videos/
 /cypress/screenshots/

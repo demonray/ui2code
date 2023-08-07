@@ -205,10 +205,11 @@ function convertJsonData(
   // text in ui component
   const textIn: Record<number, boolean> = {};
   for (let uiIndex = 0; uiIndex < uiResults.length; uiIndex++) {
-    if (uiResults[uiIndex].class === "table") {
-      uiTextMap[uiIndex] = {};
-      continue;
-    }
+    // if (uiResults[uiIndex].class === "table") {
+    //   // todo table 取出table里的text
+    //   uiTextMap[uiIndex] = {};
+    //   continue;
+    // }
     // 未匹配的文本数据直接插入UI组件列表？
     const matchs: Partial<Matchs> = {};
     textResults.forEach((item, index) => {
@@ -243,7 +244,7 @@ function convertJsonData(
     });
     uiTextMap[uiIndex] = matchs;
   }
-
+  console.log(uiTextMap);
   fillTextToComp(uiTextMap, uiResults, textResults, fields);
 }
 
@@ -316,6 +317,7 @@ function fillTextToComp(
     const it = jsonData[idx];
     let conf = findComponentConf(it.type);
     if (it.type === "table") {
+      console.log(conf, it);
       fields.push(processConf(conf, it));
       continue;
     }
@@ -403,9 +405,11 @@ function processConf(conf: ComponentItemJson, item: UiItem) {
  * @param data
  * @returns
  */
-function makeTableConf(data: StructureItem) {
-  const trs = [];
-  if (data.res.html) {
+function makeTableConf(data: StructureItem | string[][]) {
+  let trs = [];
+  if (Array.isArray(data)) {
+    trs = data;
+  } else if (data.res.html) {
     const reg = /<tr>.*?<\/tr>/g;
     let result;
     while ((result = reg.exec(data.res.html))) {
@@ -426,8 +430,8 @@ function makeTableConf(data: StructureItem) {
       if (index === 0) {
         // 第一行为表头
         conf.__config__.children = it.map((item, colIndex) => {
-          if (actionCol < 0 && item.indexOf('操作') > -1) {
-            actionCol = colIndex
+          if (actionCol < 0 && item.indexOf("操作") > -1) {
+            actionCol = colIndex;
           }
           return {
             __config__: {
@@ -466,39 +470,52 @@ export default function mergeDetectData(
   textResults: TextItem[],
   structures: StructureItem[] = []
 ) {
-  metaInfo = {}
-  // 表格区域内组件及文本识别结果textResults,uiResults忽略
-  structures.forEach((it) => {
-    if (it.type === "table") {
-      uiResults = uiResults.filter((item) => {
-        const boxUI = xywh2xyxy({
-          x: item.x,
-          y: item.y,
-          w: item.w,
-          h: item.h,
-        });
-        return calcIoU(boxUI, it.bbox, 1) < 0.1;
+  const checkInCompArea = (types: UiType[], item: XYXY) => {
+    const comps = uiResults.filter((it) => types.indexOf(it.class) > -1);
+    return comps.some((it) => {
+      const box_1 = xywh2xyxy({
+        x: it.x,
+        y: it.y,
+        w: it.w,
+        h: it.h,
       });
-      textResults = textResults.filter((item) => {
+      return calcIoU(item, box_1, 1) < 0.1;
+    });
+  };
+  uiResults.forEach((it) => {
+    if (it.class === "table") {
+      const tds = textResults.filter((item) => {
         const boxText: XYXY = [
           item.text_region[0][0],
           item.text_region[0][1],
           item.text_region[2][0],
           item.text_region[2][1],
         ];
-        return calcIoU(boxText, it.bbox, 1) < 0.1;
+        return !checkInCompArea(["table"], boxText);
       });
-      uiResults.push({
-        x: it.bbox[0],
-        y: it.bbox[1],
-        w: it.bbox[2] - it.bbox[0],
-        h: it.bbox[3] - it.bbox[1],
-        prob: 1,
-        class: "table",
-        table_struct: it,
-      });
+      const tableData: string[][] = [[]];
+      for (let i = 0; i < tds.length; i++) {
+        if (tableData.length && i > 0 && tds[i].text_region[0][0] < tds[i - 1].text_region[0][0]) {
+          tableData.push([tds[i].text]);
+        } else {
+          tableData[tableData.length - 1].push(tds[i].text);
+        }
+      }
+      it.table_struct = tableData;
+      // todo 表格区域裁剪片给ocr识别出结构
     }
   });
+
+  textResults = textResults.filter((item) => {
+    const boxText: XYXY = [
+      item.text_region[0][0],
+      item.text_region[0][1],
+      item.text_region[2][0],
+      item.text_region[2][1],
+    ];
+    return !checkInCompArea(["table", "pagination"], boxText);
+  });
+  metaInfo = {};
 
   const fields: ComponentItemJson[] = [];
 
@@ -549,6 +566,6 @@ export default function mergeDetectData(
   convertJsonData(uiItems, textResults, fields);
   return {
     fields,
-    metaInfo
+    metaInfo,
   };
 }

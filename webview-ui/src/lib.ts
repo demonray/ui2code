@@ -6,7 +6,7 @@ const { status, detectUI, detectText, detectStructure, getResult } = useDetectSe
 export default async function detect(
   uploadFile: File
 ): Promise<{ fields: ComponentItemJson[]; metaInfo: { [index: string]: any } }> {
-  await Promise.all([detectUI(uploadFile), detectText(uploadFile), detectStructure(uploadFile)]);
+  await Promise.all([detectUI(uploadFile), detectText(uploadFile)]);
   return new Promise(function (resolve) {
     let count = 1;
     const checkResult = () => {
@@ -20,7 +20,7 @@ export default async function detect(
         status.text === "SUCCESS" &&
         status.structure === "SUCCESS"
       ) {
-        const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, structures);
+        const { fields, metaInfo } = useMergeDetectData(uiResults, textResults);
         resolve({ fields, metaInfo });
       } else {
         setTimeout(checkResult, 1000);
