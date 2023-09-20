@@ -4,10 +4,10 @@ import { ref, reactive } from "vue";
 import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Preview from "./Preview.vue";
-import Detect from "./lib";
-// for dev test
-// import Detect from "./libTest";
+import { detect, generateUIList } from "./lib";
 
+// import uiResult from "../test_images/ui"
+// import textRes from "../test_images/text"
 let designJson: DesignJson = reactive({
   fields: [],
   metaInfo: {},
@@ -28,7 +28,7 @@ const status = ref("");
 
 function onUpload(uploadFile: UploadFile) {
   status.value = "识别中，请稍候...";
-  Detect(uploadFile.raw as File).then(({ fields, metaInfo }) => {
+  detect(uploadFile.raw as File).then(({ fields, metaInfo }) => {
     status.value = "";
     designJson.fields = fields;
     designJson.metaInfo = metaInfo;
@@ -36,7 +36,7 @@ function onUpload(uploadFile: UploadFile) {
 }
 
 // for dev test
-// Detect().then(({ fields, metaInfo }) => {
+// generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
 //   status.value = "";
 //   designJson.fields = fields;
 //   designJson.metaInfo = metaInfo;

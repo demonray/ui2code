@@ -14,24 +14,29 @@ type DetectService = {
   getResult: () => {
     uiResults: DetectItem[];
     textResults: TextItem[];
-    structures: StructureItem[]
+    structures: StructureItem[];
   };
   detectStructure: (file: File) => Promise<any>;
-  status: DetectStatus
+  status: DetectStatus;
 };
 
-export default function useDetectService(): DetectService {
+export default function useDetectService(
+  config: { [k: string]: any } = DetectConfig
+): DetectService {
   const detectStatus: DetectStatus = {
     component: "PROCESSING",
     text: "PROCESSING",
     structure: "PROCESSING",
   };
 
-  let uiResults: DetectItem[] = []
+  if (!config.OCR || !config.UI_DETECT) {
+    console.error('配置错误')
+  }
+  let uiResults: DetectItem[] = [];
 
-  let textResults: TextItem[] = []
+  let textResults: TextItem[] = [];
 
-  let structures: StructureItem[] = []
+  let structures: StructureItem[] = [];
   /**
    * 获取文本检查结果
    */
@@ -40,7 +45,7 @@ export default function useDetectService(): DetectService {
     detectStatus.text = "PROCESSING";
     const images = await getBase64(file as Blob);
     return Axios({
-      url: `${DetectConfig.OCR}predict-by-base64`,
+      url: `${config.OCR}/predict-by-base64`,
       method: "post",
       data: {
         base64_str: images.replace(/data:image\/.+;base64,/, ""),
@@ -70,7 +75,7 @@ export default function useDetectService(): DetectService {
       data.append("file", file);
     }
     return Axios({
-      url: `${DetectConfig.OCR}predict-structure`,
+      url: `${config.OCR}/predict-structure`,
       method: "post",
       data,
       headers: {
@@ -97,7 +102,7 @@ export default function useDetectService(): DetectService {
       formData.append("files", file);
     }
     return Axios({
-      url: DetectConfig.UI_DETECT_URL,
+      url: `${config.UI_DETECT}/process`,
       method: "post",
       data: formData,
       headers: {
@@ -120,7 +125,7 @@ export default function useDetectService(): DetectService {
    */
   function checkDetectStatus(taskid: string) {
     Axios({
-      url: DetectConfig.UI_DETECT_STATUS + taskid,
+      url: `${config.UI_DETECT}/status/${taskid}`,
       method: "get",
     })
       .then((res) => {
@@ -145,7 +150,7 @@ export default function useDetectService(): DetectService {
    */
   function getUIDetectResult(taskid: string) {
     Axios({
-      url: DetectConfig.UI_DETECT_RESULT + taskid,
+      url: `${config.UI_DETECT}/result/${taskid}`,
       method: "get",
     })
       .then((res) => {
@@ -177,6 +182,6 @@ export default function useDetectService(): DetectService {
     },
     detectUI: processUIDetect,
     detectText: getTextDetectData,
-    detectStructure: getStructureData
+    detectStructure: getStructureData,
   };
 }
