@@ -479,7 +479,7 @@ export default function mergeDetectData(
         w: it.w,
         h: it.h,
       });
-      return calcIoU(item, box_1, 1) < 0.1;
+      return calcIoU(item, box_1, 1) > 0.6;
     });
   };
   uiResults.forEach((it) => {
@@ -491,7 +491,7 @@ export default function mergeDetectData(
           item.text_region[2][0],
           item.text_region[2][1],
         ];
-        return !checkInCompArea(["table"], boxText);
+        return checkInCompArea(["table"], boxText);
       });
       const tableData: string[][] = [[]];
       for (let i = 0; i < tds.length; i++) {
@@ -562,7 +562,6 @@ export default function mergeDetectData(
       uiItems.push(uiResults[i]);
     }
   }
-
   convertJsonData(uiItems, textResults, fields);
   return {
     fields,

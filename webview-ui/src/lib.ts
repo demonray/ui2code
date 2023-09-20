@@ -14,13 +14,12 @@ export default async function detect(
         resolve({ fields: [], metaInfo: {} });
         return;
       }
-      const { uiResults, textResults, structures } = getResult();
+      const { uiResults, textResults } = getResult();
       if (
         status.component === "FINISH" &&
-        status.text === "SUCCESS" &&
-        status.structure === "SUCCESS"
+        status.text === "SUCCESS"
       ) {
-        const { fields, metaInfo } = useMergeDetectData(uiResults, textResults);
+        const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, []);
         resolve({ fields, metaInfo });
       } else {
         setTimeout(checkResult, 1000);
