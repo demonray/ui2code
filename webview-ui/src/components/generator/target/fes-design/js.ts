@@ -42,7 +42,7 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
     dataList.push(`
     const ${scheme.__vModel__}PageSize = ref(10)
     const ${scheme.__vModel__}currentPage = ref(1)
-    const ${scheme.__vModel__}Total = ref(0)
+    const ${scheme.__vModel__}Total = ref(20)
     `);
   } else if (scheme.type === "table") {
     let str = "";
