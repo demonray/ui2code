@@ -218,7 +218,7 @@ watch(props.json, (v) => {
 function initDrawingList(json: DesignJson) {
   drawingList.length = 0;
   let rows = [];
-  let lastRow = [];
+  let lastRow: ComponentItemJson[] = [];
   let lastRowY = 0;
   for (let i = 0; i < json.fields.length; i++) {
     // guid
@@ -231,6 +231,7 @@ function initDrawingList(json: DesignJson) {
       lastRow = [json.fields[i]];
       rows.push(lastRow);
     }
+    lastRow.sort((a,b) => a.uiItem.x - b.uiItem.x)
   }
   rows = rows.map((rowItems) => {
     if (rowItems.length > 1) {

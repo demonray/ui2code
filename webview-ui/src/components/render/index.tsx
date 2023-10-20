@@ -33,6 +33,9 @@ function makeDataObj(conf: ComponentItemJson): object {
     default:
       options.type = conf.type
   }
+  if (conf.placeholder) {
+    options.placeholder = conf.placeholder
+  }
   return options;
 }
 

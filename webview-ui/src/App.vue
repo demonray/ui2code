@@ -38,6 +38,7 @@ function onUpload(uploadFile: UploadFile) {
 // for dev test
 // generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
 //   status.value = "";
+//   console.log(fields)
 //   designJson.fields = fields;
 //   designJson.metaInfo = metaInfo;
 // });
