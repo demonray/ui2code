@@ -33,7 +33,7 @@
     │   ├── App.vue
     │   ├── CodeTypeDialog.vue      # 目标组件库选择及预览方式选择
     │   ├── Design.vue              # 设计器
-    │   ├── DraggableItem.tsx
+    │   ├── DraggableItem.tsx       # 设计器中部拖拽组件
     │   ├── Preview.vue             # codesandbox 沙箱预览
     │   ├── RightPanel.vue          # 组件信息配置面板
     │   ├── components
@@ -41,9 +41,9 @@
     │   │      ├── element-plus
     │   │      └── fes-design
     │   ├── config
-    │   ├── hooks
+    │   ├── hooks                   # 提供获取数据及合并数据
     │   ├── icons
-    │   ├── lib.ts
+    │   ├── lib.ts                  # 提供UI图片组件识别结果能力的封装库
     │   ├── main.ts
     │   ├── styles
     │   └── utilities
@@ -68,9 +68,21 @@
 8. 组件尺寸信息
 9. Modal-Row-Items children 嵌套情况
 
-以上1，2两点ui2code_service部分模型训练优化，纠错及3-9部分在web端里生成目标组件库代码事实现。
-组件信息参考config/componentType.ts，生成代码时根据目标组件库使用对应generator下相应的代码。
+以上1，2两点ui2code_service部分模型训练优化（Steps、Pagination、Progress已支持）
+纠错及3-9部分在本项目web端里生成目标组件库代码里实现。
+组件信息参考config/componentType.ts，生成代码时根据目标组件库使用对应generator下相应的代码，
+目录为components/generator/target，各个实现适配各个目标组件库的写法需符合：
 
+```javascript
+type LibInterface = {
+  // 生成目标组件库代码
+  generateCode: (data: FormConf, type: string, metaInfo: any) => string;
+  // 生成sanbbox预览文件
+  getSandboxTpl: (code: string, local: boolean) => string | SandboxTemplateConfig;
+  getPlaygoundUrl?: (code: string) => string;
+};
+```
+其中生成代码部分需要提供生成的文件内容字符串，其它目标组件库可参考components/generator/targetelement-plus实现，预览可以通过getPlaygoundUrl配置自定义的地址
 
 ## 提供组件封装检查服务和识别结果输出
 
