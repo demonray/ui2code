@@ -122,6 +122,23 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${vModel} ${size} ${disabled}>${child}</${tag}>`;
   },
+  "el-tabs": (el: ComponentItemJson) => {
+    const { tag, vModel } = attrBuilder(el);
+    const editable = `:editable="${el.__config__.editable}"`;
+    const tabPotion = `tab-position="${el.__config__.position}"`;
+    let child = buildElTabsChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<${tag} ${vModel} ${editable} ${tabPotion}>${child}</${tag}>`;
+  },
+  "el-menu": (el: ComponentItemJson) => {
+    const { tag } = attrBuilder(el);
+    const mode = `mode="${el.__config__.mode}"`;
+    let child = buildElMenuChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<${tag} ${mode}>${child}</${tag}>`;
+  },
   "el-checkbox-group": (el: ComponentItemJson) => {
     const { tag, disabled, vModel } = attrBuilder(el);
     const size = `size="${el.size}"`;
@@ -374,6 +391,43 @@ function buildElRadioGroupChild(scheme: ComponentItemJson) {
   return children.join("\n");
 }
 
+// el-menu 子级
+function buildElMenuChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  function resolveMenu(children: Array<OptionItem>): Array<any> | string {
+    let strHtml = ''
+    children.forEach((item: OptionItem) => {
+      if (item.children) {
+        strHtml +=`<el-sub-menu index='${item.value}'>
+          <template #title>${item.label}</template>
+          ${resolveMenu(item.children)}
+        </el-sub-menu>`
+      } else {
+        strHtml +=`<el-menu-item index='${item.value}'>
+          ${item.label}
+        </el-menu-item>`
+      }
+    })
+    return strHtml
+}
+  if (slot && slot.options && slot.options.length) {
+    children.push(resolveMenu(slot.options));
+  }
+  return children.join("\n");
+}
+// el-tabs 子级
+function buildElTabsChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  if (slot && slot.options && slot.options.length) {
+    children.push(
+      `<el-tab-pane v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :label="item.label" :name="item.value">{{item.label}}</el-tab-pane>`
+    );
+  }
+  return children.join("\n");
+}
+
 // el-checkbox-group 子级
 function buildElCheckboxGroupChild(scheme: ComponentItemJson) {
   const children = [];
@@ -465,6 +519,11 @@ function getUsedComp(html: string) {
     "el-date-picker",
     "el-dialog",
     "el-table-column",
+    "el-tabs",
+    "el-tab-pane",
+    "el-menu",
+    "el-sub-menu",
+    "el-menu-item"
   ]
     .filter((item) => html.indexOf(item) > -1)
     .map((it) => {
@@ -489,7 +548,7 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   const htmlList: string[] = [];
   // 常见form表单组件顺序是连续的，若不连续以下处理会导致输出结果不正确
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table" && el.type !== "pagination" && el.type !== "dialog") {
+    if (!['table', 'pagination', 'dialog', 'menu', 'tabs'].includes(el.type)) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }

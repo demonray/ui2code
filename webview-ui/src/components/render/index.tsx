@@ -1,6 +1,6 @@
 import { h, defineComponent, resolveComponent } from "vue";
 import type { PropType } from "vue";
-
+import ResolveChild from './resolveChild'
 /**
  *
  * @param conf 组件描述
@@ -12,6 +12,9 @@ function makeDataObj(conf: ComponentItemJson): object {
     case "table":
       options.data = conf.data;
       options.border = conf.__config__.border;
+      break;
+    case "menu":
+      options.mode = conf.__config__.mode;
       break;
     case "timerange":
       options["is-range"] = true;
@@ -75,8 +78,9 @@ export default defineComponent({
   },
   render() {
     const tag = resolveComponent(this.conf.__config__.tag as string);
-    const child: Array<any> | string = makeChild(this.conf);
-    const options = makeDataObj(this.conf);
-    return h(tag, options, child);
+    const { child, options } = new ResolveChild(this.conf).resolve()
+    // const child: Array<any> | string = makeChild(this.conf);
+    // const options = makeDataObj(this.conf);
+    return h(tag, options, () => child);
   },
 });

@@ -321,7 +321,7 @@ export const layoutComponents: ComponentItemJson[] = [
     __config__: {
       layout: "raw",
       tag: "el-pagination",
-      tagIcon: "el-pagination",
+      tagIcon: "pagination",
       label: "分页条",
       'page-sizes': [10, 20, 30, 50],
       layoutItems: ['total']
@@ -344,5 +344,76 @@ export const layoutComponents: ComponentItemJson[] = [
       cancelText: "取消"
     },
     type: "dialog"
+  },
+  {
+    __config__: {
+      layout: "raw",
+      span: 24,
+      tagIcon: "menu",
+      tag: "el-menu",
+      label: "菜单导航",
+      children: [],
+      mode: 'vertical'
+    },
+    __slot__: {
+      tag: 'el-menu',
+      options:[
+        {
+          label: 'shouye',
+          value: '0'
+        },
+        {
+          label: '导航菜单一',
+          value: '1',
+          children: [{
+            label: '菜单选项1-1',
+            value: '1-1',
+          },{
+            label: '菜单选项1-2',
+            value: '1-2',
+            children: [{
+              label: '菜单选项1-2-1',
+              value: '1-2-1',
+            }]
+          }]
+        },
+        {
+          label: '导航菜单二',
+          value: '2'
+        }
+      ]
+    },
+    type: "menu",
+  },
+  {
+    __config__: {
+      layout: "raw",
+      span: 24,
+      tagIcon: "tabs",
+      tag: "el-tabs",
+      label: "Tabs标签页",
+      children: [],
+      position: 'top',
+      type: 'card',
+      editable: true
+    },
+    __slot__: {
+      tag: 'el-tabs',
+      options:[
+        {
+          label: '标签一',
+          value: '1',
+        },
+        {
+          label: '标签二',
+          value: '2'
+        },
+        {
+          label: '标签三',
+          value: '3'
+        }
+      ]
+    },
+    type: "tabs",
   },
 ];

@@ -322,7 +322,7 @@
           </el-form-item>
           <template
             v-if="
-              ['el-checkbox-group', 'el-radio-group', 'el-select'].indexOf(
+              ['el-checkbox-group', 'el-radio-group', 'el-select', 'el-menu', 'el-tabs'].indexOf(
                 activeData.__config__.tag || ''
               ) > -1 && activeData.__slot__
             "
@@ -451,6 +451,29 @@
           </el-form-item>
           <el-form-item v-if="activeData.__config__.required !== undefined" label="是否必填">
             <el-switch v-model="activeData.__config__.required" />
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.editable !== undefined" label="是否可编辑">
+            <el-switch v-model="activeData.__config__.editable" />
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.type !== undefined" label="展示类型">
+            <el-radio-group v-model="activeData.__config__.type">
+              <el-radio-button label="card"> 卡片 </el-radio-button>
+              <el-radio-button label="line"> 默认 </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.mode !== undefined" label="展示方向">
+            <el-radio-group v-model="activeData.__config__.mode">
+              <el-radio-button label="horizontal"> 水平</el-radio-button>
+              <el-radio-button label="vertical"> 垂直 </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.position !== undefined" label="所在位置">
+            <el-radio-group v-model="activeData.__config__.position">
+              <el-radio-button label="top"> top</el-radio-button>
+              <el-radio-button label="right"> right </el-radio-button>
+              <el-radio-button label="bottom"> bottom </el-radio-button>
+              <el-radio-button label="left"> left </el-radio-button>
+            </el-radio-group>
           </el-form-item>
           <!-- <template v-if="activeData.__config__.layoutTree">
             <el-divider>布局结构树</el-divider>
