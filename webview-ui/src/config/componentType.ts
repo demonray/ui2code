@@ -392,10 +392,10 @@ export const layoutComponents: ComponentItemJson[] = [
       tagIcon: "tabs",
       tag: "el-tabs",
       label: "Tabs标签页",
-      children: [],
       position: 'top',
       type: 'card',
-      editable: true
+      editable: true,
+      children: [],
     },
     __slot__: {
       tag: 'el-tabs',
@@ -403,14 +403,17 @@ export const layoutComponents: ComponentItemJson[] = [
         {
           label: '标签一',
           value: '1',
+          childrenComponet: [],
         },
         {
           label: '标签二',
-          value: '2'
+          value: '2',
+          childrenComponet: [],
         },
         {
           label: '标签三',
-          value: '3'
+          value: '3',
+          childrenComponet: [],
         }
       ]
     },

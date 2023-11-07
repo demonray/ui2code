@@ -1,6 +1,7 @@
 import { h, defineComponent, resolveComponent } from "vue";
 import type { PropType } from "vue";
 import ResolveChild from './resolveChild'
+import type { ItemOpts } from '../../DraggableItem'
 /**
  *
  * @param conf 组件描述
@@ -75,10 +76,13 @@ export default defineComponent({
       type: Object as PropType<ComponentItemJson>,
       required: true,
     },
+    opts: {
+      type: Object
+    },
   },
   render() {
     const tag = resolveComponent(this.conf.__config__.tag as string);
-    const { child, options } = new ResolveChild(this.conf).resolve()
+    const { child, options } = new ResolveChild(this.conf, this.opts as ItemOpts).resolve()
     // const child: Array<any> | string = makeChild(this.conf);
     // const options = makeDataObj(this.conf);
     return h(tag, options, () => child);

@@ -360,6 +360,43 @@ function drawingItemCopy(item: ComponentItemJson) {
   drawingList.push(clone);
   activeItem(clone);
 }
+function deleteItemFormList(list: Array<ComponentItemJson>, item: ComponentItemJson): boolean {
+  const index = list.findIndex((it) => it.guid === item.guid);
+  if (index > -1) {
+    list.splice(index, 1);
+    return true
+  }
+  const { parentInfo } = item
+  if (parentInfo) {
+    const parentElementConf = list.find((it) => it.guid === parentInfo.guid)
+    if (parentElementConf) {
+      const children = parentElementConf.__slot__?.options?.[parentInfo.index]?.childrenComponet
+      if (children) {
+        const index = children.findIndex((it: ComponentItemJson) => it.guid === item.guid);
+          if (index > -1) {
+            console.log(index);
+            children.splice(index, 1);
+            return true
+          }
+      }
+    }
+  } else {
+    for (let i = 0; i < list.length; i++) {
+      const children = list[i].__config__.children
+      const optionsChildren = list[i].__slot__?.options
+      if (children && children.length) {
+        const find = deleteItemFormList(children, item)
+        if (find) break
+      } else if (optionsChildren && optionsChildren.length) {
+        for (let index = 0; index < optionsChildren.length; index++) {
+          const { childrenComponet } = optionsChildren[index] || {};
+          if (childrenComponet && childrenComponet.length && deleteItemFormList(childrenComponet, item)) break
+        }
+      }
+    }
+  }
+  return false
+}
 
 function drawingItemDelete(item: ComponentItemJson) {
   const index = drawingList.findIndex((it) => it.guid === item.guid);
@@ -372,17 +409,7 @@ function drawingItemDelete(item: ComponentItemJson) {
       }
     });
   } else {
-    for (let i = 0; i < drawingList.length; i++) {
-      const children = drawingList[i].__config__.children;
-      if (children) {
-        const index = children.findIndex((it: ComponentItemJson) => it.guid === item.guid);
-        if (index > -1) {
-          console.log(index);
-          children.splice(index, 1);
-          break;
-        }
-      }
-    }
+    deleteItemFormList(drawingList, item)
     activeItem(drawingList[0]);
   }
 }

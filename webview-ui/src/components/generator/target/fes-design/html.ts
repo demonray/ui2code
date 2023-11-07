@@ -259,6 +259,22 @@ const tags: TagTemplate = {
   //     if (child) child = `\n${child}\n`; // 换行
   //     return `<${tag} ${ref} ${fileList} ${action} ${autoUpload} ${multiple} ${beforeUpload} ${listType} ${accept} ${name} ${disabled}>${child}</${tag}>`;
   //   },
+  "el-tabs": (el: ComponentItemJson) => {
+    const { vModel } = attrBuilder(el);
+    const editable = `:editable="${el.__config__.editable}"`;
+    const tabPotion = `position="${el.__config__.position}"`;
+    let child = buildElTabsChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<FTabs ${vModel} ${editable} ${tabPotion}>${child}</FTabs>`;
+  },
+  "el-menu": (el: ComponentItemJson) => {
+    const mode = `mode="${el.__config__.mode}"`;
+    let child = buildElMenuChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<FMenu ${mode}>${child}</FMenu>`;
+  },
 };
 
 function attrBuilder(el: ComponentItemJson) {
@@ -356,6 +372,41 @@ function buildElCheckboxGroupChild(scheme: ComponentItemJson) {
   return children.join("\n");
 }
 
+// el-menu 子级
+function buildElMenuChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  function resolveMenu(children: Array<OptionItem>): Array<any> | string {
+    let strHtml = ''
+    children.forEach((item: OptionItem) => {
+      if (item.children) {
+        strHtml +=`<FSubMenu value='${item.value}'>
+          <template #label>${item.label}</template>
+          ${resolveMenu(item.children)}
+        </FSubMenu>`
+      } else {
+        strHtml +=`<FMenuItem value='${item.value}' label=${item.label}></FMenuItem>`
+      }
+    })
+    return strHtml
+}
+  if (slot && slot.options && slot.options.length) {
+    children.push(resolveMenu(slot.options));
+  }
+  return children.join("\n");
+}
+// el-tabs 子级
+function buildElTabsChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  if (slot && slot.options && slot.options.length) {
+    children.push(
+      `<FTabPane v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :name="item.label" :value="item.value">{{item.label}}</FTabPane>`
+    );
+  }
+  return children.join("\n");
+}
+
 // el-upload 子级
 function buildElUploadChild(scheme: ComponentItemJson) {
   const list = [];
@@ -435,6 +486,11 @@ function getUsedComp(html: string) {
       "FModal",
       "FGrid",
       "FGridItem",
+      "FTabs",
+      "FTabPane",
+      "FMenu",
+      "FSubMenu",
+      "FMenuItem"
     ].filter((item) => html.indexOf(item) > -1);
   }
 
@@ -452,7 +508,7 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   const htmlList: string[] = [];
 
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table" && el.type !== "pagination" && el.type !== "dialog") {
+    if (!['table', 'pagination', 'dialog', 'menu', 'tabs'].includes(el.type)) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }

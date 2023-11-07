@@ -1,13 +1,17 @@
-import { resolveComponent, h } from 'vue';
+import { resolveComponent, h, defineComponent, type PropType } from 'vue';
+import draggable from "vuedraggable";
+import { renderChildrenItem, type ItemOpts } from '../../DraggableItem'
 type resultInfo = { options: Object, child: Array<any> | string }
-type resolveComponentChild = (conf: ComponentItemJson) =>  Array<any> | string
-type resolveComponentOption = (conf: ComponentItemJson) => object
+type resolveComponentChild = (conf: ComponentItemJson, opts: ItemOpts) =>  Array<any> | string
+type resolveComponentOption = (conf: ComponentItemJson, opts?: ItemOpts) => object
 interface pluginInfoType { getChild: resolveComponentChild, getOption?: resolveComponentOption }
 export default class renderChildClass {
     conf: ComponentItemJson
+    opts: ItemOpts | undefined
     static plugins: Map<string, pluginInfoType>
-    constructor(conf: ComponentItemJson) {
+    constructor(conf: ComponentItemJson, opts?: ItemOpts) {
         this.conf = conf
+        this.opts = opts
     }
     static addPlugin(tag: string, params: pluginInfoType) {
         if (!this.plugins) {
@@ -31,7 +35,7 @@ export default class renderChildClass {
             options = defaultPluginInfo.getOption(this.conf)
         }
         return {
-            child: pluginInfo.getChild(this.conf),
+            child: pluginInfo.getChild(this.conf, this.opts),
             options
         }
     }
@@ -138,9 +142,38 @@ class menuPlugin implements pluginInfoType {
 }
 // Tabs标签页
 class tabsPlugin implements pluginInfoType {
-    getChild (conf: ComponentItemJson):  Array<any> | string{
-        return (conf.__slot__?.options || []).map((item:OptionItem) => {
-            return h(resolveComponent("el-tab-pane"), { label: item.label, name: item.value }, () => item.label)
+    draggableRow(params: {currentItem: OptionItem, optionIndex: number, parentGuid: string, opts: ItemOpts} ) {
+      const { currentItem, optionIndex, parentGuid, opts} = params
+      return h(draggable, {
+        animation: 340,
+        'item-key': "guid",
+        "group": "componentsGroup",
+        "class": "drag-wrapper",
+        list: currentItem.childrenComponet || [],
+        onChange: ({ added, removed }) => {
+          if (added && added.element) {
+            added.element.parentInfo = {
+              index: optionIndex,
+              guid: parentGuid
+            }
+          } else if (removed && removed.element) {
+            delete removed.element.parentInfo
+          }
+        }
+      }, {
+        item: ({ element }: any) => renderChildrenItem(element, opts)
+      })
+    }
+    getChild (conf: ComponentItemJson, opts: ItemOpts):  Array<any> | string{
+        return (conf.__slot__?.options || []).map((item:OptionItem, index: number) => {
+            return h(resolveComponent("el-tab-pane"),
+              { label: item.label, name: item.value },
+              () => h('div', { class: 'drawing-item drawing-row-item' }, this.draggableRow({
+                currentItem: item,
+                parentGuid: conf.guid,
+                optionIndex: index,
+                opts
+              })))
         });
     }
 }

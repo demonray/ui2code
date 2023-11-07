@@ -331,23 +331,23 @@
             <draggable
               :list="activeData.__slot__.options"
               :animation="340"
+              item-key="guid"
               group="selectItem"
               handle=".option-drag"
             >
+            <template #item="{ element, index }">
               <div
-                v-for="(item, index) in activeData.__slot__.options"
-                :key="index"
                 class="select-item"
               >
                 <div class="select-line-icon option-drag">
                   <i class="el-icon-s-operation" />
                 </div>
-                <el-input v-model="item.label" placeholder="选项名" size="small" />
+                <el-input v-model="element.label" placeholder="选项名" size="small" />
                 <el-input
                   placeholder="选项值"
                   size="small"
-                  :value="item.value"
-                  @input="setOptionValue(item, $event)"
+                  :value="element.value"
+                  @input="setOptionValue(element, $event)"
                 />
                 <div
                   class="close-btn select-line-icon"
@@ -360,6 +360,7 @@
                   <svg-icon name="delete" />
                 </div>
               </div>
+            </template>
             </draggable>
             <div style="margin-left: 20px">
               <el-button style="padding-bottom: 0" type="text" @click="addSelectItem">
@@ -701,6 +702,7 @@ function addSelectItem() {
   props.activeData?.__slot__?.options?.push({
     label: "",
     value: "",
+    children: []
   });
 }
 

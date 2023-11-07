@@ -36,7 +36,8 @@ declare global {
   interface OptionItem {
     label: string;
     value: string | number;
-    children?: OptionItem[]
+    children?: OptionItem[];
+    childrenComponet?: ComponentItemJson[]
   }
 
   interface CompItemSlot {
