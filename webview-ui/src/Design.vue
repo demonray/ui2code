@@ -306,23 +306,45 @@ function previewSandbox() {
     }
   }
 }
-
+/**
+ * 递归生成vModel
+ */
+function generateVmodel(childrenList: Array<ComponentItemJson>, preStr: string) {
+  childrenList.forEach((child: ComponentItemJson, idx: number) => {
+    const modelStr = `${preStr}_${idx}`
+    if (hasVmodel(child.type)) {
+      child.__vModel__ = modelStr;
+    }
+    if (child.__config__.children && child.__config__.children.length) {
+      generateVmodel(child.__config__.children, modelStr)
+    }
+    if (child.__slot__?.options && child.__slot__?.options.length) {
+      child.__slot__?.options.forEach((element: OptionItem, k: number) => {
+        if (element.childrenComponet && element.childrenComponet.length) {
+          generateVmodel(element.childrenComponet, modelStr+k)
+        }
+      });
+    }
+  });
+}
 /**
  * 生成代码
  */
 function generate(): string {
   const { type, targetlib } = saveType;
   drawingList.forEach((it, index) => {
-    // 简单处理了
-    if (it.__config__.children) {
-      it.__config__.children.forEach((child: ComponentItemJson, idx: number) => {
-        if (hasVmodel(child.type)) {
-          child.__vModel__ = `field_${index}_${idx}`;
-        }
-      });
-    }
     if (hasVmodel(it.type)) {
       it.__vModel__ = `field_${index}`;
+    }
+    if (it.__config__.children) {
+      generateVmodel(it.__config__.children, `field_${index}`)
+    }
+    if (it.__slot__?.options && it.__slot__?.options.length) {
+      it.__slot__?.options.forEach((element: OptionItem, k: number) => {
+        if (element.childrenComponet && element.childrenComponet.length) {
+          generateVmodel(element.childrenComponet, `field_${index}${k}`)
+        }
+      });
     }
   });
   const data = {

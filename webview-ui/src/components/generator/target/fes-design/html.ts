@@ -119,7 +119,7 @@ const tags: TagTemplate = {
   "el-radio-group": (el: ComponentItemJson) => {
     const tag = "FRadioGroup";
     const { disabled, vModel } = attrBuilder(el);
-    const size = `size="${el.size}"`;
+    const size = el.size ? `size="${el.size}"` : "";
     let child = buildElRadioGroupChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
@@ -128,7 +128,7 @@ const tags: TagTemplate = {
   "el-checkbox-group": (el: ComponentItemJson) => {
     const tag = "FCheckboxGroup";
     const { disabled, vModel } = attrBuilder(el);
-    const size = `size="${el.size}"`;
+    const size = el.size ? `size="${el.size}"` : "";
     const min = el.min ? `:min="${el.min}"` : "";
     const max = el.max ? `:max="${el.max}"` : "";
     let child = buildElCheckboxGroupChild(el);
@@ -519,7 +519,6 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   // 遍历渲染每个组件成html
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
-
   formConfig.fields.forEach((el) => {
     if (!['table', 'pagination', 'dialog', 'menu', 'tabs'].includes(el.type)) {
       if (el.__config__.layout) {
