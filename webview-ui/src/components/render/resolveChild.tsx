@@ -2,7 +2,7 @@ import { resolveComponent, h, defineComponent, type PropType } from 'vue';
 import draggable from "vuedraggable";
 import { renderChildrenItem, type ItemOpts } from '../../DraggableItem'
 type resultInfo = { options: Object, child: Array<any> | string }
-type resolveComponentChild = (conf: ComponentItemJson, opts: ItemOpts) =>  Array<any> | string
+type resolveComponentChild = (conf: ComponentItemJson, opts?: ItemOpts) =>  Array<any> | string
 type resolveComponentOption = (conf: ComponentItemJson, opts?: ItemOpts) => object
 interface pluginInfoType { getChild: resolveComponentChild, getOption?: resolveComponentOption }
 export default class renderChildClass {
@@ -164,7 +164,7 @@ class tabsPlugin implements pluginInfoType {
         item: ({ element }: any) => renderChildrenItem(element, opts)
       })
     }
-    getChild (conf: ComponentItemJson, opts: ItemOpts):  Array<any> | string{
+    getChild (conf: ComponentItemJson, opts?: ItemOpts):  Array<any> | string{
         return (conf.__slot__?.options || []).map((item:OptionItem, index: number) => {
             return h(resolveComponent("el-tab-pane"),
               { label: item.label, name: item.value },
@@ -172,7 +172,7 @@ class tabsPlugin implements pluginInfoType {
                 currentItem: item,
                 parentGuid: conf.guid,
                 optionIndex: index,
-                opts
+                opts: opts as ItemOpts
               })))
         });
     }

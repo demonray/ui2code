@@ -400,9 +400,22 @@ function buildElTabsChild(scheme: ComponentItemJson) {
   const children = [];
   const slot = scheme.__slot__;
   if (slot && slot.options && slot.options.length) {
-    children.push(
-      `<FTabPane v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :name="item.label" :value="item.value">{{item.label}}</FTabPane>`
+    for (let index = 0; index < slot.options.length; index++) {
+      const item = slot.options[index];
+      let childrenComponet: string | Array<string> = []
+      if (item.childrenComponet && item.childrenComponet.length) {
+        childrenComponet = item.childrenComponet.map((el: ComponentItemJson) => {
+          return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+        });
+        childrenComponet = buildFormTemplate(confGlobal as FormConf, childrenComponet.join("\n"), "tabs");
+      }
+      children.push(
+      `<FTabPane key="${index}" name="${item.label}" value="${item.value}">
+        ${childrenComponet}
+      </FTabPane>`
     );
+    }
+    
   }
   return children.join("\n");
 }
