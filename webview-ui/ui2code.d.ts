@@ -21,7 +21,8 @@ declare global {
     | "row"
     | "menu"
     | 'tabs'
-    | "default";
+    | "default"
+    | "progress";
 
   type CompItemConf = {
     label: string;

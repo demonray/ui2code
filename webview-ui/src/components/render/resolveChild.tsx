@@ -78,6 +78,12 @@ function makeDataObj(conf: ComponentItemJson): object {
       case "button":
         options.type = conf.__config__.type;
         break;
+      case "progress":
+        options.type = conf.__config__.type;
+        options.percentage = conf.percentage;
+        conf.strokeWidth && (options['stroke-width'] = conf.strokeWidth);
+        options.status = conf.status;
+        break;
       default:
         options.type = conf.type
     }

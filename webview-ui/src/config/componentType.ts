@@ -419,4 +419,23 @@ export const layoutComponents: ComponentItemJson[] = [
     },
     type: "tabs",
   },
+  {
+    __config__: {
+      label: "进度条",
+      showLabel: false,
+      labelWidth: null,
+      tag: "el-progress",
+      tagIcon: "progress",
+      type: 'line',
+      span: 24,
+      layout: "raw",
+    },
+    __slot__: {
+      default: "pending",
+    },
+    status: 'success',
+    type: "progress",
+    percentage: 50,
+    strokeWidth: 20,
+  },
 ];
