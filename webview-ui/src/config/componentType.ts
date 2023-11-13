@@ -433,9 +433,9 @@ export const layoutComponents: ComponentItemJson[] = [
     __slot__: {
       default: "pending",
     },
-    status: 'success',
+    status: '',
     type: "progress",
     percentage: 50,
-    strokeWidth: 20,
+    strokeWidth: 10,
   },
 ];
