@@ -99,7 +99,10 @@ function buildOptions(
     }
     options = Array.isArray(scheme.data) ? scheme.data : [];
   } else if (!options && scheme.__slot__ && scheme.__slot__.options) {
-    options = scheme.__slot__.options;
+    options = scheme.__slot__.options.map(item => {
+      const { childrenComponet, ...restOption } = item
+      return restOption
+    });
   } else if (!options) {
     return;
   }
@@ -183,7 +186,34 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
       break;
   }
 }
-
+/**
+ * 递归生成vModel
+ */
+function buildCommonInfo(childrenList: Array<ComponentItemJson>, preStr: string, buildInfo: {
+  formDataList: string[],
+  dataList: string[],
+  ruleList: string[],
+  methodList: string[],
+  mounted: string[],
+}) {
+  childrenList.forEach((it: ComponentItemJson, idx: number) => {
+    it.index = preStr + idx + '';
+    buildData(it, buildInfo.dataList, buildInfo.formDataList);
+    buildRules(it, buildInfo.ruleList);
+    buildOptions(it, buildInfo.methodList, buildInfo.dataList, buildInfo.mounted); // 例如select options
+    buildEventMethods(it, buildInfo.methodList);
+    if (it.__config__.children && it.__config__.children.length) {
+      buildCommonInfo(it.__config__.children, it.index, buildInfo)
+    }
+    if (it.__slot__?.options && it.__slot__?.options.length) {
+      it.__slot__?.options.forEach((element: OptionItem, k: number) => {
+        if (element.childrenComponet && element.childrenComponet.length) {
+          buildCommonInfo(element.childrenComponet, it.index + k, buildInfo)
+        }
+      });
+    }
+  });
+}
 /**
  * 组装js
  * @param {Object} formConfig 整个表单配置
@@ -204,12 +234,32 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
     buildOptions(item, methodList, dataList, mounted); // 例如select options
     buildEventMethods(item, methodList);
     if (item.__config__.children) {
-      item.__config__.children.forEach((it: ComponentItemJson, idx: number) => {
-        it.index = index + "_" + idx;
-        buildData(it, dataList, formDataList);
-        buildRules(it, ruleList);
-        buildOptions(it, methodList, dataList, mounted); // 例如select options
-        buildEventMethods(it, methodList);
+      buildCommonInfo(item.__config__.children, String(index), {
+        formDataList,
+        dataList,
+        ruleList,
+        methodList,
+        mounted,
+      })
+      // item.__config__.children.forEach((it: ComponentItemJson, idx: number) => {
+      //   it.index = index + "_" + idx;
+      //   buildData(it, dataList, formDataList);
+      //   buildRules(it, ruleList);
+      //   buildOptions(it, methodList, dataList, mounted); // 例如select options
+      //   buildEventMethods(it, methodList);
+      // });
+    }
+    if (item.__slot__?.options && item.__slot__?.options.length) {
+      item.__slot__?.options.forEach((element: OptionItem, k: number) => {
+        if (element.childrenComponet && element.childrenComponet.length) {
+          buildCommonInfo(element.childrenComponet, String(index)+k, {
+            formDataList,
+            dataList,
+            ruleList,
+            methodList,
+            mounted,
+          })
+        }
       });
     }
   });
