@@ -56,6 +56,9 @@ function makeDataObj(conf: ComponentItemJson): object {
         options.mode = conf.__config__.mode;
         options['default-active'] = '0'
         break;
+      case "steps":
+        options.direction = conf.__config__.mode;
+        break;
     case "tabs":
         options.type = conf.__config__.type;
         options.tabPosition = conf.__config__.position;
@@ -177,6 +180,14 @@ class tabsPlugin implements pluginInfoType {
         });
     }
 }
+// 菜单导航
+class stepsPlugin implements pluginInfoType {
+  getChild (conf: ComponentItemJson):  Array<any> | string{
+      return (conf.__slot__?.options || []).map((item:OptionItem) => {
+          return h(resolveComponent("el-step"), { title: item.label, description: item.value })
+      });
+  }
+}
 // 以插件形式导入--后续组建过多可以单独整出去
 renderChildClass.addPlugin('default', new defaultPlugin())
 .addPlugin('table', new tablePlugin())
@@ -184,3 +195,4 @@ renderChildClass.addPlugin('default', new defaultPlugin())
 .addPlugin('checkbox', new radioAndCheckboxPlugin('checkbox'))
 .addPlugin('menu', new menuPlugin())
 .addPlugin('tabs', new tabsPlugin())
+.addPlugin('steps', new stepsPlugin())

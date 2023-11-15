@@ -241,13 +241,6 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
         methodList,
         mounted,
       })
-      // item.__config__.children.forEach((it: ComponentItemJson, idx: number) => {
-      //   it.index = index + "_" + idx;
-      //   buildData(it, dataList, formDataList);
-      //   buildRules(it, ruleList);
-      //   buildOptions(it, methodList, dataList, mounted); // 例如select options
-      //   buildEventMethods(it, methodList);
-      // });
     }
     if (item.__slot__?.options && item.__slot__?.options.length) {
       item.__slot__?.options.forEach((element: OptionItem, k: number) => {
@@ -264,7 +257,7 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
     }
   });
   let formRulesStr = "";
-  if (ruleList.length) {
+  if (ruleList) {
     formRulesStr = `const ${formConfig.formRules} = reactive({${ruleList.join("\n")}})`;
   }
   let formDataListStr = "";
