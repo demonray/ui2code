@@ -322,7 +322,7 @@
           </el-form-item>
           <template
             v-if="
-              ['el-checkbox-group', 'el-radio-group', 'el-select', 'el-menu', 'el-tabs'].indexOf(
+              ['el-checkbox-group', 'el-radio-group', 'el-select', 'el-menu', 'el-tabs', 'el-steps'].indexOf(
                 activeData.__config__.tag || ''
               ) > -1 && activeData.__slot__
             "
@@ -346,7 +346,7 @@
                 <el-input
                   placeholder="选项值"
                   size="small"
-                  :value="element.value"
+                  v-model="element.value"
                   @input="setOptionValue(element, $event)"
                 />
                 <div

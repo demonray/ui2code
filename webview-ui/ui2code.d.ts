@@ -21,6 +21,7 @@ declare global {
     | "row"
     | "menu"
     | 'tabs'
+    | 'steps'
     | "default";
 
   type CompItemConf = {

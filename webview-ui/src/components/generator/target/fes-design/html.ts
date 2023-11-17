@@ -275,6 +275,13 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     return `<FMenu ${mode}>${child}</FMenu>`;
   },
+  "el-steps": (el: ComponentItemJson) => {
+    const vertical = el.__config__.mode === 'vertical' ? 'vertical' : '';
+    let child = buildElStepsChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<FSteps ${vertical}>${child}</FSteps>`;
+  },
 };
 
 function attrBuilder(el: ComponentItemJson) {
@@ -372,6 +379,17 @@ function buildElCheckboxGroupChild(scheme: ComponentItemJson) {
   return children.join("\n");
 }
 
+// el-steps 子级
+function buildElStepsChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  if (slot && slot.options && slot.options.length) {
+    children.push(
+      `<FStep v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :description="item.value" :title="item.label"></FStep>`
+    );
+  }
+  return children.join("\n");
+}
 // el-menu 子级
 function buildElMenuChild(scheme: ComponentItemJson) {
   const children = [];
@@ -503,7 +521,9 @@ function getUsedComp(html: string) {
       "FTabPane",
       "FMenu",
       "FSubMenu",
-      "FMenuItem"
+      "FMenuItem",
+      "FSteps",
+      'FStep'
     ].filter((item) => html.indexOf(item) > -1);
   }
 

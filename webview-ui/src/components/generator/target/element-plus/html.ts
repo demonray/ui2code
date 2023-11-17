@@ -139,6 +139,14 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${mode}>${child}</${tag}>`;
   },
+  "el-steps": (el: ComponentItemJson) => {
+    const { tag } = attrBuilder(el);
+    const direction = `direction="${el.__config__.mode}"`;
+    let child = buildElStepsChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<${tag} ${direction}>${child}</${tag}>`;
+  },
   "el-checkbox-group": (el: ComponentItemJson) => {
     const { tag, disabled, vModel } = attrBuilder(el);
     const size = `size="${el.size}"`;
@@ -391,6 +399,18 @@ function buildElRadioGroupChild(scheme: ComponentItemJson) {
   return children.join("\n");
 }
 
+// el-steps 子级
+function buildElStepsChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  if (slot && slot.options && slot.options.length) {
+    children.push(
+      `<el-step v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :description="item.value" :title="item.label"></el-step>`
+    );
+  }
+  return children.join("\n");
+}
+
 // el-menu 子级
 function buildElMenuChild(scheme: ComponentItemJson) {
   const children = [];
@@ -421,9 +441,22 @@ function buildElTabsChild(scheme: ComponentItemJson) {
   const children = [];
   const slot = scheme.__slot__;
   if (slot && slot.options && slot.options.length) {
-    children.push(
-      `<el-tab-pane v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :label="item.label" :name="item.value">{{item.label}}</el-tab-pane>`
+    for (let index = 0; index < slot.options.length; index++) {
+      const item = slot.options[index];
+      let childrenComponet: string | Array<string> = []
+      if (item.childrenComponet && item.childrenComponet.length) {
+        childrenComponet = item.childrenComponet.map((el: ComponentItemJson) => {
+          return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+        });
+        childrenComponet = buildFormTemplate(confGlobal as FormConf, childrenComponet.join("\n"), "tabs");
+      }
+      children.push(
+      `<el-tab-pane  key="${index}" name="${item.value}" label="${item.label}">
+        ${childrenComponet}
+      </el-tab-pane >`
     );
+    }
+    
   }
   return children.join("\n");
 }
@@ -523,7 +556,9 @@ function getUsedComp(html: string) {
     "el-tab-pane",
     "el-menu",
     "el-sub-menu",
-    "el-menu-item"
+    "el-menu-item",
+    "el-steps",
+    "el-step"
   ]
     .filter((item) => html.indexOf(item) > -1)
     .map((it) => {
@@ -548,7 +583,7 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   const htmlList: string[] = [];
   // 常见form表单组件顺序是连续的，若不连续以下处理会导致输出结果不正确
   formConfig.fields.forEach((el) => {
-    if (!['table', 'pagination', 'dialog', 'menu', 'tabs'].includes(el.type)) {
+    if (!['table', 'pagination', 'dialog', 'menu', 'tabs', 'steps'].includes(el.type)) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }

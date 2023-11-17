@@ -419,4 +419,33 @@ export const layoutComponents: ComponentItemJson[] = [
     },
     type: "tabs",
   },
+  {
+    __config__: {
+      layout: "raw",
+      span: 24,
+      tagIcon: "steps",
+      tag: "el-steps",
+      label: "步骤条",
+      children: [],
+      mode: 'vertical'
+    },
+    __slot__: {
+      tag: 'el-steps',
+      options:[
+        {
+          label: '已完成',
+          value: 'All through the day, I me mine I me mine, I me mine'
+        },
+        {
+          label: '进行中',
+          value: 'When I find myself in times of trouble Mother Mary comes to me',
+        },
+        {
+          label: '待处理',
+          value: 'Here come old flat top He come grooving up slowly'
+        }
+      ]
+    },
+    type: "steps",
+  },
 ];
