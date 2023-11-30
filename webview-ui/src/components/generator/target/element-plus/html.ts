@@ -74,6 +74,18 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${typeStr} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
   },
+  "el-progress": (el: ComponentItemJson) => {
+    debugger
+    const { tag, type } = attrBuilder(el);
+    const typeStr = type ? `type="${type}"` : "";
+    const status = (el.status && el.status !== '') ? `status="${el.status}"` : "";
+    const percentage = `percentage="${el.percentage || 0}"`;
+    const strokeWidth = (el.strokeWidth && el.strokeWidth !== '') ? `stroke-width="${el.strokeWidth}"` : "";
+    let child = buildElButtonChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<${tag} ${typeStr} ${status} ${percentage} ${strokeWidth}>${child}</${tag}>`;
+  },
   "el-input": (el: ComponentItemJson) => {
     const { tag, disabled, vModel, clearable, placeholder, width, type } = attrBuilder(el);
     const maxlength = el.maxlength ? `:maxlength="${el.maxlength}"` : "";
@@ -558,7 +570,8 @@ function getUsedComp(html: string) {
     "el-sub-menu",
     "el-menu-item",
     "el-steps",
-    "el-step"
+    "el-step",
+    "el-progress",
   ]
     .filter((item) => html.indexOf(item) > -1)
     .map((it) => {

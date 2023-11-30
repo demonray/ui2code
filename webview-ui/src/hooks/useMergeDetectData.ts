@@ -197,6 +197,7 @@ function convertJsonData(
   textResults: TextItem[],
   fields: ComponentItemJson[]
 ) {
+  debugger
   // 遍历文本识别结果数据，判断与组件识别结果关系：
   // in，left，right，top，bottom
   const uiTextMap: UITextMap = {};
@@ -259,6 +260,7 @@ function fillTextToComp(
   textResults: TextItem[],
   fields: ComponentItemJson[]
 ): void {
+  debugger
   // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
 
@@ -347,9 +349,17 @@ function fillTextToComp(
         // placeholder for input/select/textarea
         // text for button
 
-        if (it.type === "button" && conf.__slot__) {
+        if ((it.type === "button") && conf.__slot__) {
           // console.log(matched, textItem, conf);
           conf.__slot__.default = textItem.text;
+        }
+
+        // 进度条处理
+        if (it.type === "progress" && conf.__slot__) {
+          conf.__slot__.default = textItem.text;
+          if (textItem.text.indexOf('%') !== -1) {
+            conf.percentage = Number(textItem.text.split('%')[0]);
+          }
         }
         if (it.type === "input" || it.type === "textarea" || it.type === "select") {
           conf.placeholder = textItem.text;
@@ -470,6 +480,7 @@ export default function mergeDetectData(
   textResults: TextItem[],
   structures: StructureItem[] = []
 ) {
+  debugger
   const checkInCompArea = (types: UiType[], item: XYXY) => {
     const comps = uiResults.filter((it) => types.indexOf(it.class) > -1);
     return comps.some((it) => {

@@ -22,7 +22,8 @@ declare global {
     | "menu"
     | 'tabs'
     | 'steps'
-    | "default";
+    | "default"
+    | "progress";
 
   type CompItemConf = {
     label: string;
