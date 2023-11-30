@@ -119,7 +119,7 @@ const tags: TagTemplate = {
   "el-radio-group": (el: ComponentItemJson) => {
     const tag = "FRadioGroup";
     const { disabled, vModel } = attrBuilder(el);
-    const size = `size="${el.size}"`;
+    const size = el.size ? `size="${el.size}"` : "";
     let child = buildElRadioGroupChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
@@ -128,7 +128,7 @@ const tags: TagTemplate = {
   "el-checkbox-group": (el: ComponentItemJson) => {
     const tag = "FCheckboxGroup";
     const { disabled, vModel } = attrBuilder(el);
-    const size = `size="${el.size}"`;
+    const size = el.size ? `size="${el.size}"` : "";
     const min = el.min ? `:min="${el.min}"` : "";
     const max = el.max ? `:max="${el.max}"` : "";
     let child = buildElCheckboxGroupChild(el);
@@ -259,6 +259,29 @@ const tags: TagTemplate = {
   //     if (child) child = `\n${child}\n`; // 换行
   //     return `<${tag} ${ref} ${fileList} ${action} ${autoUpload} ${multiple} ${beforeUpload} ${listType} ${accept} ${name} ${disabled}>${child}</${tag}>`;
   //   },
+  "el-tabs": (el: ComponentItemJson) => {
+    const { vModel } = attrBuilder(el);
+    const editable = `:editable="${el.__config__.editable}"`;
+    const tabPotion = `position="${el.__config__.position}"`;
+    let child = buildElTabsChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<FTabs ${vModel} ${editable} ${tabPotion}>${child}</FTabs>`;
+  },
+  "el-menu": (el: ComponentItemJson) => {
+    const mode = `mode="${el.__config__.mode}"`;
+    let child = buildElMenuChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<FMenu ${mode}>${child}</FMenu>`;
+  },
+  "el-steps": (el: ComponentItemJson) => {
+    const vertical = el.__config__.mode === 'vertical' ? 'vertical' : '';
+    let child = buildElStepsChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<FSteps ${vertical}>${child}</FSteps>`;
+  },
 };
 
 function attrBuilder(el: ComponentItemJson) {
@@ -356,6 +379,65 @@ function buildElCheckboxGroupChild(scheme: ComponentItemJson) {
   return children.join("\n");
 }
 
+// el-steps 子级
+function buildElStepsChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  if (slot && slot.options && slot.options.length) {
+    children.push(
+      `<FStep v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :description="item.value" :title="item.label"></FStep>`
+    );
+  }
+  return children.join("\n");
+}
+// el-menu 子级
+function buildElMenuChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  function resolveMenu(children: Array<OptionItem>): Array<any> | string {
+    let strHtml = ''
+    children.forEach((item: OptionItem) => {
+      if (item.children) {
+        strHtml +=`<FSubMenu value='${item.value}'>
+          <template #label>${item.label}</template>
+          ${resolveMenu(item.children)}
+        </FSubMenu>`
+      } else {
+        strHtml +=`<FMenuItem value='${item.value}' label=${item.label}></FMenuItem>`
+      }
+    })
+    return strHtml
+}
+  if (slot && slot.options && slot.options.length) {
+    children.push(resolveMenu(slot.options));
+  }
+  return children.join("\n");
+}
+// el-tabs 子级
+function buildElTabsChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__;
+  if (slot && slot.options && slot.options.length) {
+    for (let index = 0; index < slot.options.length; index++) {
+      const item = slot.options[index];
+      let childrenComponet: string | Array<string> = []
+      if (item.childrenComponet && item.childrenComponet.length) {
+        childrenComponet = item.childrenComponet.map((el: ComponentItemJson) => {
+          return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+        });
+        childrenComponet = buildFormTemplate(confGlobal as FormConf, childrenComponet.join("\n"), "tabs");
+      }
+      children.push(
+      `<FTabPane key="${index}" name="${item.label}" value="${item.value}">
+        ${childrenComponet}
+      </FTabPane>`
+    );
+    }
+    
+  }
+  return children.join("\n");
+}
+
 // el-upload 子级
 function buildElUploadChild(scheme: ComponentItemJson) {
   const list = [];
@@ -435,6 +517,13 @@ function getUsedComp(html: string) {
       "FModal",
       "FGrid",
       "FGridItem",
+      "FTabs",
+      "FTabPane",
+      "FMenu",
+      "FSubMenu",
+      "FMenuItem",
+      "FSteps",
+      'FStep'
     ].filter((item) => html.indexOf(item) > -1);
   }
 
@@ -450,9 +539,8 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   // 遍历渲染每个组件成html
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
-
   formConfig.fields.forEach((el) => {
-    if (el.type !== "table" && el.type !== "pagination" && el.type !== "dialog") {
+    if (!['table', 'pagination', 'dialog', 'menu', 'tabs'].includes(el.type)) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }

@@ -19,6 +19,9 @@ declare global {
     | "pagination"
     | "dialog"
     | "row"
+    | "menu"
+    | 'tabs'
+    | 'steps'
     | "default";
 
   type CompItemConf = {
@@ -34,6 +37,8 @@ declare global {
   interface OptionItem {
     label: string;
     value: string | number;
+    children?: OptionItem[];
+    childrenComponet?: ComponentItemJson[]
   }
 
   interface CompItemSlot {

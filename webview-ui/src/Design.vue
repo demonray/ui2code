@@ -306,23 +306,45 @@ function previewSandbox() {
     }
   }
 }
-
+/**
+ * 递归生成vModel
+ */
+function generateVmodel(childrenList: Array<ComponentItemJson>, preStr: string) {
+  childrenList.forEach((child: ComponentItemJson, idx: number) => {
+    const modelStr = `${preStr}_${idx}`
+    if (hasVmodel(child.type)) {
+      child.__vModel__ = modelStr;
+    }
+    if (child.__config__.children && child.__config__.children.length) {
+      generateVmodel(child.__config__.children, modelStr)
+    }
+    if (child.__slot__?.options && child.__slot__?.options.length) {
+      child.__slot__?.options.forEach((element: OptionItem, k: number) => {
+        if (element.childrenComponet && element.childrenComponet.length) {
+          generateVmodel(element.childrenComponet, modelStr+k)
+        }
+      });
+    }
+  });
+}
 /**
  * 生成代码
  */
 function generate(): string {
   const { type, targetlib } = saveType;
   drawingList.forEach((it, index) => {
-    // 简单处理了
-    if (it.__config__.children) {
-      it.__config__.children.forEach((child: ComponentItemJson, idx: number) => {
-        if (hasVmodel(child.type)) {
-          child.__vModel__ = `field_${index}_${idx}`;
-        }
-      });
-    }
     if (hasVmodel(it.type)) {
       it.__vModel__ = `field_${index}`;
+    }
+    if (it.__config__.children) {
+      generateVmodel(it.__config__.children, `field_${index}`)
+    }
+    if (it.__slot__?.options && it.__slot__?.options.length) {
+      it.__slot__?.options.forEach((element: OptionItem, k: number) => {
+        if (element.childrenComponet && element.childrenComponet.length) {
+          generateVmodel(element.childrenComponet, `field_${index}${k}`)
+        }
+      });
     }
   });
   const data = {
@@ -360,6 +382,43 @@ function drawingItemCopy(item: ComponentItemJson) {
   drawingList.push(clone);
   activeItem(clone);
 }
+function deleteItemFormList(list: Array<ComponentItemJson>, item: ComponentItemJson): boolean {
+  const index = list.findIndex((it) => it.guid === item.guid);
+  if (index > -1) {
+    list.splice(index, 1);
+    return true
+  }
+  const { parentInfo } = item
+  if (parentInfo) {
+    const parentElementConf = list.find((it) => it.guid === parentInfo.guid)
+    if (parentElementConf) {
+      const children = parentElementConf.__slot__?.options?.[parentInfo.index]?.childrenComponet
+      if (children) {
+        const index = children.findIndex((it: ComponentItemJson) => it.guid === item.guid);
+          if (index > -1) {
+            console.log(index);
+            children.splice(index, 1);
+            return true
+          }
+      }
+    }
+  } else {
+    for (let i = 0; i < list.length; i++) {
+      const children = list[i].__config__.children
+      const optionsChildren = list[i].__slot__?.options
+      if (children && children.length) {
+        const find = deleteItemFormList(children, item)
+        if (find) break
+      } else if (optionsChildren && optionsChildren.length) {
+        for (let index = 0; index < optionsChildren.length; index++) {
+          const { childrenComponet } = optionsChildren[index] || {};
+          if (childrenComponet && childrenComponet.length && deleteItemFormList(childrenComponet, item)) break
+        }
+      }
+    }
+  }
+  return false
+}
 
 function drawingItemDelete(item: ComponentItemJson) {
   const index = drawingList.findIndex((it) => it.guid === item.guid);
@@ -372,17 +431,7 @@ function drawingItemDelete(item: ComponentItemJson) {
       }
     });
   } else {
-    for (let i = 0; i < drawingList.length; i++) {
-      const children = drawingList[i].__config__.children;
-      if (children) {
-        const index = children.findIndex((it: ComponentItemJson) => it.guid === item.guid);
-        if (index > -1) {
-          console.log(index);
-          children.splice(index, 1);
-          break;
-        }
-      }
-    }
+    deleteItemFormList(drawingList, item)
     activeItem(drawingList[0]);
   }
 }
