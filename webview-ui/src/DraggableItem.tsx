@@ -3,7 +3,7 @@ import draggable from "vuedraggable";
 import type { PropType } from "vue";
 import render from "./components/render/index";
 
-interface ItemOpts {
+export interface ItemOpts {
   actived: boolean;
   active: (item: ComponentItemJson) => void;
   deleteItem: (item: ComponentItemJson) => void;
@@ -146,7 +146,7 @@ const layouts = {
           active(currentItem);
           event.stopPropagation();
         }}>
-        <render key={config.guid} conf={currentItem}>
+        <render key={config.guid} conf={currentItem} opts={opts}>
           {renderChildren(currentItem, opts)}
         </render>
         {components.itemBtns(currentItem, opts)}
@@ -155,7 +155,7 @@ const layouts = {
   },
 };
 
-function renderChildren(currentItem: ComponentItemJson, opts: ItemOpts) {
+export function renderChildren(currentItem: ComponentItemJson, opts: ItemOpts) {
   const config = currentItem.__config__;
   if (!Array.isArray(config.children)) return null;
   return config.children.map((el, i) => {
@@ -167,7 +167,7 @@ function renderChildren(currentItem: ComponentItemJson, opts: ItemOpts) {
   });
 }
 
-function renderChildrenItem(item: ComponentItemJson, opts: ItemOpts) {
+export function renderChildrenItem(item: ComponentItemJson, opts: ItemOpts) {
   const layout = layouts[item.__config__.layout as keyof typeof layouts];
   if (layout) {
     return layout(item, opts);
