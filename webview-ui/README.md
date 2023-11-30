@@ -108,7 +108,26 @@ detect(uploadFile.raw as File, {
 ```js
 import { generateUIList } from "./lib";
 
-generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
+interface DetectItem {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    prob: number;
+    class: UiType;
+    [propName: string]: any;
+}
+interface TextItem {
+    confidence: number;
+    text: string;
+    text_region: TextRegion;
+    x?: number;
+    y?: number;
+}
+generateUIList(
+    uiResults: DetectItem[],
+    textResults: TextItem[]
+).then(({ fields, metaInfo }) => {
   //
 });
 ```
