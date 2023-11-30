@@ -75,7 +75,6 @@ const tags: TagTemplate = {
     return `<${tag} ${typeStr} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
   },
   "el-progress": (el: ComponentItemJson) => {
-    debugger
     const { tag, type } = attrBuilder(el);
     const typeStr = type ? `type="${type}"` : "";
     const status = (el.status && el.status !== '') ? `status="${el.status}"` : "";
@@ -596,7 +595,7 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   const htmlList: string[] = [];
   // 常见form表单组件顺序是连续的，若不连续以下处理会导致输出结果不正确
   formConfig.fields.forEach((el) => {
-    if (!['table', 'pagination', 'dialog', 'menu', 'tabs', 'steps'].includes(el.type)) {
+    if (!['table', 'pagination', 'dialog', 'menu', 'tabs', 'steps', 'progress'].includes(el.type)) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }

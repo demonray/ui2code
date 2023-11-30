@@ -540,7 +540,7 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
   formConfig.fields.forEach((el) => {
-    if (!['table', 'pagination', 'dialog', 'menu', 'tabs'].includes(el.type)) {
+    if (!['table', 'pagination', 'dialog', 'menu', 'tabs', 'steps', 'progress'].includes(el.type)) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }

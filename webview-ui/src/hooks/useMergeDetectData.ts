@@ -197,7 +197,6 @@ function convertJsonData(
   textResults: TextItem[],
   fields: ComponentItemJson[]
 ) {
-  debugger
   // 遍历文本识别结果数据，判断与组件识别结果关系：
   // in，left，right，top，bottom
   const uiTextMap: UITextMap = {};
@@ -260,7 +259,6 @@ function fillTextToComp(
   textResults: TextItem[],
   fields: ComponentItemJson[]
 ): void {
-  debugger
   // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
 
@@ -480,7 +478,6 @@ export default function mergeDetectData(
   textResults: TextItem[],
   structures: StructureItem[] = []
 ) {
-  debugger
   const checkInCompArea = (types: UiType[], item: XYXY) => {
     const comps = uiResults.filter((it) => types.indexOf(it.class) > -1);
     return comps.some((it) => {
