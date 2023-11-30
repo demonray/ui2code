@@ -322,7 +322,7 @@
           </el-form-item>
           <template
             v-if="
-              ['el-checkbox-group', 'el-radio-group', 'el-select'].indexOf(
+              ['el-checkbox-group', 'el-radio-group', 'el-select', 'el-menu', 'el-tabs', 'el-steps'].indexOf(
                 activeData.__config__.tag || ''
               ) > -1 && activeData.__slot__
             "
@@ -331,23 +331,23 @@
             <draggable
               :list="activeData.__slot__.options"
               :animation="340"
+              item-key="guid"
               group="selectItem"
               handle=".option-drag"
             >
+            <template #item="{ element, index }">
               <div
-                v-for="(item, index) in activeData.__slot__.options"
-                :key="index"
                 class="select-item"
               >
                 <div class="select-line-icon option-drag">
                   <i class="el-icon-s-operation" />
                 </div>
-                <el-input v-model="item.label" placeholder="选项名" size="small" />
+                <el-input v-model="element.label" placeholder="选项名" size="small" />
                 <el-input
                   placeholder="选项值"
                   size="small"
-                  :value="item.value"
-                  @input="setOptionValue(item, $event)"
+                  v-model="element.value"
+                  @input="setOptionValue(element, $event)"
                 />
                 <div
                   class="close-btn select-line-icon"
@@ -360,6 +360,7 @@
                   <svg-icon name="delete" />
                 </div>
               </div>
+            </template>
             </draggable>
             <div style="margin-left: 20px">
               <el-button style="padding-bottom: 0" type="text" @click="addSelectItem">
@@ -451,6 +452,59 @@
           </el-form-item>
           <el-form-item v-if="activeData.__config__.required !== undefined" label="是否必填">
             <el-switch v-model="activeData.__config__.required" />
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.editable !== undefined" label="是否可编辑">
+            <el-switch v-model="activeData.__config__.editable" />
+          </el-form-item>
+          <el-form-item v-if="activeData.percentage !== undefined" label="进度值">
+            <el-input v-model="activeData.percentage" placeholder="请输入进度值" />
+          </el-form-item>
+          <el-form-item v-if="activeData.strokeWidth !== undefined" label="进度条宽度">
+            <el-input v-model="activeData.strokeWidth" placeholder="请输入进度条宽度" />
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.tag === 'el-progress' && activeData.__slot__" label="文字">
+            <el-input v-model="activeData.__slot__.default" placeholder="请输入文字" />
+          </el-form-item>
+          <el-form-item v-if="activeData.type !== undefined && activeData.__config__.tag === 'el-progress'" label="展示类型">
+            <el-radio-group v-model="activeData.__config__.type">
+              <el-radio-button label="dashboard">dashboard</el-radio-button>
+              <el-radio-button label="circle">环状 </el-radio-button>
+              <el-radio-button label="line"> 默认 </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-else-if="activeData.__config__.type !== undefined" label="展示类型">
+            <el-radio-group v-model="activeData.__config__.type">
+              <el-radio-button label="card"> 卡片 </el-radio-button>
+              <el-radio-button label="line"> 默认 </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="activeData.status !== undefined" label="状态">
+            <el-radio-group v-model="activeData.status">
+              <el-radio-button label="success">success </el-radio-button>
+              <el-radio-button label="exception">exception </el-radio-button>
+              <el-radio-button label="warning">warning </el-radio-button>
+              <el-radio-button label=""> 无 </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item
+            v-if="activeData.__config__.showText !== undefined"
+            label="是否展示进度"
+          >
+            <el-switch v-model="activeData.__config__.showLabel" />
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.mode !== undefined" label="展示方向">
+            <el-radio-group v-model="activeData.__config__.mode">
+              <el-radio-button label="horizontal"> 水平</el-radio-button>
+              <el-radio-button label="vertical"> 垂直 </el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item v-if="activeData.__config__.position !== undefined" label="所在位置">
+            <el-radio-group v-model="activeData.__config__.position">
+              <el-radio-button label="top"> top</el-radio-button>
+              <el-radio-button label="right"> right </el-radio-button>
+              <el-radio-button label="bottom"> bottom </el-radio-button>
+              <el-radio-button label="left"> left </el-radio-button>
+            </el-radio-group>
           </el-form-item>
           <!-- <template v-if="activeData.__config__.layoutTree">
             <el-divider>布局结构树</el-divider>
@@ -678,6 +732,7 @@ function addSelectItem() {
   props.activeData?.__slot__?.options?.push({
     label: "",
     value: "",
+    children: []
   });
 }
 

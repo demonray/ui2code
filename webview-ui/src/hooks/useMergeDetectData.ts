@@ -347,9 +347,17 @@ function fillTextToComp(
         // placeholder for input/select/textarea
         // text for button
 
-        if (it.type === "button" && conf.__slot__) {
+        if ((it.type === "button") && conf.__slot__) {
           // console.log(matched, textItem, conf);
           conf.__slot__.default = textItem.text;
+        }
+
+        // 进度条处理
+        if (it.type === "progress" && conf.__slot__) {
+          conf.__slot__.default = textItem.text;
+          if (textItem.text.indexOf('%') !== -1) {
+            conf.percentage = Number(textItem.text.split('%')[0]);
+          }
         }
         if (it.type === "input" || it.type === "textarea" || it.type === "select") {
           conf.placeholder = textItem.text;

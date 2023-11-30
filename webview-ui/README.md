@@ -58,7 +58,7 @@
 - 常见的 Modal Form 表单提交
 - 常见的分页表格页面
 
-1. 增加支持的组件类型 Steps、Pagination、Tabs、Modal、Progress、Menu
+1. 模型识别Tabs、Menu
 2. 组件识别准确率提高及纠错
 3. 生成代码完善各个组件 props 属性、状态信息、默认值
 4. Table 编辑列，组件列
@@ -67,6 +67,7 @@
 7. 内置常用表单正则设置
 8. 组件尺寸信息
 9. Modal-Row-Items children 嵌套情况
+10. 表单组件是否使用form标签包裹
 
 以上1，2两点ui2code_service部分模型训练优化（Steps、Pagination、Progress已支持）
 纠错及3-9部分在本项目web端里生成目标组件库代码里实现。
