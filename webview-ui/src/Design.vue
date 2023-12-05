@@ -31,6 +31,9 @@
     <div class="center-board">
       <div class="action-bar">
         <div class="detect-msg">{{ props.status }}</div>
+        <el-button v-if="json.metaInfo.imageRes && (json.metaInfo.imageRes.ui || json.metaInfo.imageRes.text)" class="action-btn-item" type="text" @click="showDetectResult">
+          识别结果
+        </el-button>
         <el-upload
           style="display: inline-block; vertical-align: top"
           :auto-upload="false"
@@ -113,6 +116,7 @@
       title="选择目标组件库"
       @confirm="confrimGenerate"
     />
+    <detect-result v-model="showImageRes" :data="json.metaInfo.imageRes" />
     <input id="copyNode" type="hidden" />
   </div>
 </template>
@@ -139,6 +143,7 @@ import {
 } from "./config/componentType";
 import DetectConfig from "./config";
 import CodeTypeDialog from "./CodeTypeDialog.vue";
+import DetectResult from "./DetectResult.vue";
 import DraggableItem from "./DraggableItem";
 import loadBeautifier from "./utilities/loadBeautifier";
 import { beautifierConf } from "./utilities/pluginsConfig";
@@ -497,6 +502,12 @@ function hasVmodel(type: string) {
 const handleChange = (uploadFile: UploadFile) => {
   emit("upload", uploadFile);
 };
+
+const showImageRes = ref(false);
+function showDetectResult() {
+    showImageRes.value = true;
+}
+
 </script>
 
 <style lang="scss">

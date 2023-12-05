@@ -27,10 +27,10 @@ export async function detect(
         resolve({ fields: [], metaInfo: {} });
         return;
       }
-      const { uiResults, textResults } = getResult();
+      const { uiResults, textResults, imageRes } = getResult();
       if (status.component === "FINISH" && status.text === "SUCCESS") {
         const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, []);
-        resolve({ fields, metaInfo });
+        resolve({ fields, metaInfo: { imageRes, ...metaInfo} });
       } else {
         setTimeout(checkResult, 1000);
       }

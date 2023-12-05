@@ -15,6 +15,7 @@ type DetectService = {
     uiResults: DetectItem[];
     textResults: TextItem[];
     structures: StructureItem[];
+    imageRes: any;
   };
   detectStructure: (file: File) => Promise<any>;
   status: DetectStatus;
@@ -30,13 +31,14 @@ export default function useDetectService(
   };
 
   if (!config.OCR || !config.UI_DETECT) {
-    console.error('配置错误')
+    console.error("配置错误");
   }
   let uiResults: DetectItem[] = [];
 
   let textResults: TextItem[] = [];
 
   let structures: StructureItem[] = [];
+  let imageRes: any = {};
   /**
    * 获取文本检查结果
    */
@@ -56,6 +58,7 @@ export default function useDetectService(
     })
       .then((res) => {
         textResults = res.data.data;
+        imageRes.text = res.data.resultImg;
         detectStatus.text = "SUCCESS";
       })
       .catch((error) => {
@@ -165,6 +168,7 @@ export default function useDetectService(
         //    }
         // }
         if (res.data && res.data.status === "SUCCESS") {
+          imageRes.ui = res.data.result.resultImg;
           uiResults = res.data.result.bbox;
           detectStatus.component = "FINISH";
         }
@@ -178,7 +182,7 @@ export default function useDetectService(
   return {
     status: detectStatus,
     getResult: () => {
-      return { textResults, uiResults, structures };
+      return { textResults, uiResults, structures, imageRes };
     },
     detectUI: processUIDetect,
     detectText: getTextDetectData,

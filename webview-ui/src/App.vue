@@ -6,8 +6,9 @@ import Design from "./Design.vue";
 import Preview from "./Preview.vue";
 import { detect, generateUIList } from "./lib";
 
-// import uiResult from "../test_images/ui"
-// import textRes from "../test_images/text"
+// import uiResult from "../test_images/steps_ui";
+// import textRes from "../test_images/steps_text";
+
 let designJson: DesignJson = reactive({
   fields: [],
   metaInfo: {},
@@ -35,12 +36,18 @@ function onUpload(uploadFile: UploadFile) {
   });
 }
 
-// for dev test
+// // for dev test
 // generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
 //   status.value = "";
-//   console.log(fields)
+//   console.log(fields);
 //   designJson.fields = fields;
-//   designJson.metaInfo = metaInfo;
+//   designJson.metaInfo = {
+//     imageRes: {
+//       ui: uiResult.result.resultImg,
+//       text: textRes.resultImg,
+//     },
+//     ...metaInfo,
+//   };
 // });
 
 function onPreview(params: SandboxTemplateConfig) {
