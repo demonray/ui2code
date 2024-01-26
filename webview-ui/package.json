@@ -5,6 +5,7 @@
   "scripts": {
     "start": "vite",
     "build": "vue-tsc --noEmit && vite build",
+    "build-webview": "vue-tsc --noEmit && vite build --mode vsix",
     "build-lib": "vue-tsc --noEmit && vite build --mode lib",
     "preview": "vite preview --port 5050",
     "typecheck": "vue-tsc --noEmit"

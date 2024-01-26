@@ -1,8 +1,10 @@
 {
-  "name": "codehelper",
-  "displayName": "Code Helper",
-  "description": "代码神器",
+  "name": "UI2code",
+  "displayName": "UI2code",
+  "description": "UI2code",
   "version": "0.0.1",
+  "author": "ryanlei",
+  "publisher": "ryanlei",
   "engines": {
     "vscode": "^1.46.0"
   },
@@ -16,15 +18,16 @@
   "contributes": {
     "commands": [
       {
-        "command": "codehelper.uitocode",
-        "title": "Code Helper"
+        "command": "ui2code",
+        "title": "UI2code"
       }
     ]
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",
     "start:webview": "cd webview-ui && npm run start",
-    "build:webview": "cd webview-ui && npm run build",
+    "build:webview": "cd webview-ui && npm run build-webview",
+    "build": "cd webview-ui && npm run build",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",

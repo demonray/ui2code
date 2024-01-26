@@ -3,7 +3,7 @@ import { DesignPanel } from "./panels/DesignPanel";
 
 export function activate(context: ExtensionContext) {
   // Create the show hello world command
-  const showDesignCommand = commands.registerCommand("codehelper.uitocode", () => {
+  const showDesignCommand = commands.registerCommand("ui2code", () => {
     DesignPanel.render(context.extensionUri);
   });
 

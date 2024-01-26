@@ -18,6 +18,17 @@ export default defineConfig(({ command, mode }) => {
         fileName: "detect",
       },
     };
+  } else if (mode == "vsix") {
+    build = {
+      outDir: "build",
+      rollupOptions: {
+        output: {
+          entryFileNames: `assets/[name].js`,
+          chunkFileNames: `assets/[name].js`,
+          assetFileNames: `assets/[name].[ext]`,
+        },
+      },
+    };
   } else {
     build = {
       outDir: "build",

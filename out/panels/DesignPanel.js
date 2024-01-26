@@ -46,9 +46,9 @@ class DesignPanel {
             // If a webview panel does not already exist create and show a new one
             const panel = vscode_1.window.createWebviewPanel(
             // Panel view type
-            "showDesign", 
+            "UI2code", 
             // Panel title
-            "Hello World", 
+            "UI2code", 
             // The editor column the panel should be displayed in
             vscode_1.ViewColumn.One, 
             // Extra panel configurations

@@ -52,7 +52,7 @@ export class DesignPanel {
         // Panel view type
         "showDesign",
         // Panel title
-        "Hello World",
+        "UI2code",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations

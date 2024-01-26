@@ -217,7 +217,8 @@ function convertJsonData(
         const xy = textItemXY(item.text_region);
         item.x = xy.x;
         item.y = xy.y;
-        const dirdis = positionDir(item, uiResults[uiIndex]);
+        let dirdis
+        if (uiResults[uiIndex]) dirdis = positionDir(item, uiResults[uiIndex]);
 
         if (dirdis) {
           if (dirdis.dir === "in") {
