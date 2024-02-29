@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// import { vscode } from "./utilities/vscode";
+import { vscode } from "./utilities/vscode";
 import { ref, reactive } from "vue";
 import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
@@ -35,6 +35,23 @@ function onUpload(uploadFile: UploadFile) {
     designJson.metaInfo = metaInfo;
   });
 }
+
+window.addEventListener("message", (event) => {
+  const message = event.data;
+  switch (message.command) {
+    case "detectimage_result":
+      status.value = "";
+      generateUIList(message.data.uiResults, message.data.textResults).then(
+        ({ fields, metaInfo }) => {
+          status.value = "";
+          console.log(fields);
+          designJson.fields = fields;
+          designJson.metaInfo = metaInfo;
+        }
+      );
+      break;
+  }
+});
 
 // // for dev test
 // generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
@@ -81,6 +98,7 @@ function download() {}
 body {
   margin: 0;
   padding: 0;
+  background-color: var(--el-bg-color);
 }
 main {
   display: flex;

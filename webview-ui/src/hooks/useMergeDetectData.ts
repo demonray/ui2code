@@ -571,7 +571,9 @@ export default function mergeDetectData(
       uiItems.push(uiResults[i]);
     }
   }
-  convertJsonData(uiItems, textResults, fields);
+  if (uiItems.length && textResults.length) {
+    convertJsonData(uiItems, textResults, fields);
+  }
   return {
     fields,
     metaInfo,

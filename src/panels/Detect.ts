@@ -1,6 +1,61 @@
-import { getBase64 } from "../utilities/index";
-import Axios from "../utilities/request";
-import DetectConfig from "../config";
+const FormData = require('form-data');
+import Axios from "axios";
+
+type UiType =
+  | "input"
+  | "textarea"
+  | "radio"
+  | "checkbox"
+  | "button"
+  | "switch"
+  | "select"
+  | "timepicker"
+  | "datepicker"
+  | "timerange"
+  | "daterange"
+  | "table"
+  | "pagination"
+  | "dialog"
+  | "row"
+  | "menu"
+  | "tabs"
+  | "steps"
+  | "default"
+  | "progress";
+
+interface DetectItem {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  prob: number;
+  class: UiType;
+  [propName: string]: any;
+}
+
+type TextRegion = [[number, number], [number, number], [number, number], [number, number]];
+
+interface TextItem {
+  confidence: number;
+  text: string;
+  text_region: TextRegion;
+  x?: number;
+  y?: number;
+}
+
+type structureTable = {
+  cell_bbox: Array<Array<number>>;
+  html: string;
+};
+
+type XYXY = [number, number, number, number];
+
+interface StructureItem {
+  type: string;
+  res: structureTable;
+  bbox: XYXY;
+  [key: string]: any;
+}
 
 type DetectStatus = {
   text: "PROCESSING" | "SUCCESS";
@@ -10,7 +65,7 @@ type DetectStatus = {
 
 type DetectService = {
   detectUI: (file: File) => Promise<any>;
-  detectText: (file: File) => Promise<any>;
+  detectText: (file: string) => Promise<any>;
   getResult: () => {
     uiResults: DetectItem[];
     textResults: TextItem[];
@@ -21,9 +76,7 @@ type DetectService = {
   status: DetectStatus;
 };
 
-export default function useDetectService(
-  config: { [k: string]: any } = DetectConfig
-): DetectService {
+function useDetectService(config: { [k: string]: any }): DetectService {
   const detectStatus: DetectStatus = {
     component: "PROCESSING",
     text: "PROCESSING",
@@ -42,28 +95,31 @@ export default function useDetectService(
   /**
    * 获取文本检查结果
    */
-  async function getTextDetectData(file: File) {
+  async function getTextDetectData(file: any) {
     textResults = [];
     detectStatus.text = "PROCESSING";
-    const images = await getBase64(file as Blob);
+    let data = new FormData();
+    if (file) {
+      data.append("file", file.file, file.fileName);
+    }
     return Axios({
-      url: `${config.OCR}/predict-by-base64`,
+      url: `${config.OCR}/predict-by-file`,
       method: "post",
-      data: {
-        base64_str: images.replace(/data:image\/.+;base64,/, ""),
-      },
+      data,
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
+        "Origin": "https://mumblefe.cn/"
       },
     })
-      .then((res) => {
+      .then((res: { data: { data: TextItem[]; resultImg: any } }) => {
         if (res.data) {
           textResults = res.data.data;
           imageRes.text = res.data.resultImg;
         }
+
         detectStatus.text = "SUCCESS";
       })
-      .catch((error) => {
+      .catch((error: any) => {
         // 请求失败，
         console.log(error);
       });
@@ -72,12 +128,12 @@ export default function useDetectService(
   /**
    * 表格识别
    */
-  async function getStructureData(file: File) {
+  async function getStructureData(file: any) {
     structures = [];
     detectStatus.text = "PROCESSING";
     let data = new FormData();
     if (file) {
-      data.append("file", file);
+      data.append("file", file.file, file.fileName);
     }
     return Axios({
       url: `${config.OCR}/predict-structure`,
@@ -85,13 +141,14 @@ export default function useDetectService(
       data,
       headers: {
         "Content-Type": "multipart/form-data",
+        "Origin": "https://mumblefe.cn/"
       },
     })
-      .then((res) => {
+      .then((res: { data: { data: StructureItem[] } }) => {
         structures = res.data.data;
         detectStatus.structure = "SUCCESS";
       })
-      .catch((error) => {
+      .catch((error: any) => {
         // 请求失败，
         console.log(error);
       });
@@ -100,11 +157,11 @@ export default function useDetectService(
   /**
    * 提交图片提交UI模型检查
    */
-  function processUIDetect(file: File) {
+  function processUIDetect(file: any) {
     uiResults = [];
     let formData = new FormData();
     if (file) {
-      formData.append("files", file);
+      formData.append("files", file.file, file.fileName);
     }
     return Axios({
       url: `${config.UI_DETECT}/process`,
@@ -112,8 +169,9 @@ export default function useDetectService(
       data: formData,
       headers: {
         "Content-Type": "multipart/form-data",
+        "Origin": "https://mumblefe.cn/"
       },
-    }).then((res) => {
+    }).then((res: { data: { task_id: string; status: DetectStatus["component"] }[] }) => {
       if (res.data && res.data[0]) {
         // status: "PROCESSING"
         // task_id: "e1458014-a457-47d5-986c-30f4ca4ee2ba"
@@ -121,6 +179,8 @@ export default function useDetectService(
         detectStatus.component = res.data[0].status;
         checkDetectStatus(res.data[0].task_id);
       }
+    }).catch(err => {
+        console.log(err)
     });
   }
 
@@ -132,8 +192,11 @@ export default function useDetectService(
     Axios({
       url: `${config.UI_DETECT}/status/${taskid}`,
       method: "get",
+      headers: {
+        "Origin": "https://mumblefe.cn/"
+      },
     })
-      .then((res) => {
+      .then((res: { data: { status: DetectStatus["component"] } }) => {
         detectStatus.component = res.data.status;
         if (res.data && res.data.status === "PENDING") {
           setTimeout(() => {
@@ -143,7 +206,7 @@ export default function useDetectService(
           getUIDetectResult(taskid);
         }
       })
-      .catch((error) => {
+      .catch((error: any) => {
         // 请求失败，
         console.log(error);
       });
@@ -157,8 +220,11 @@ export default function useDetectService(
     Axios({
       url: `${config.UI_DETECT}/result/${taskid}`,
       method: "get",
+      headers: {
+        "Origin": "https://mumblefe.cn/"
+      },
     })
-      .then((res) => {
+      .then((res: { data: { status: string; result: { resultImg: any; bbox: DetectItem[] } } }) => {
         // {
         //    data: {
         //     result: {
@@ -174,10 +240,11 @@ export default function useDetectService(
             imageRes.ui = res.data.result.resultImg;
             uiResults = res.data.result.bbox;
           }
+
           detectStatus.component = "FINISH";
         }
       })
-      .catch((error) => {
+      .catch((error: any) => {
         // 请求失败，
         console.log(error);
       });
@@ -192,4 +259,27 @@ export default function useDetectService(
     detectText: getTextDetectData,
     detectStructure: getStructureData,
   };
+}
+
+export default async function (uploadFile: any, config: any) {
+  console.log('==')
+  const detect = useDetectService(config);
+  const { status, getResult, detectUI, detectText, detectStructure } = detect;
+  await Promise.all([detectUI(uploadFile), detectText(uploadFile)]);
+  return new Promise(function (resolve) {
+    let count = 1;
+    const checkResult = () => {
+      if (count++ > 15) {
+        resolve({ uiResults: [], textResults: [] });
+        return;
+      }
+      const { uiResults, textResults, imageRes } = getResult();
+      if (status.component === "FINISH" && status.text === "SUCCESS") {
+        resolve({ uiResults, textResults });
+      } else {
+        setTimeout(checkResult, 1000);
+      }
+    };
+    checkResult();
+  });
 }

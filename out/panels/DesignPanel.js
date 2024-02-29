@@ -1,7 +1,20 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DesignPanel = void 0;
+const fs = require("fs");
+const path = require("path");
 const vscode_1 = require("vscode");
+// @ts-ignore
+const Detect_1 = require("./Detect");
 const getUri_1 = require("../utilities/getUri");
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -46,7 +59,7 @@ class DesignPanel {
             // If a webview panel does not already exist create and show a new one
             const panel = vscode_1.window.createWebviewPanel(
             // Panel view type
-            "UI2code", 
+            "showDesign", 
             // Panel title
             "UI2code", 
             // The editor column the panel should be displayed in
@@ -119,14 +132,57 @@ class DesignPanel {
             const command = message.command;
             const text = message.text;
             switch (command) {
-                case "hello":
-                    // Code that should run in response to the hello message command
-                    vscode_1.window.showInformationMessage(text);
+                case "detectimage":
+                    this._detect(webview);
                     return;
                 // Add more switch case statements here as more webview message commands
                 // are created within the webview context (i.e. inside media/main.js)
             }
         }, undefined, this._disposables);
+    }
+    _detect(webview) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const options = {
+                canSelectMany: false,
+                openLabel: "选择",
+                filters: {
+                    Images: ["png", "jpg"],
+                },
+            };
+            const fileUri = yield vscode_1.window.showOpenDialog(options);
+            if (fileUri && fileUri.length > 0) {
+                // 用户选择了一个文件
+                const filePath = fileUri[0].fsPath;
+                console.log(`选定的文件: ${filePath}`);
+                const fileName = path.basename(filePath);
+                const fileData = fs.readFileSync(filePath);
+                try {
+                    (0, Detect_1.default)({
+                        file: fileData,
+                        fileName,
+                    }, {
+                        UI_DETECT: "https://mumblefe.cn/d2c/api",
+                        OCR: "https://mumblefe.cn/d2c/ocr",
+                    }).then(({ uiResults, textResults }) => {
+                        console.log(uiResults, textResults);
+                        webview.postMessage({
+                            command: "detectimage_result",
+                            data: {
+                                uiResults,
+                                textResults,
+                            },
+                        });
+                    });
+                }
+                catch (error) {
+                    console.log(error);
+                }
+            }
+            else {
+                // 用户没有选择任何文件或取消了操作
+                console.log("没有选定文件");
+            }
+        });
     }
 }
 exports.DesignPanel = DesignPanel;

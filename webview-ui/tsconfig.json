@@ -6,13 +6,10 @@
       "@/*": ["./src/*"]
     },
     "ignoreDeprecations": "5.0",
-    "types": ["element-plus/global"]
+    "types": ["element-plus/global", "./ui2code.d.ts", "./env.d.ts"]
   },
   "include": [
-    "env.d.ts",
-    "ui2code.d.ts",
     "src/**/*.ts",
-    "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue"
   ],

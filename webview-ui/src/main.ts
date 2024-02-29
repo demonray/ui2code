@@ -3,6 +3,8 @@ import App from "./App.vue";
 import ElementPlus from 'element-plus';
 import draggable from "vuedraggable";
 import 'element-plus/dist/index.css';
+import './styles/theme.css'
+
 import svgIcon from "@/components/svgIcon/svgicon.vue";
 
 const app = createApp(App)

@@ -31,10 +31,19 @@
     <div class="center-board">
       <div class="action-bar">
         <div class="detect-msg">{{ props.status }}</div>
-        <el-button v-if="json.metaInfo.imageRes && (json.metaInfo.imageRes.ui || json.metaInfo.imageRes.text)" class="action-btn-item" type="text" @click="showDetectResult">
+        <el-button
+          v-if="
+            json.metaInfo.imageRes && (json.metaInfo.imageRes.ui || json.metaInfo.imageRes.text)
+          "
+          class="action-btn-item"
+          type="text"
+          @click="showDetectResult"
+        >
           识别结果
         </el-button>
+
         <el-upload
+          v-if="!isVscode"
           style="display: inline-block; vertical-align: top"
           :auto-upload="false"
           :show-file-list="false"
@@ -47,6 +56,12 @@
             </el-button>
           </template>
         </el-upload>
+        <el-button v-else
+          class="action-btn-item"
+          type="text"
+          @click="handleChange()">
+          上传图片
+        </el-button>
         <form
           ref="sandboxForm"
           action="https://codesandbox.io/api/v1/sandboxes/define"
@@ -122,13 +137,14 @@
 </template>
 
 <script setup lang="ts">
+import { vscode } from "./utilities/vscode";
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
 import {
   generatePreview,
   generateCode,
   getPreviewPlaygoundUrl,
 } from "./components/generator/index";
-import type { SaveConfig } from './components/generator/index'
+import type { SaveConfig } from "./components/generator/index";
 import { deepClone, guid } from "./utilities/index";
 import useCurrentInstance from "./hooks/useCurrentInstance";
 import draggable from "vuedraggable";
@@ -236,7 +252,7 @@ function initDrawingList(json: DesignJson) {
       lastRow = [json.fields[i]];
       rows.push(lastRow);
     }
-    lastRow.sort((a,b) => a.uiItem.x - b.uiItem.x)
+    lastRow.sort((a, b) => a.uiItem.x - b.uiItem.x);
   }
   rows = rows.map((rowItems) => {
     if (rowItems.length > 1) {
@@ -316,17 +332,17 @@ function previewSandbox() {
  */
 function generateVmodel(childrenList: Array<ComponentItemJson>, preStr: string) {
   childrenList.forEach((child: ComponentItemJson, idx: number) => {
-    const modelStr = `${preStr}_${idx}`
+    const modelStr = `${preStr}_${idx}`;
     if (hasVmodel(child.type)) {
       child.__vModel__ = modelStr;
     }
     if (child.__config__.children && child.__config__.children.length) {
-      generateVmodel(child.__config__.children, modelStr)
+      generateVmodel(child.__config__.children, modelStr);
     }
     if (child.__slot__?.options && child.__slot__?.options.length) {
       child.__slot__?.options.forEach((element: OptionItem, k: number) => {
         if (element.childrenComponet && element.childrenComponet.length) {
-          generateVmodel(element.childrenComponet, modelStr+k)
+          generateVmodel(element.childrenComponet, modelStr + k);
         }
       });
     }
@@ -342,12 +358,12 @@ function generate(): string {
       it.__vModel__ = `field_${index}`;
     }
     if (it.__config__.children) {
-      generateVmodel(it.__config__.children, `field_${index}`)
+      generateVmodel(it.__config__.children, `field_${index}`);
     }
     if (it.__slot__?.options && it.__slot__?.options.length) {
       it.__slot__?.options.forEach((element: OptionItem, k: number) => {
         if (element.childrenComponet && element.childrenComponet.length) {
-          generateVmodel(element.childrenComponet, `field_${index}${k}`)
+          generateVmodel(element.childrenComponet, `field_${index}${k}`);
         }
       });
     }
@@ -391,38 +407,43 @@ function deleteItemFormList(list: Array<ComponentItemJson>, item: ComponentItemJ
   const index = list.findIndex((it) => it.guid === item.guid);
   if (index > -1) {
     list.splice(index, 1);
-    return true
+    return true;
   }
-  const { parentInfo } = item
+  const { parentInfo } = item;
   if (parentInfo) {
-    const parentElementConf = list.find((it) => it.guid === parentInfo.guid)
+    const parentElementConf = list.find((it) => it.guid === parentInfo.guid);
     if (parentElementConf) {
-      const children = parentElementConf.__slot__?.options?.[parentInfo.index]?.childrenComponet
+      const children = parentElementConf.__slot__?.options?.[parentInfo.index]?.childrenComponet;
       if (children) {
         const index = children.findIndex((it: ComponentItemJson) => it.guid === item.guid);
-          if (index > -1) {
-            console.log(index);
-            children.splice(index, 1);
-            return true
-          }
+        if (index > -1) {
+          console.log(index);
+          children.splice(index, 1);
+          return true;
+        }
       }
     }
   } else {
     for (let i = 0; i < list.length; i++) {
-      const children = list[i].__config__.children
-      const optionsChildren = list[i].__slot__?.options
+      const children = list[i].__config__.children;
+      const optionsChildren = list[i].__slot__?.options;
       if (children && children.length) {
-        const find = deleteItemFormList(children, item)
-        if (find) break
+        const find = deleteItemFormList(children, item);
+        if (find) break;
       } else if (optionsChildren && optionsChildren.length) {
         for (let index = 0; index < optionsChildren.length; index++) {
           const { childrenComponet } = optionsChildren[index] || {};
-          if (childrenComponet && childrenComponet.length && deleteItemFormList(childrenComponet, item)) break
+          if (
+            childrenComponet &&
+            childrenComponet.length &&
+            deleteItemFormList(childrenComponet, item)
+          )
+            break;
         }
       }
     }
   }
-  return false
+  return false;
 }
 
 function drawingItemDelete(item: ComponentItemJson) {
@@ -436,7 +457,7 @@ function drawingItemDelete(item: ComponentItemJson) {
       }
     });
   } else {
-    deleteItemFormList(drawingList, item)
+    deleteItemFormList(drawingList, item);
     activeItem(drawingList[0]);
   }
 }
@@ -498,16 +519,22 @@ function hasVmodel(type: string) {
   return !["button"].includes(type);
 }
 
+const isVscode = typeof acquireVsCodeApi === "function"
 // 选中文件后把参数赋值
-const handleChange = (uploadFile: UploadFile) => {
+const handleChange = (uploadFile?: UploadFile) => {
+  if (isVscode) {
+    vscode.postMessage({
+      command: "detectimage",
+    });
+    return;
+  }
   emit("upload", uploadFile);
 };
 
 const showImageRes = ref(false);
 function showDetectResult() {
-    showImageRes.value = true;
+  showImageRes.value = true;
 }
-
 </script>
 
 <style lang="scss">

@@ -1,4 +1,17 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
+const fs = require("fs");
+const path = require("path");
+
+import {
+  Disposable,
+  Webview,
+  WebviewPanel,
+  window,
+  Uri,
+  ViewColumn,
+  OpenDialogOptions,
+} from "vscode";
+// @ts-ignore
+import detect from "./Detect";
 import { getUri } from "../utilities/getUri";
 
 /**
@@ -133,9 +146,8 @@ export class DesignPanel {
         const text = message.text;
 
         switch (command) {
-          case "hello":
-            // Code that should run in response to the hello message command
-            window.showInformationMessage(text);
+          case "detectimage":
+            this._detect(webview);
             return;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
@@ -144,5 +156,49 @@ export class DesignPanel {
       undefined,
       this._disposables
     );
+  }
+
+  private async _detect(webview: Webview) {
+    const options: OpenDialogOptions = {
+      canSelectMany: false, // 允许同时选择多个文件，这里设置为false表示只能选择一个文件
+      openLabel: "选择",
+      filters: {
+        Images: ["png", "jpg"],
+      },
+    };
+    const fileUri = await window.showOpenDialog(options);
+    if (fileUri && fileUri.length > 0) {
+      // 用户选择了一个文件
+      const filePath = fileUri[0].fsPath;
+      console.log(`选定的文件: ${filePath}`);
+      const fileName = path.basename(filePath);
+      const fileData = fs.readFileSync(filePath);
+      try {
+        detect(
+          {
+            file: fileData,
+            fileName,
+          },
+          {
+            UI_DETECT: "https://mumblefe.cn/d2c/api",
+            OCR: "https://mumblefe.cn/d2c/ocr",
+          }
+        ).then(({ uiResults, textResults }: any) => {
+          console.log(uiResults, textResults);
+          webview.postMessage({
+            command: "detectimage_result",
+            data: {
+              uiResults,
+              textResults,
+            },
+          });
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      // 用户没有选择任何文件或取消了操作
+      console.log("没有选定文件");
+    }
   }
 }

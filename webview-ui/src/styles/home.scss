@@ -27,7 +27,6 @@ html,body, #app {
 }
 .components-title {
   font-size: 14px;
-  color: #222;
   margin: 6px 2px;
   .svg-icon {
     color: #666;
@@ -37,7 +36,6 @@ html,body, #app {
 
 .components-body {
   padding: 8px 10px;
-  background: $selectedColor;
   font-size: 12px;
   cursor: move;
   border: 1px dashed $selectedColor;
@@ -72,8 +70,8 @@ html,body, #app {
 .center-scrollbar {
   height: calc(100vh - 42px);
   overflow: hidden;
-  border-left: 1px solid #f1e8e8;
-  border-right: 1px solid #f1e8e8;
+  border-left: 1px solid #f1e8e880;
+  border-right: 1px solid #f1e8e880;
   box-sizing: border-box;
 }
 .center-board {
@@ -98,9 +96,7 @@ html,body, #app {
   text-align: right;
   padding: 0 15px;
   box-sizing: border-box;
-  border: 1px solid #f1e8e8;
-  border-top: none;
-  border-left: none;
+  border-bottom: 1px solid #f1e8e880;
   .action-btn-item {
     display: inline-block;
   }
