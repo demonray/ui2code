@@ -58,7 +58,7 @@
 - 常见的 Modal Form 表单提交
 - 常见的分页表格页面
 
-1. 模型识别Tabs、Menu
+1. 模型识别Tabs、Menu、Tree、Tooltip、Calendar
 2. 组件识别准确率提高及纠错
 3. 生成代码完善各个组件 props 属性、状态信息、默认值
 4. Table 编辑列，组件列

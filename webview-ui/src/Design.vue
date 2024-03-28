@@ -63,6 +63,7 @@
           上传图片
         </el-button>
         <form
+          v-if="!isVscode"
           ref="sandboxForm"
           action="https://codesandbox.io/api/v1/sandboxes/define"
           style="display: inline-block"
