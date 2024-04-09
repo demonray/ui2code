@@ -58,19 +58,15 @@
 - 常见的 Modal Form 表单提交
 - 常见的分页表格页面
 
-1. 模型识别Tabs、Menu、Tree、Tooltip、Calendar
-2. 组件识别准确率提高及纠错
-3. 生成代码完善各个组件 props 属性、状态信息、默认值
-4. Table 编辑列，组件列
+1. 模型识别Tabs、Menu、Tree、Tooltip、Calendar、Alert、Rate、Badge、Timeline
+2. 组件识别准确率提高
+3. 识别结果纠错（提供识别结果预览，手动修改组建类型）
+4. 生成代码完善各个组件 props 属性、状态信息、默认值
 5. 设计页面打包成 VSCode 插件
-6. 页面属性
-7. 内置常用表单正则设置
-8. 组件尺寸信息
-9. Modal-Row-Items children 嵌套情况
-10. 表单组件是否使用form标签包裹
+6. 内置常用表单正则设置
 
-以上1，2两点ui2code_service部分模型训练优化（Steps、Pagination、Progress已支持）
-纠错及3-9部分在本项目web端里生成目标组件库代码里实现。
+以上1，2两点ui2code_service部分模型训练优化
+纠错及3-6部分在本项目web端里生成目标组件库代码里实现。
 组件信息参考config/componentType.ts，生成代码时根据目标组件库使用对应generator下相应的代码，
 目录为components/generator/target，各个实现适配各个目标组件库的写法需符合：
 
