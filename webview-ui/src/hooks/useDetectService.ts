@@ -8,14 +8,20 @@ type DetectStatus = {
   structure: "PROCESSING" | "SUCCESS";
 };
 
-type DetectService = {
+export type DetectResultData = {
+  ui?: any;
+  text?: any;
+  [index: string]: any
+};
+
+export type DetectService = {
   detectUI: (file: File) => Promise<any>;
   detectText: (file: File) => Promise<any>;
   getResult: () => {
     uiResults: DetectItem[];
     textResults: TextItem[];
     structures: StructureItem[];
-    imageRes: any;
+    imageRes: DetectResultData;
   };
   detectStructure: (file: File) => Promise<any>;
   status: DetectStatus;
@@ -38,7 +44,7 @@ export default function useDetectService(
   let textResults: TextItem[] = [];
 
   let structures: StructureItem[] = [];
-  let imageRes: any = {};
+  let imageRes: DetectResultData = {};
   /**
    * 获取文本检查结果
    */
@@ -59,7 +65,7 @@ export default function useDetectService(
       .then((res) => {
         if (res.data) {
           textResults = res.data.data;
-          imageRes.text = res.data.resultImg;
+          imageRes.text = res.data;
         }
         detectStatus.text = "SUCCESS";
       })
@@ -171,7 +177,7 @@ export default function useDetectService(
         // }
         if (res.data && res.data.status === "SUCCESS") {
           if (res.data.result) {
-            imageRes.ui = res.data.result.resultImg;
+            imageRes.ui = res.data.result;
             uiResults = res.data.result.bbox;
           }
           detectStatus.component = "FINISH";

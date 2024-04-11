@@ -1,36 +1,56 @@
 <template>
-  <el-dialog
-    v-bind="$attrs"
-    width="90%"
-    style="max-height: 80%;overflow: auto;"
-    :modal-append-to-body="false"
-    @open="onOpen"
-    @close="close"
-  >
-  <img :src="data.ui" />
-  <img :src="data.text"  />
-  </el-dialog>
+  <iframe
+    ref="iframeRef"
+    class="iframe-content"
+    src="/labelimg/index.html"
+    frameborder="0"
+  ></iframe>
 </template>
 <script setup lang="ts">
+import { ref, watch, onMounted, toRaw } from "vue";
 
 const props = defineProps({
   data: {
     type: Object,
     require: true,
-    default: {}
+    default: {},
   },
 });
 
-const emit = defineEmits(["confirm", "update:modelValue"]);
+watch(props, () => {
+  showConfirm();
+});
 
-function onOpen() {}
+let iframeRef = ref<any>(null); // 和iframe标签的ref绑定
+let iframeWin: any = null;
+onMounted(() => {
+  if (iframeRef.value) {
+    iframeWin = iframeRef.value.contentWindow;
+  }
+});
 
-function close() {
-  emit("update:modelValue", false);
+async function showConfirm() {
+  const data = toRaw(props.data)
+  let deviceEvent = {
+    command: "ui2code_init_detect_data",
+    data: {
+      detectImg: data.detectImg,
+      ...data.imageRes,
+    },
+  };
+  if (iframeWin) {
+    setTimeout(() => {
+      iframeWin.postMessage(deviceEvent, "*");
+    }, 1000);
+  }
 }
 </script>
 <style scoped>
-img {
-    width: 100%;
+.iframe-content {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 999;
 }
 </style>

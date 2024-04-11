@@ -31,16 +31,6 @@
     <div class="center-board">
       <div class="action-bar">
         <div class="detect-msg">{{ props.status }}</div>
-        <el-button
-          v-if="
-            json.metaInfo.imageRes && (json.metaInfo.imageRes.ui || json.metaInfo.imageRes.text)
-          "
-          class="action-btn-item"
-          type="text"
-          @click="showDetectResult"
-        >
-          识别结果
-        </el-button>
 
         <el-upload
           v-if="!isVscode"
@@ -56,10 +46,7 @@
             </el-button>
           </template>
         </el-upload>
-        <el-button v-else
-          class="action-btn-item"
-          type="text"
-          @click="handleChange()">
+        <el-button v-else class="action-btn-item" type="text" @click="handleChange()">
           上传图片
         </el-button>
         <form
@@ -132,7 +119,6 @@
       title="选择目标组件库"
       @confirm="confrimGenerate"
     />
-    <detect-result v-model="showImageRes" :data="json.metaInfo.imageRes" />
     <input id="copyNode" type="hidden" />
   </div>
 </template>
@@ -520,7 +506,7 @@ function hasVmodel(type: string) {
   return !["button"].includes(type);
 }
 
-const isVscode = typeof acquireVsCodeApi === "function"
+const isVscode = typeof acquireVsCodeApi === "function";
 // 选中文件后把参数赋值
 const handleChange = (uploadFile?: UploadFile) => {
   if (isVscode) {
@@ -531,11 +517,6 @@ const handleChange = (uploadFile?: UploadFile) => {
   }
   emit("upload", uploadFile);
 };
-
-const showImageRes = ref(false);
-function showDetectResult() {
-  showImageRes.value = true;
-}
 </script>
 
 <style lang="scss">

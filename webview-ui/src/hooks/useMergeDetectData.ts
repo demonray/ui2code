@@ -479,6 +479,9 @@ export default function mergeDetectData(
   textResults: TextItem[],
   structures: StructureItem[] = []
 ) {
+  metaInfo = {
+  };
+
   const checkInCompArea = (types: UiType[], item: XYXY) => {
     const comps = uiResults.filter((it) => types.indexOf(it.class) > -1);
     return comps.some((it) => {
@@ -524,7 +527,6 @@ export default function mergeDetectData(
     ];
     return !checkInCompArea(["table", "pagination"], boxText);
   });
-  metaInfo = {};
 
   const fields: ComponentItemJson[] = [];
 

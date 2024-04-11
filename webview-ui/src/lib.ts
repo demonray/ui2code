@@ -1,10 +1,20 @@
+import type { DetectResultData } from "./hooks/useDetectService";
 import useDetectService from "./hooks/useDetectService";
 import useMergeDetectData from "./hooks/useMergeDetectData";
+import { deepClone, getBase64 } from "./utilities";
 
 type CONF = {
   UI_DETECT: string;
   OCR: string;
   [k: string]: any;
+};
+
+let detectImg: string | null = null;
+
+type MetaInfo = {
+  detectImg?: string | null;
+  imageRes?: DetectResultData;
+  [index: string]: any;
 };
 
 /**
@@ -16,7 +26,8 @@ type CONF = {
 export async function detect(
   uploadFile: File,
   config?: CONF | null
-): Promise<{ fields: ComponentItemJson[]; metaInfo: { [index: string]: any } }> {
+): Promise<{ fields: ComponentItemJson[]; metaInfo: MetaInfo }> {
+  detectImg = await getBase64(uploadFile);
   const detect = config ? useDetectService(config) : useDetectService();
   const { status, getResult, detectUI, detectText, detectStructure } = detect;
   await Promise.all([detectUI(uploadFile), detectText(uploadFile)]);
@@ -30,7 +41,16 @@ export async function detect(
       const { uiResults, textResults, imageRes } = getResult();
       if (status.component === "FINISH" && status.text === "SUCCESS") {
         const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, []);
-        resolve({ fields, metaInfo: { imageRes, ...metaInfo} });
+        resolve({
+          fields,
+          metaInfo: {
+            imageRes,
+            metaInfo: {
+              detectImg,
+              ...metaInfo,
+            },
+          },
+        });
       } else {
         setTimeout(checkResult, 1000);
       }
@@ -51,6 +71,14 @@ export async function generateUIList(
 ): Promise<{ fields: ComponentItemJson[]; metaInfo: { [index: string]: any } }> {
   return new Promise(function (resolve) {
     const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, []);
-    resolve({ fields, metaInfo });
+    resolve({
+      fields,
+      metaInfo: {
+        detectImg,
+        uiResults: deepClone(uiResults),
+        textResults: deepClone(textResults),
+        ...metaInfo,
+      },
+    });
   });
 }

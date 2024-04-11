@@ -4,6 +4,7 @@ import { ref, reactive } from "vue";
 import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Preview from "./Preview.vue";
+import DetectResult from "./DetectResult.vue";
 import { detect, generateUIList } from "./lib";
 
 // import uiResult from "../test_images/steps_ui";
@@ -14,7 +15,7 @@ let designJson: DesignJson = reactive({
   metaInfo: {},
 });
 
-const designPreview = ref(false);
+const designPreview = ref(1);
 
 let previewConf = reactive<{ data: SandboxTemplateConfig }>({
   data: {
@@ -39,12 +40,25 @@ function onUpload(uploadFile: UploadFile) {
 window.addEventListener("message", (event) => {
   const message = event.data;
   switch (message.command) {
+    // vscode 插件识别发送消息过来
     case "detectimage_result":
       status.value = "";
       generateUIList(message.data.uiResults, message.data.textResults).then(
         ({ fields, metaInfo }) => {
           status.value = "";
-          console.log(fields);
+          designJson.fields = fields;
+          designJson.metaInfo = metaInfo;
+        }
+      );
+      break;
+    // 识别结果labelimg 调整确认发送过来消息
+    case "ui2code_confirm_detect_data":
+      console.log(message);
+      // 调整后的组件数据列表重新合并
+      designPreview.value = 1;
+      generateUIList(message.data, designJson.metaInfo.textResults).then(
+        ({ fields, metaInfo }) => {
+          status.value = "";
           designJson.fields = fields;
           designJson.metaInfo = metaInfo;
         }
@@ -53,32 +67,32 @@ window.addEventListener("message", (event) => {
   }
 });
 
-// // for dev test
+// for dev test
 // generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
 //   status.value = "";
-//   console.log(fields);
 //   designJson.fields = fields;
 //   designJson.metaInfo = {
 //     imageRes: {
-//       ui: uiResult.result.resultImg,
-//       text: textRes.resultImg,
+//       ui: uiResult.result,
+//       text: textRes,
 //     },
 //     ...metaInfo,
 //   };
+//   // designPreview.value = 3;
 // });
 
 function onPreview(params: SandboxTemplateConfig) {
-  designPreview.value = true;
+  designPreview.value = 2;
   previewConf.data = params;
 }
 function back() {
-  designPreview.value = false;
+  designPreview.value = 1;
 }
 function download() {}
 </script>
 
 <template>
-  <div v-show="designPreview">
+  <div v-show="designPreview == 2">
     <div class="action_bar">
       <el-button type="text" @click="back"> 返回设计 </el-button>
       <el-button type="text" @click="download"> 下载代码 </el-button>
@@ -86,12 +100,13 @@ function download() {}
     <preview :params="previewConf.data"></preview>
   </div>
   <design
-    v-show="!designPreview"
+    v-show="designPreview == 1"
     :json="designJson"
     :status="status"
     @upload="onUpload"
     @preview="onPreview"
   />
+  <detect-result v-show="designPreview == 3" :data="designJson.metaInfo" />
 </template>
 
 <style>
