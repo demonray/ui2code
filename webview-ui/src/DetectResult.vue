@@ -2,7 +2,7 @@
   <iframe
     ref="iframeRef"
     class="iframe-content"
-    src="/labelimg/index.html"
+    src="./labelimg/index.html"
     frameborder="0"
   ></iframe>
 </template>

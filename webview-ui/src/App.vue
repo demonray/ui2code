@@ -7,7 +7,9 @@ import Preview from "./Preview.vue";
 import DetectResult from "./DetectResult.vue";
 import { detect, generateUIList } from "./lib";
 
+// //@ts-ignore
 // import uiResult from "../test_images/steps_ui";
+// //@ts-ignore
 // import textRes from "../test_images/steps_text";
 
 let designJson: DesignJson = reactive({
@@ -34,6 +36,7 @@ function onUpload(uploadFile: UploadFile) {
     status.value = "";
     designJson.fields = fields;
     designJson.metaInfo = metaInfo;
+    designPreview.value = 3;
   });
 }
 
@@ -48,6 +51,7 @@ window.addEventListener("message", (event) => {
           status.value = "";
           designJson.fields = fields;
           designJson.metaInfo = metaInfo;
+          designPreview.value = 3;
         }
       );
       break;
@@ -78,7 +82,7 @@ window.addEventListener("message", (event) => {
 //     },
 //     ...metaInfo,
 //   };
-//   // designPreview.value = 3;
+//   designPreview.value = 3;
 // });
 
 function onPreview(params: SandboxTemplateConfig) {
