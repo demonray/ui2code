@@ -68,7 +68,7 @@ export async function detect(
 export async function generateUIList(
   uiResults: DetectItem[],
   textResults: TextItem[]
-): Promise<{ fields: ComponentItemJson[]; metaInfo: { [index: string]: any } }> {
+): Promise<{ fields: ComponentItemJson[]; metaInfo: MetaInfo }> {
   return new Promise(function (resolve) {
     const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, []);
     resolve({

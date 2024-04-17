@@ -7,10 +7,10 @@ import Preview from "./Preview.vue";
 import DetectResult from "./DetectResult.vue";
 import { detect, generateUIList } from "./lib";
 
-// //@ts-ignore
-// import uiResult from "../test_images/steps_ui";
-// //@ts-ignore
-// import textRes from "../test_images/steps_text";
+//@ts-ignore
+import uiResult from "../test_images/table_ui";
+//@ts-ignore
+import textRes from "../test_images/table_text";
 
 let designJson: DesignJson = reactive({
   fields: [],
@@ -57,33 +57,35 @@ window.addEventListener("message", (event) => {
       break;
     // 识别结果labelimg 调整确认发送过来消息
     case "ui2code_confirm_detect_data":
-      console.log(message);
       // 调整后的组件数据列表重新合并
       designPreview.value = 1;
-      generateUIList(message.data, designJson.metaInfo.textResults).then(
-        ({ fields, metaInfo }) => {
-          status.value = "";
-          designJson.fields = fields;
-          designJson.metaInfo = metaInfo;
-        }
-      );
+      if (message.data && message.data.length) {
+        generateUIList(message.data, designJson.metaInfo.textResults).then(
+          ({ fields, metaInfo }) => {
+            status.value = "";
+            designJson.fields = fields;
+            designJson.metaInfo = metaInfo;
+          }
+        );
+      }
+
       break;
   }
 });
 
 // for dev test
-// generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
-//   status.value = "";
-//   designJson.fields = fields;
-//   designJson.metaInfo = {
-//     imageRes: {
-//       ui: uiResult.result,
-//       text: textRes,
-//     },
-//     ...metaInfo,
-//   };
-//   designPreview.value = 3;
-// });
+generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
+  status.value = "";
+  designJson.fields = fields;
+  designJson.metaInfo = {
+    imageRes: {
+      ui: uiResult.result,
+      text: textRes,
+    },
+    ...metaInfo,
+  };
+  designPreview.value = 3;
+});
 
 function onPreview(params: SandboxTemplateConfig) {
   designPreview.value = 2;

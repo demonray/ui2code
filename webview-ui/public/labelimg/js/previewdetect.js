@@ -106,14 +106,14 @@ labels = labels.map((it) => {
   };
 });
 
-localStorage.setItem("labels", JSON.stringify(labels))
+localStorage.setItem("labels", JSON.stringify(labels));
 
 /**
  * 初始化识别结果数据
  */
 function initDetectData(data) {
-  var annotates = detectBoxToLabelBox(data.bbox);
-  annotate.SetImage(data.resultImg, annotates);
+  var annotates = detectBoxToLabelBox(data.ui.bbox || []);
+  annotate.SetImage(data.detectImg || data.ui.resultImg, annotates);
 }
 
 var confirm = document.querySelector(".confirm-detect");
@@ -132,7 +132,7 @@ window.addEventListener("message", (e) => {
   if (e && e.data) {
     const event = e.data;
     if (event.command === "ui2code_init_detect_data") {
-      this.initDetectData(event.data.detectImg || event.data.ui);
+      this.initDetectData(event.data);
     }
   }
 });

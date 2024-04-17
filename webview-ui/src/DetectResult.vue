@@ -34,11 +34,11 @@ async function showConfirm() {
   let deviceEvent = {
     command: "ui2code_init_detect_data",
     data: {
-      detectImg: data.detectImg,
-      ...data.imageRes,
+        ...data.imageRes,
+        detectImg: data.detectImg,
     },
   };
-  if (iframeWin) {
+  if (iframeWin && data.imageRes) {
     setTimeout(() => {
       iframeWin.postMessage(deviceEvent, "*");
     }, 1000);
