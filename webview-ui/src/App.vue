@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { vscode } from "./utilities/vscode";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Preview from "./Preview.vue";
 import DetectResult from "./DetectResult.vue";
+import { TextOcr } from "./hooks/useDetectService";
 import { detect, generateUIList } from "./lib";
 
-//@ts-ignore
-import uiResult from "../test_images/table_ui";
-//@ts-ignore
-import textRes from "../test_images/table_text";
+// //@ts-ignore
+// import uiResult from "../test_images/table_ui";
+// //@ts-ignore
+// import textRes from "../test_images/table_text";
 
 let designJson: DesignJson = reactive({
   fields: [],
@@ -74,18 +75,17 @@ window.addEventListener("message", (event) => {
 });
 
 // for dev test
-generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
-  status.value = "";
-  designJson.fields = fields;
-  designJson.metaInfo = {
-    imageRes: {
-      ui: uiResult.result,
-      text: textRes,
-    },
-    ...metaInfo,
-  };
-  designPreview.value = 3;
-});
+// generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
+//   designJson.fields = fields;
+//   designJson.metaInfo = {
+//     imageRes: {
+//       ui: uiResult.result,
+//       text: textRes,
+//     },
+//     ...metaInfo,
+//   };
+//   // designPreview.value = 3;
+// });
 
 function onPreview(params: SandboxTemplateConfig) {
   designPreview.value = 2;
@@ -95,6 +95,12 @@ function back() {
   designPreview.value = 1;
 }
 function download() {}
+onMounted(() => {
+  status.value = "模型加载中..."
+  TextOcr.loadModel(() => {
+    status.value = ""
+  })
+})
 </script>
 
 <template>

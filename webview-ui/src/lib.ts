@@ -30,7 +30,7 @@ export async function detect(
   detectImg = await getBase64(uploadFile);
   const detect = config ? useDetectService(config) : useDetectService();
   const { status, getResult, detectUI, detectText, detectStructure } = detect;
-  await Promise.all([detectUI(uploadFile), detectText(uploadFile)]);
+  await Promise.all([detectUI(uploadFile), detectText(uploadFile, 'local')]);
   return new Promise(function (resolve) {
     let count = 1;
     const checkResult = () => {

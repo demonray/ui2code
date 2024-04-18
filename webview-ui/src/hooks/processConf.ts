@@ -296,6 +296,11 @@ function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[
   // todo tab 选项
   return conf;
 }
+function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  // todo 
+  return conf;
+}
+
 /**
  * 加工数据给设计器使用
  * 清理OCR识别的必填字断的*
@@ -362,6 +367,9 @@ export default function processConf(it: UiItem, textResults: TextItem[]) {
       break;
     case "tabs":
       conf = makeTabConf(conf, it, textResults);
+      break;
+    default: // todo 各自处理row、dialog、breadcumb、tree、 tooltip、calendar、alert、rate、badge、timeline
+      conf = makeDefaultConf(conf, it, textResults);
       break;
   }
   conf.uiItem = it.uiItem;
