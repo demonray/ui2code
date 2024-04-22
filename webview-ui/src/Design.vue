@@ -142,6 +142,7 @@ import {
   inputComponents,
   selectComponents,
   layoutComponents,
+  infoFeedbackComponents,
   formConfig,
 } from "./config/componentType";
 import DetectConfig from "./config";
@@ -163,6 +164,10 @@ const leftComponents = [
   {
     title: "布局型组件",
     list: layoutComponents,
+  },
+  {
+    title: "信息反馈组件",
+    list: infoFeedbackComponents,
   },
 ];
 

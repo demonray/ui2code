@@ -87,6 +87,32 @@ function makeDataObj(conf: ComponentItemJson): object {
         conf.strokeWidth && (options['stroke-width'] = conf.strokeWidth);
         options.status = conf.status;
         break;
+      case "tooltip":
+        options.content = conf.content;
+        options.placement = conf.placement;
+        options.trigger = conf.trigger;
+        options.mode = conf.mode;
+        break;
+      case "alert":
+        options.type = conf.__config__.type;
+        // options.description = conf.description;
+        options.title = conf.title;
+        options.effect = conf.effect;
+        options.center = conf.center;
+        options.closable = conf.closable;
+        options['show-icon'] = conf['show-icon'];
+        break;
+      case "calendar":
+        options.type = conf.__config__.type;
+        break;
+      case "rate":
+        options.clearable = conf.clearable;
+        options.max = conf.max;
+        options['allow-half'] = conf['allow-half'];
+        options['show-text'] = conf['show-text'];
+        options.texts = conf.texts;
+        options.size = conf.size;
+      break;
       default:
         options.type = conf.type
     }
