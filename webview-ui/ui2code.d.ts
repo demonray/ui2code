@@ -24,11 +24,14 @@ declare global {
     | 'steps'
     | "default"
     | "progress"
-    | "tree-select"
+    | "breadcumb"
+    | "tree"
     | "tooltip"
-    | "alert"
     | "calendar"
-    | "rate";
+    | "alert"
+    | "rate"
+    | "badge"
+    | "timeline";
 
   type CompItemConf = {
     label: string;
