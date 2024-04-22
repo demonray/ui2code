@@ -15,7 +15,7 @@ export default defineComponent({
   },
   render() {
     const tag = resolveComponent(this.conf.__config__.tag as string);
-    const { child, options } = new ResolveChild(this.conf, this.opts as ItemOpts).resolve()
+    const { child, options } = new ResolveChild(this.conf, this.opts as ItemOpts).resolve();
     return h(tag, options, () => child);
   },
 });

@@ -96,8 +96,8 @@ export const selectComponents: ComponentItemJson[] = [
       required: true,
       regList: [],
       changeTag: true,
-    //   dynamic: true,
-    //   url: '',
+      //   dynamic: true,
+      //   url: '',
     },
     __slot__: {
       options: [],
@@ -238,7 +238,7 @@ export const selectComponents: ComponentItemJson[] = [
       required: true,
       regList: [],
       changeTag: true,
-      type: 'date'
+      type: "date",
     },
     placeholder: "请选择",
     disabled: false,
@@ -258,7 +258,7 @@ export const selectComponents: ComponentItemJson[] = [
       layout: "colItem",
       regList: [],
       changeTag: true,
-      type: "daterange"
+      type: "daterange",
     },
     placeholder: "请选择",
     disabled: false,
@@ -281,7 +281,7 @@ export const selectComponents: ComponentItemJson[] = [
     placeholder: "请选择",
     disabled: false,
     readonly: false,
-    type: "tree-select",
+    type: "tree",
     // data: [
     //   {
     //     value: '1',
@@ -316,7 +316,7 @@ export const layoutComponents: ComponentItemJson[] = [
     type: "row",
     justify: "start",
     align: "top",
-    gutter: "20"
+    gutter: "20",
   },
   {
     __config__: {
@@ -347,7 +347,7 @@ export const layoutComponents: ComponentItemJson[] = [
       dynamic: true,
       url: "",
       border: true,
-      pagination: 'remote',
+      pagination: "remote",
       children: [],
     },
     data: [],
@@ -355,12 +355,12 @@ export const layoutComponents: ComponentItemJson[] = [
   },
   {
     __config__: {
-      layout: "raw",
-      tag: "el-pagination",
-      tagIcon: "pagination",
-      label: "分页条",
-      'page-sizes': [10, 20, 30, 50],
-      layoutItems: ['total']
+      "layout": "raw",
+      "tag": "el-pagination",
+      "tagIcon": "pagination",
+      "label": "分页条",
+      "page-sizes": [10, 20, 30, 50],
+      "layoutItems": ["total"],
     },
     type: "pagination",
   },
@@ -372,14 +372,14 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-dialog",
       children: [],
       title: "Dialog Titile",
-      desc: '',
+      desc: "",
       show: false,
       closable: true,
       footer: true,
       okText: "确定",
-      cancelText: "取消"
+      cancelText: "取消",
     },
-    type: "dialog"
+    type: "dialog",
   },
   {
     __config__: {
@@ -389,35 +389,39 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-menu",
       label: "菜单导航",
       children: [],
-      mode: 'vertical'
+      mode: "vertical",
     },
     __slot__: {
-      tag: 'el-menu',
-      options:[
+      options: [
         {
-          label: 'shouye',
-          value: '0'
+          label: "shouye",
+          value: "0",
         },
         {
-          label: '导航菜单一',
-          value: '1',
-          children: [{
-            label: '菜单选项1-1',
-            value: '1-1',
-          },{
-            label: '菜单选项1-2',
-            value: '1-2',
-            children: [{
-              label: '菜单选项1-2-1',
-              value: '1-2-1',
-            }]
-          }]
+          label: "导航菜单一",
+          value: "1",
+          children: [
+            {
+              label: "菜单选项1-1",
+              value: "1-1",
+            },
+            {
+              label: "菜单选项1-2",
+              value: "1-2",
+              children: [
+                {
+                  label: "菜单选项1-2-1",
+                  value: "1-2-1",
+                },
+              ],
+            },
+          ],
         },
         {
-          label: '导航菜单二',
-          value: '2'
-        }
-      ]
+          label: "导航菜单二",
+          value: "2",
+        },
+      ],
     },
     type: "menu",
   },
@@ -428,30 +432,29 @@ export const layoutComponents: ComponentItemJson[] = [
       tagIcon: "tabs",
       tag: "el-tabs",
       label: "Tabs标签页",
-      position: 'top',
-      type: 'card',
+      position: "top",
+      type: "card",
       editable: true,
       children: [],
     },
     __slot__: {
-      tag: 'el-tabs',
-      options:[
+      options: [
         {
-          label: '标签一',
-          value: '1',
+          label: "标签一",
+          value: "1",
           childrenComponet: [],
         },
         {
-          label: '标签二',
-          value: '2',
+          label: "标签二",
+          value: "2",
           childrenComponet: [],
         },
         {
-          label: '标签三',
-          value: '3',
+          label: "标签三",
+          value: "3",
           childrenComponet: [],
-        }
-      ]
+        },
+      ],
     },
     type: "tabs",
   },
@@ -463,24 +466,23 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-steps",
       label: "步骤条",
       children: [],
-      mode: 'vertical'
+      mode: "vertical",
     },
     __slot__: {
-      tag: 'el-steps',
-      options:[
+      options: [
         {
-          label: '已完成',
-          value: 'All through the day, I me mine I me mine, I me mine'
+          label: "已完成",
+          value: "All through the day, I me mine I me mine, I me mine",
         },
         {
-          label: '进行中',
-          value: 'When I find myself in times of trouble Mother Mary comes to me',
+          label: "进行中",
+          value: "When I find myself in times of trouble Mother Mary comes to me",
         },
         {
-          label: '待处理',
-          value: 'Here come old flat top He come grooving up slowly'
-        }
-      ]
+          label: "待处理",
+          value: "Here come old flat top He come grooving up slowly",
+        },
+      ],
     },
     type: "steps",
   },
@@ -491,17 +493,40 @@ export const layoutComponents: ComponentItemJson[] = [
       labelWidth: null,
       tag: "el-progress",
       tagIcon: "progress",
-      type: 'line',
+      type: "line",
       span: 24,
       layout: "raw",
     },
     __slot__: {
       default: "pending",
     },
-    status: '',
+    status: "",
     type: "progress",
     percentage: 50,
     strokeWidth: 10,
+  },
+  {
+    __config__: {
+      layout: "raw",
+      span: 24,
+      tagIcon: "menu",
+      tag: "el-breadcrumb",
+      label: "面包屑",
+    },
+    __slot__: {
+      options: [
+        {
+          label: "home",
+          value: "home",
+        },
+        {
+          label: "list",
+          value: "list",
+        },
+      ],
+    },
+    type: "breadcumb",
+    separator: "/",
   },
   {
     __config__: {
@@ -549,7 +574,7 @@ export const infoFeedbackComponents: ComponentItemJson[] = [
       tagIcon: "tooltip",
       span: 24,
       layout: "raw",
-      changeTag: true
+      changeTag: false
     },
     __slot__: {
       default:`查看更多`,
@@ -576,4 +601,4 @@ export const infoFeedbackComponents: ComponentItemJson[] = [
     title:"常规信息提示内容",
     effect: 'light',
   },
-];
+];// tree、alert、rate、badge、timeline

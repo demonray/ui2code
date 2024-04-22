@@ -220,6 +220,22 @@ class stepsPlugin implements pluginInfoType {
       });
   }
 }
+
+// 面包屑
+class BreadcumbPlugin implements pluginInfoType {
+  getChild (conf: ComponentItemJson):  Array<any> | string{
+      return (conf.__slot__?.options || []).map((item:OptionItem) => {
+          return h(resolveComponent("el-breadcrumb-item"), {}, item.label || item.value)
+      });
+  }
+}
+
+class TooltipPlugin implements pluginInfoType {
+    getChild (conf: ComponentItemJson):  Array<any> | string{
+        return '文字提示';
+    }
+  }
+
 // 以插件形式导入--后续组建过多可以单独整出去
 renderChildClass.addPlugin('default', new defaultPlugin())
 .addPlugin('table', new tablePlugin())
@@ -228,3 +244,5 @@ renderChildClass.addPlugin('default', new defaultPlugin())
 .addPlugin('menu', new menuPlugin())
 .addPlugin('tabs', new tabsPlugin())
 .addPlugin('steps', new stepsPlugin())
+.addPlugin('breadcumb', new BreadcumbPlugin())
+.addPlugin('tooltip', new TooltipPlugin())

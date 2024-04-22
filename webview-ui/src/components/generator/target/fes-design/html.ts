@@ -93,19 +93,6 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${vModel} ${typeStr} ${placeholder} ${maxlength} ${showWordLimit} ${readonly} ${disabled} ${clearable} ${prefixIcon} ${suffixIcon} ${showPassword} ${autosize} ${width}>${child}</${tag}>`;
   },
-  //   "el-input-number": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel, placeholder } = attrBuilder(el);
-  //     const controlsPosition = el["controls-position"]
-  //       ? `controls-position=${el["controls-position"]}`
-  //       : "";
-  //     const min = el.min ? `:min='${el.min}'` : "";
-  //     const max = el.max ? `:max='${el.max}'` : "";
-  //     const step = el.step ? `:step='${el.step}'` : "";
-  //     const stepStrictly = el["step-strictly"] ? "step-strictly" : "";
-  //     const precision = el.precision ? `:precision='${el.precision}'` : "";
-
-  //     return `<${tag} ${vModel} ${placeholder} ${step} ${stepStrictly} ${precision} ${controlsPosition} ${min} ${max} ${disabled}></${tag}>`;
-  //   },
   "el-select": (el: ComponentItemJson) => {
     const tag = "FSelect";
     const { disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -230,15 +217,6 @@ const tags: TagTemplate = {
 
     return `<FDatePicker ${typeAttr} ${vModel} ${width} ${placeholder} ${clearable} ${readonly} ${disabled} />`;
   },
-  //   "el-rate": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel } = attrBuilder(el);
-  //     const max = el.max ? `:max='${el.max}'` : "";
-  //     const allowHalf = el["allow-half"] ? "allow-half" : "";
-  //     const showText = el["show-text"] ? "show-text" : "";
-  //     const showScore = el["show-score"] ? "show-score" : "";
-
-  //     return `<${tag} ${vModel} ${max} ${allowHalf} ${showText} ${showScore} ${disabled}></${tag}>`;
-  //   },
   //   "el-color-picker": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel } = attrBuilder(el);
   //     const size = `size="${el.size}"`;
@@ -319,6 +297,24 @@ const tags: TagTemplate = {
     const texts = el['show-text'] ? `:texts="${JSON.stringify(el.texts).replace(/"/g, "'")}"` : '';
     return `<FRate ${vModel}  ${texts} ${size} ${count} ${showText} ${allowHalf} ${readonly} ${clearable} ${disabled}></FRate>`;
   },
+  "el-progress": (el: ComponentItemJson) => {
+    const type = el.__config__.type;
+    let child = `<template #text>
+                 <span class="text">${el.__slot__?.default}</span>
+             </template>`;
+
+    if (child) child = `\n${child}\n`; // 换行
+    // type line cycle
+    return `<FProgress percent="50" type="${type}" ${type === 'line' ? 'showOutPercent' : 'showCircleText'} >${child}</FSteps>`;
+  },
+  // breadcrumb
+//   <FBreadcrumb :separator="separator" :fontSize="fontSize">
+//         <FBreadcrumbItem>首页</FBreadcrumbItem>
+//         <FBreadcrumbItem>二级页面 </FBreadcrumbItem>
+//         <FBreadcrumbItem>三级页面</FBreadcrumbItem>
+//         <FBreadcrumbItem>四级页面</FBreadcrumbItem>
+//         <FBreadcrumbItem>五级页面</FBreadcrumbItem>
+//     </FBreadcrumb>
 };
 
 function attrBuilder(el: ComponentItemJson) {
