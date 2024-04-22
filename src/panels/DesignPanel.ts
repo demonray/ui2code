@@ -109,6 +109,30 @@ export class DesignPanel {
    * rendered within the webview panel
    */
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
+    // 用iframe加载web
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>UI2code</title>
+            <style>
+                html, body , .iframe-content {
+                    width: 100%;
+                    height: 100%;
+                }
+            </style>
+            </head>
+            <body>
+            <iframe
+                class="iframe-content"
+                src="https://mumblefe.cn/d2cweb/"
+                frameborder="0"
+            ></iframe>
+            </body>
+        </html>
+    `
     // The CSS file from the Vue build output
     const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
     // The JS file from the Vue build output
@@ -146,7 +170,7 @@ export class DesignPanel {
         const text = message.text;
 
         switch (command) {
-          case "detectimage":
+          case "detectimage": // webview 点击上传发送的事件
             this._detect(webview);
             return;
           // Add more switch case statements here as more webview message commands
@@ -157,7 +181,7 @@ export class DesignPanel {
       this._disposables
     );
   }
-
+  // 选择文件并调用服务接口识别
   private async _detect(webview: Webview) {
     const options: OpenDialogOptions = {
       canSelectMany: false, // 允许同时选择多个文件，这里设置为false表示只能选择一个文件

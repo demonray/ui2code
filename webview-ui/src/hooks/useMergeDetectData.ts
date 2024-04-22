@@ -1,5 +1,5 @@
-import { inputComponents, selectComponents, layoutComponents } from "../config/componentType";
 import DetectConfig from "../config";
+import processConf from "./processConf";
 
 interface DirDis {
   dir: Direction;
@@ -20,7 +20,7 @@ interface MatchedOptionItem {
 
 type MatchedOptions = Array<MatchedOptionItem>;
 
-interface UiItem {
+export interface UiItem {
   type: UiType;
   options?: MatchedOptions;
   textMatched?: Partial<Matchs>;
@@ -28,16 +28,6 @@ interface UiItem {
 }
 
 let metaInfo: { [index: string]: any } = {};
-
-/**
- * 查找对应组件设计器配置
- */
-function findComponentConf(type: UiType) {
-  const findConf = [...inputComponents, ...selectComponents, ...layoutComponents].find((it) => {
-    return it.type === type;
-  });
-  return findConf && JSON.parse(JSON.stringify(findConf));
-}
 
 /**
  * 计算中心点
@@ -188,15 +178,16 @@ function xywh2xyxy(box: { x: number; y: number; w: number; h: number }): XYXY {
 }
 
 /**
- * 检测结果数据转换成设计器可识别的json代码
+ * 合并数据转换成设计器可识别的json代码
  * @param uiResults
  * @param textResults
  */
-function convertJsonData(
+function mergeTextUI(
   uiResults: DetectItem[],
   textResults: TextItem[],
-  fields: ComponentItemJson[]
-) {
+): ComponentItemJson[] {
+  let fields: ComponentItemJson[] = [];
+
   // 遍历文本识别结果数据，判断与组件识别结果关系：
   // in，left，right，top，bottom
   const uiTextMap: UITextMap = {};
@@ -205,12 +196,6 @@ function convertJsonData(
   // text in ui component
   const textIn: Record<number, boolean> = {};
   for (let uiIndex = 0; uiIndex < uiResults.length; uiIndex++) {
-    // if (uiResults[uiIndex].class === "table") {
-    //   // todo table 取出table里的text
-    //   uiTextMap[uiIndex] = {};
-    //   continue;
-    // }
-    // 未匹配的文本数据直接插入UI组件列表？
     const matchs: Partial<Matchs> = {};
     textResults.forEach((item, index) => {
       if (!textIn[index]) {
@@ -245,21 +230,7 @@ function convertJsonData(
     });
     uiTextMap[uiIndex] = matchs;
   }
-  console.log(uiTextMap);
-  fillTextToComp(uiTextMap, uiResults, textResults, fields);
-}
-
-/**
- * 根据匹配结果绑定文本数据
- * @param uiTextMap
- * @param uiResults
- */
-function fillTextToComp(
-  uiTextMap: UITextMap,
-  uiResults: DetectItem[],
-  textResults: TextItem[],
-  fields: ComponentItemJson[]
-): void {
+  console.log('uiTextMap', uiTextMap);
   // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
 
@@ -316,159 +287,13 @@ function fillTextToComp(
 
   for (let idx = 0; idx < jsonData.length; idx++) {
     const it = jsonData[idx];
-    let conf = findComponentConf(it.type);
-    if (it.type === "table") {
-      console.log(conf, it);
-      fields.push(processConf(conf, it));
-      continue;
-    }
-    // checkboxgroup radiogroup
-    if (it.options && conf) {
-      const option: OptionItem[] = [];
-      it.options.forEach((op, index) => {
-        // checkbox radio 选项文本再右边
-        const { left, right } = op.textMatched;
-        if (it.type === "checkbox" || it.type === "radio") {
-          if (right) {
-            option.push({
-              value: index,
-              label: textResults[right.index].text,
-            });
-          }
-          if (left && index === 0) {
-            conf.__config__.label = textResults[left.index].text;
-          }
-        }
-      });
-      conf.__slot__.options = option;
-    }
-    if (conf) {
-      if (it.textMatched && it.textMatched.in) {
-        const textItem = textResults[it.textMatched.in.index];
-        // placeholder for input/select/textarea
-        // text for button
-
-        if ((it.type === "button") && conf.__slot__) {
-          // console.log(matched, textItem, conf);
-          conf.__slot__.default = textItem.text;
-        }
-
-        // 进度条处理
-        if (it.type === "progress" && conf.__slot__) {
-          conf.__slot__.default = textItem.text;
-          if (textItem.text.indexOf('%') !== -1) {
-            conf.percentage = Number(textItem.text.split('%')[0]);
-          }
-        }
-        if (it.type === "input" || it.type === "textarea" || it.type === "select") {
-          conf.placeholder = textItem.text;
-        }
-      }
-      // label for input/select/textarea/switch
-      if (it.textMatched && it.textMatched.left) {
-        if (
-          it.type === "input" ||
-          it.type === "textarea" ||
-          it.type === "select" ||
-          it.type === "switch"
-        ) {
-          const textItem = textResults[it.textMatched.left.index];
-          conf.__config__.label = textItem.text;
-        }
-      }
-      if (it.textMatched && it.textMatched.right) {
-        // console.log(it, textResults[it.textMatched.right.index])
-      }
-      fields.push(processConf(conf, it));
-    }
+    fields.push(processConf(it, textResults))
   }
+  return fields
 }
 
 /**
- * 加工数据给设计器使用
- * 清理OCR识别的必填字断的*
- * ...
- * @param conf
- */
-function processConf(conf: ComponentItemJson, item: UiItem) {
-  if (item.type === "table") {
-    // todo uiResults是否有分页组件
-    //       const hasPaginatin
-    //       if (!hasPaginatin) {
-    //         conf.__config__.pagination = 'none'
-    //       }
-    conf = makeTableConf(item.table_struct);
-  } else {
-    // required处理
-    if (/^\*/.test(conf.__config__.label)) {
-      conf.__config__.required = true;
-      conf.__config__.label = conf.__config__.label.substring(1);
-    }
-  }
-  conf.uiItem = item.uiItem;
-  return conf;
-}
-
-/**
- * table结构识别数据转换成设计器可识别的json代码
- * @param data
- * @returns
- */
-function makeTableConf(data: StructureItem | string[][]) {
-  let trs = [];
-  if (Array.isArray(data)) {
-    trs = data;
-  } else if (data.res.html) {
-    const reg = /<tr>.*?<\/tr>/g;
-    let result;
-    while ((result = reg.exec(data.res.html))) {
-      const breg = /<td>(.*?)<\/td>/g;
-      const tds = [];
-      let tdRes;
-      while ((tdRes = breg.exec(result[0]))) {
-        tds.push(tdRes[1]);
-      }
-      trs.push(tds);
-    }
-  }
-  const conf = findComponentConf("table");
-  if (trs.length) {
-    const data: Array<{}> = [];
-    let actionCol = -1;
-    trs.forEach((it, index) => {
-      if (index === 0) {
-        // 第一行为表头
-        conf.__config__.children = it.map((item, colIndex) => {
-          if (actionCol < 0 && item.indexOf("操作") > -1) {
-            actionCol = colIndex;
-          }
-          return {
-            __config__: {
-              layout: "raw",
-              tag: "el-table-column",
-            },
-            prop: `col_${colIndex}`,
-            label: item,
-          };
-        });
-      } else {
-        if (!metaInfo.actionLabels && actionCol > -1) {
-          metaInfo.actionLabels = it[actionCol].trim().split(/\s/);
-        }
-        const obj: { [propName: string]: any } = {};
-        it.forEach((item, colIndex) => {
-          obj[`col_${colIndex}`] = item;
-        });
-        data.push(obj);
-      }
-    });
-    conf.data = data;
-  }
-  return conf;
-}
-
-/**
- * 处理识别结果数据，生成组件描述信息
+ * 处理识别结果数据，组件排序处理
  * @param uiResults UI组件识别结果
  * @param textResults 文本识别结果
  * @param structures Layout识别结果
@@ -479,6 +304,9 @@ export default function mergeDetectData(
   textResults: TextItem[],
   structures: StructureItem[] = []
 ) {
+  metaInfo = {
+  };
+
   const checkInCompArea = (types: UiType[], item: XYXY) => {
     const comps = uiResults.filter((it) => types.indexOf(it.class) > -1);
     return comps.some((it) => {
@@ -511,7 +339,6 @@ export default function mergeDetectData(
         }
       }
       it.table_struct = tableData;
-      // todo 表格区域裁剪片给ocr识别出结构
     }
   });
 
@@ -524,9 +351,8 @@ export default function mergeDetectData(
     ];
     return !checkInCompArea(["table", "pagination"], boxText);
   });
-  metaInfo = {};
 
-  const fields: ComponentItemJson[] = [];
+  let fields: ComponentItemJson[] = [];
 
   // 按Y排序
   uiResults.sort((a, b) => {
@@ -572,7 +398,7 @@ export default function mergeDetectData(
     }
   }
   if (uiItems.length && textResults.length) {
-    convertJsonData(uiItems, textResults, fields);
+    fields = mergeTextUI(uiItems, textResults);
   }
   return {
     fields,

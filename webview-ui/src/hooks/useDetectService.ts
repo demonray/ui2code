@@ -1,6 +1,7 @@
 import { getBase64 } from "../utilities/index";
 import Axios from "../utilities/request";
 import DetectConfig from "../config";
+import TextOcr from "./textRecognition";
 
 type DetectStatus = {
   text: "PROCESSING" | "SUCCESS";
@@ -8,14 +9,20 @@ type DetectStatus = {
   structure: "PROCESSING" | "SUCCESS";
 };
 
-type DetectService = {
+export type DetectResultData = {
+  ui?: any;
+  text?: any;
+  [index: string]: any;
+};
+
+export type DetectService = {
   detectUI: (file: File) => Promise<any>;
-  detectText: (file: File) => Promise<any>;
+  detectText: (file: File, type?: string) => Promise<any>;
   getResult: () => {
     uiResults: DetectItem[];
     textResults: TextItem[];
     structures: StructureItem[];
-    imageRes: any;
+    imageRes: DetectResultData;
   };
   detectStructure: (file: File) => Promise<any>;
   status: DetectStatus;
@@ -38,35 +45,48 @@ export default function useDetectService(
   let textResults: TextItem[] = [];
 
   let structures: StructureItem[] = [];
-  let imageRes: any = {};
+  let imageRes: DetectResultData = {};
+
   /**
    * 获取文本检查结果
    */
-  async function getTextDetectData(file: File) {
+  async function getTextDetectData(file: File, type?: string) {
     textResults = [];
     detectStatus.text = "PROCESSING";
-    const images = await getBase64(file as Blob);
-    return Axios({
-      url: `${config.OCR}/predict-by-base64`,
-      method: "post",
-      data: {
-        base64_str: images.replace(/data:image\/.+;base64,/, ""),
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (res.data) {
-          textResults = res.data.data;
-          imageRes.text = res.data.resultImg;
-        }
-        detectStatus.text = "SUCCESS";
-      })
-      .catch((error) => {
-        // 请求失败，
-        console.log(error);
-      });
+    try {
+      const images = await getBase64(file as Blob);
+      let result: any = { data: {} };
+      if (type === "local") {
+        let img = document.createElement("img");
+        const loadImg = new Promise((resolve) => {
+          img.src = images;
+          img.onload = () => {
+            resolve(true);
+          };
+        });
+        await loadImg;
+        result.data = await TextOcr.recognize(img);
+      } else {
+        result = await Axios({
+          url: `${config.OCR}/predict-by-base64`,
+          method: "post",
+          data: {
+            base64_str: images.replace(/data:image\/.+;base64,/, ""),
+          },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      }
+      if (result.data) {
+        textResults = result.data.data || [];
+        imageRes.text = result.data;
+      }
+      detectStatus.text = "SUCCESS";
+    } catch (error) {
+      // 请求失败，
+      console.log(error);
+    }
   }
 
   /**
@@ -171,7 +191,7 @@ export default function useDetectService(
         // }
         if (res.data && res.data.status === "SUCCESS") {
           if (res.data.result) {
-            imageRes.ui = res.data.result.resultImg;
+            imageRes.ui = res.data.result;
             uiResults = res.data.result.bbox;
           }
           detectStatus.component = "FINISH";
@@ -193,3 +213,5 @@ export default function useDetectService(
     detectStructure: getStructureData,
   };
 }
+
+export { TextOcr };

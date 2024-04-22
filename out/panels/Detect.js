@@ -47,7 +47,7 @@ function useDetectService(config) {
                 .then((res) => {
                 if (res.data) {
                     textResults = res.data.data;
-                    imageRes.text = res.data.resultImg;
+                    imageRes.text = res.data;
                 }
                 detectStatus.text = "SUCCESS";
             })
@@ -169,7 +169,7 @@ function useDetectService(config) {
             // }
             if (res.data && res.data.status === "SUCCESS") {
                 if (res.data.result) {
-                    imageRes.ui = res.data.result.resultImg;
+                    imageRes.ui = res.data.result;
                     uiResults = res.data.result.bbox;
                 }
                 detectStatus.component = "FINISH";

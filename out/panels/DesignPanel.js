@@ -99,6 +99,30 @@ class DesignPanel {
      * rendered within the webview panel
      */
     _getWebviewContent(webview, extensionUri) {
+        // 用iframe加载web
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>UI2code</title>
+            <style>
+                html, body , .iframe-content {
+                    width: 100%;
+                    height: 100%;
+                }
+            </style>
+            </head>
+            <body>
+            <iframe
+                class="iframe-content"
+                src="https://mumblefe.cn/d2cweb/"
+                frameborder="0"
+            ></iframe>
+            </body>
+        </html>
+    `;
         // The CSS file from the Vue build output
         const stylesUri = (0, getUri_1.getUri)(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
         // The JS file from the Vue build output
@@ -132,7 +156,7 @@ class DesignPanel {
             const command = message.command;
             const text = message.text;
             switch (command) {
-                case "detectimage":
+                case "detectimage": // webview 点击上传发送的事件
                     this._detect(webview);
                     return;
                 // Add more switch case statements here as more webview message commands
@@ -140,6 +164,7 @@ class DesignPanel {
             }
         }, undefined, this._disposables);
     }
+    // 选择文件并调用服务接口识别
     _detect(webview) {
         return __awaiter(this, void 0, void 0, function* () {
             const options = {

@@ -18,7 +18,7 @@
         </el-form-item>
         <el-form-item label="目标库">
           <el-select v-model="formData.targetlib">
-            <el-option value="element-plus">element-plus</el-option>
+            <!-- <el-option value="element-plus">element-plus</el-option> -->
             <el-option value="fes-design">fes-design</el-option>
           </el-select>
         </el-form-item>

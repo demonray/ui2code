@@ -1,5 +1,5 @@
 import { SandpackPredefinedTemplate, SandboxEnvironment, SandpackFiles } from "sandpack-vue3";
-import { ElForm } from "element-plus"
+import { ElForm } from "element-plus";
 declare global {
   var beautifier: any;
 
@@ -20,8 +20,8 @@ declare global {
     | "dialog"
     | "row"
     | "menu"
-    | 'tabs'
-    | 'steps'
+    | "tabs"
+    | "steps"
     | "default"
     | "progress"
     | "breadcumb"
@@ -47,7 +47,7 @@ declare global {
     label: string;
     value: string | number;
     children?: OptionItem[];
-    childrenComponet?: ComponentItemJson[]
+    childrenComponet?: ComponentItemJson[];
   }
 
   interface CompItemSlot {
@@ -63,7 +63,7 @@ declare global {
     placeholder?: string;
     readonly?: boolean;
     disabled?: boolean;
-    children?: ComponentItemJson[]
+    children?: ComponentItemJson[];
     [propName: string]: any;
   }
 
@@ -88,9 +88,9 @@ declare global {
   }
 
   type structureTable = {
-    cell_bbox: Array<Array<number>>,
-    html: string
-  }
+    cell_bbox: Array<Array<number>>;
+    html: string;
+  };
 
   interface StructureItem {
     type: string;
@@ -101,7 +101,7 @@ declare global {
 
   interface DesignJson {
     fields: ComponentItemJson[];
-    metaInfo: any
+    metaInfo: any;
   }
 
   type PointXY = {
@@ -144,8 +144,8 @@ declare global {
   interface MakeHtmlResult {
     html: string;
     info: {
-      usedComponents: string[]
-      [index:string]: any
-    }
+      usedComponents: string[];
+      [index: string]: any;
+    };
   }
 }
