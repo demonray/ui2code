@@ -58,11 +58,12 @@
 - 常见的 Modal Form 表单提交
 - 常见的分页表格页面
 
-1. 模型识别Tabs、Menu、Tree、Tooltip、Calendar、Alert、Rate、Badge、Timeline
-2. 组件识别准确率提高
-3. 识别结果纠错（提供识别结果预览，手动修改组建类型）
-4. 生成代码完善各个组件 props 属性、状态信息、默认值
-5. 设计页面打包成 VSCode 插件
+1. 模型识别Tabs、Menu、Tree、Tooltip、Calendar、Alert、Rate、Badge、Timeline -- 进行中
+2. 组件识别准确率提高 -- 进行中
+3. 识别结果纠错（提供识别结果预览，手动修改组建类型）-- 已开发
+4. 生成代码尽量还原各个组件 props 属性、状态信息、默认值。比如steps是垂直还是水平，各个step文本等类似的地方
+   截图是form表单，还是页面，或者弹窗，最终输出代码有无Form或者Modal包裹优化（通过模型来识别还是通过已识别的👣信息来判断？）
+5. 设计页面打包成 VSCode 插件 -- 开发中
 6. 内置常用表单正则设置
 
 以上1，2两点ui2code_service部分模型训练优化
