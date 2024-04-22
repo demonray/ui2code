@@ -116,6 +116,11 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${vModel} ${placeholder} ${disabled} ${multiple} ${filterable} ${clearable} ${width}>${child}</${tag}>`;
   },
+  "el-tree-select": (el: ComponentItemJson) => {
+    const tag = "FSelectTree";
+    const {disabled, vModel, placeholder, width } = attrBuilder(el);
+    return `<${tag} ${vModel} ${placeholder} ${disabled}  ${width}></${tag}>`;
+  },
   "el-radio-group": (el: ComponentItemJson) => {
     const tag = "FRadioGroup";
     const { disabled, vModel } = attrBuilder(el);
@@ -282,6 +287,38 @@ const tags: TagTemplate = {
     if (child) child = `\n${child}\n`; // 换行
     return `<FSteps ${vertical}>${child}</FSteps>`;
   },
+  "el-tooltip": (el: ComponentItemJson) => {
+    const content = el.content ? `content="${el.content}"` : '';
+    const placement = el.placement ? `placement="${el.placement}"` : '';
+    const trigger = el.trigger ? `trigger="${el.trigger}"` : '';
+    const mode = el.mode ? `mode="${el.mode}"` : '';
+    const slot = `<FButton>查看</FButton>`;
+    return `<FTooltip ${content} ${placement} ${trigger} ${mode}>${slot}</FTooltip>`;
+  },
+  "el-alert" : (el: ComponentItemJson) => {
+    const { tag } = attrBuilder(el);
+    const type = el.__config__.type ? `type="${el.__config__.type}"` : '';
+    const message = el.title ? `message="${el.title}"` : '';
+    const description = el.description ? `description="${el.description}"` : '';
+    const showIcon = el["show-icon"] ? 'show-icon' : '';
+    const closable = el.closable ? 'closable' : '';
+    const center = el.center ? 'center' : '';
+    return `<FAlert ${type} ${message} ${description} ${showIcon} ${closable} ${center} ></FAlert>`;
+  },
+  "el-calendar" : (el: ComponentItemJson) => {
+    const { vModel } = attrBuilder(el);
+    return `<FCalendar ${vModel}></FCalendar>`;
+  },
+  "el-rate" : (el: ComponentItemJson) => {
+    const { vModel, clearable, disabled } = attrBuilder(el);
+    const allowHalf = el['allow-half'] ? 'allow-half': '';
+    const readonly = el.readonly ? 'readonly' : '';
+    const size = el.size!=='default' ? `size=${el.size}` : '';
+    const count = `:count="${el.max}"`;
+    const showText = el['show-text'] ? `show-text` : '';
+    const texts = el['show-text'] ? `:texts="${JSON.stringify(el.texts).replace(/"/g, "'")}"` : '';
+    return `<FRate ${vModel}  ${texts} ${size} ${count} ${showText} ${allowHalf} ${readonly} ${clearable} ${disabled}></FRate>`;
+  },
 };
 
 function attrBuilder(el: ComponentItemJson) {
@@ -433,7 +470,7 @@ function buildElTabsChild(scheme: ComponentItemJson) {
       </FTabPane>`
     );
     }
-    
+  
   }
   return children.join("\n");
 }
@@ -503,6 +540,8 @@ function getUsedComp(html: string) {
       "FCheckbox",
       "FInput",
       "FSelect",
+      "FSelectTree",
+      "FTree",
       "FButton",
       "FRadioButton",
       "FRadio",
@@ -523,7 +562,11 @@ function getUsedComp(html: string) {
       "FSubMenu",
       "FMenuItem",
       "FSteps",
-      'FStep'
+      'FStep',
+      'FTooltip',
+      'FAlert',
+      'FCalendar',
+      'FRate'
     ].filter((item) => html.indexOf(item) > -1);
   }
 
@@ -540,7 +583,7 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
   formConfig.fields.forEach((el) => {
-    if (!['table', 'pagination', 'dialog', 'menu', 'tabs', 'steps', 'progress'].includes(el.type)) {
+    if (!['table', 'pagination', 'dialog', 'menu', 'tabs', 'steps', 'progress','alert','tooltip','calendar'].includes(el.type)) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }

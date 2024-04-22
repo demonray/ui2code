@@ -23,7 +23,12 @@ declare global {
     | 'tabs'
     | 'steps'
     | "default"
-    | "progress";
+    | "progress"
+    | "tree-select"
+    | "tooltip"
+    | "alert"
+    | "calendar"
+    | "rate";
 
   type CompItemConf = {
     label: string;

@@ -265,6 +265,42 @@ export const selectComponents: ComponentItemJson[] = [
     readonly: false,
     type: "daterange",
   },
+  {
+    __config__: {
+      label: "树形选择",
+      showLabel: true,
+      labelWidth: null,
+      tag: "el-tree-select",
+      tagIcon: "tree-select",
+      layout: "colItem",
+      span: 24,
+      required: true,
+      regList: [],
+      changeTag: true,
+    },
+    placeholder: "请选择",
+    disabled: false,
+    readonly: false,
+    type: "tree-select",
+    // data: [
+    //   {
+    //     value: '1',
+    //     label: 'Level one 1',
+    //     children: [
+    //       {
+    //         value: '1-1',
+    //         label: 'Level two 1-1',
+    //         children: [
+    //           {
+    //             value: '1-1-1',
+    //             label: 'Level three 1-1-1',
+    //           },
+    //         ],
+    //       },
+    //     ],
+    //   },
+    // ],
+  },
 ];
 
 // 布局型组件 【左面板】
@@ -466,5 +502,78 @@ export const layoutComponents: ComponentItemJson[] = [
     type: "progress",
     percentage: 50,
     strokeWidth: 10,
+  },
+  {
+    __config__: {
+      label: "日历",
+      tag: "el-calendar",
+      tagIcon: "calendar",
+      span: 24,
+      layout: "raw",
+      changeTag: true,
+    },
+    __slot__ : {
+    },
+    type: "calendar",
+  },
+  {
+    __config__: {
+      label: "评分",
+      tag: "el-rate",
+      tagIcon: "rate",
+      span: 24,
+      layout: "colItem",
+      changeTag: true,
+      required: true,
+      showLabel: true,
+      labelWidth: null,
+      defaultValue: undefined,
+    },
+    type: "rate",
+    disabled: false,
+    clearable: false,
+    max: 5,
+    size: 'default',
+    "allow-half": false,
+    "show-text" : false,
+    texts: ['极差','失望','一般','满意','惊喜'],
+  }
+];
+
+// 信息反馈型组件 【左面板】
+export const infoFeedbackComponents: ComponentItemJson[] = [
+  {
+    __config__: {
+      label: "文字提示",
+      tag: "el-tooltip",
+      tagIcon: "tooltip",
+      span: 24,
+      layout: "raw",
+      changeTag: true
+    },
+    __slot__: {
+      default:`查看更多`,
+    },
+    type: "tooltip",
+    trigger: "click",
+    placement: "top",
+    content: "文字提示内容",
+    mode: "text",
+  },
+  {
+    __config__: {
+      label: "警告提示",
+      layout: "raw",
+      tag: "el-alert",
+      tagIcon: "alert",
+      span: 24,
+      type:"success",
+      changeTag: true,
+    },
+    __slot__: {
+    },
+    type: "alert",
+    title:"常规信息提示内容",
+    effect: 'light',
   },
 ];

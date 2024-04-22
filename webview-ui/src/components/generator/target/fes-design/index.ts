@@ -21,14 +21,14 @@ function getPlaygoundUrl(code: string) {
   }
   code = code.replace("./lib/fes-design.js", "@fesjs/fes-design");
   code += `<style>
-  @import url('${libUrl}fes-design@0.7.28/dist/fes-design.css')
+  @import url('${libUrl}fes-design/dist/fes-design.css')
   </style>`;
   const state = {
     "App.vue": code,
     "import-map.json": `{"imports": {
         "vue": "${playground}vue.runtime.esm-browser.js",
         "vue/server-renderer": "${playground}server-renderer.esm-browser.js",
-        "@fesjs/fes-design": "${libUrl}fes-design@0.7.28/dist/fes-design.esm-browser.js"
+        "@fesjs/fes-design": "${libUrl}fes-design/dist/fes-design.esm-browser.js"
       }}`,
   };
   const hash = utoa(JSON.stringify(state));

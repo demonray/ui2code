@@ -415,10 +415,15 @@
             </el-select>
           </el-form-item>
           <el-form-item v-if="activeData.size !== undefined" label="组件尺寸">
-            <el-radio-group v-model="activeData.size">
+            <el-radio-group v-if="activeData.type !== 'rate'" v-model="activeData.size">
               <el-radio-button label="medium"> 中等 </el-radio-button>
               <el-radio-button label="small"> 较小 </el-radio-button>
               <el-radio-button label="mini"> 迷你 </el-radio-button>
+            </el-radio-group>
+            <el-radio-group v-if="activeData.type === 'rate'" v-model="activeData.size">
+              <el-radio-button label="small"> 较小 </el-radio-button>
+              <el-radio-button label="default"> 中等 </el-radio-button>
+              <el-radio-button label="large"> 较大 </el-radio-button>
             </el-radio-group>
           </el-form-item>
           <el-form-item v-if="activeData.type === 'pagination'" label="分页属性">
@@ -472,7 +477,7 @@
               <el-radio-button label="line"> 默认 </el-radio-button>
             </el-radio-group>
           </el-form-item>
-          <el-form-item v-else-if="activeData.__config__.type !== undefined" label="展示类型">
+          <el-form-item v-if="activeData.__config__.tag === 'el-tabs' && activeData.__config__.type !== undefined" label="展示类型">
             <el-radio-group v-model="activeData.__config__.type">
               <el-radio-button label="card"> 卡片 </el-radio-button>
               <el-radio-button label="line"> 默认 </el-radio-button>
@@ -526,7 +531,77 @@
               </span>
             </el-tree>
           </template> -->
-
+          <template v-if="activeData.__config__.tag === 'el-alert'">
+            <el-form-item label="提示内容">
+              <el-input v-model="activeData.title" placeholder="请输入文字" />
+            </el-form-item>
+            <el-form-item label="描述性文字">
+              <el-input v-model="activeData.description" placeholder="请输入文字" />
+            </el-form-item>
+            <el-form-item label="提示类型">
+              <el-select v-model="activeData.__config__.type" :style="{ width: '100%' }">
+                <el-option label="success" value="success" />
+                <el-option label="warning" value="warning" />
+                <el-option label="info" value="info" />
+                <el-option label="error" value="error" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="主题">
+              <el-radio-group v-model="activeData.effect" size="small">
+                <el-radio-button label="light">浅色</el-radio-button>
+                <el-radio-button label="dark">深色</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="是否居中">
+              <el-switch v-model="activeData.center" />
+            </el-form-item>
+            <el-form-item label="是否可关闭">
+              <el-switch v-model="activeData.closable" />
+            </el-form-item>
+            <el-form-item label="显示图标">
+              <el-switch v-model="activeData['show-icon']" />
+            </el-form-item>
+          </template>
+          <template v-if="activeData.__config__.tag === 'el-rate'">
+            <el-form-item label="最大分值">
+              <el-input-number v-model="activeData.max"></el-input-number>
+            </el-form-item>
+            <el-form-item label="允许半选">
+              <el-switch v-model="activeData['allow-half']" />
+            </el-form-item>
+            <el-form-item label="辅助文字">
+              <el-switch v-model="activeData['show-text']" />
+            </el-form-item>
+          </template>
+          <template v-if="activeData.type === 'tooltip'">
+            <el-form-item label="提示位置">
+              <el-select v-model="activeData.placement" placeholder="请选择提示位置">
+                <el-option
+                  v-for="item in placementOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="提示内容">
+                <el-input v-model="activeData.content" placeholder="请输入文字"></el-input>
+            </el-form-item>
+            <el-form-item label="提示模式">
+              <el-radio-group v-model="activeData.mode" size="small">
+                <el-radio-button label="text">text</el-radio-button>
+                <el-radio-button label="confirm">confirm</el-radio-button>
+                <el-radio-button label="popover">popover</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="触发方式">
+              <el-radio-group v-model="activeData.trigger" size="small">
+                <el-radio-button label="click">click</el-radio-button>
+                <el-radio-button label="hover">hover</el-radio-button>
+                <el-radio-button label="focus">focus</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+          </template>
           <template v-if="Array.isArray(activeData.__config__.regList)">
             <el-divider>正则校验</el-divider>
             <div
@@ -719,6 +794,21 @@ const tagList = [
     label: "选择型组件",
     options: selectComponents,
   },
+];
+
+const placementOptions = [
+  { label: "top", value: "top" },
+  { label: "top-start", value: "top-start" },
+  { label: "top-end", value: "top-end" },
+  { label: "bottom", value: "bottom" },
+  { label: "bottom-start", value: "bottom-start" },
+  { label: "bottom-end", value: "bottom-end" },
+  { label: "left", value: "left" },
+  { label: "left-start", value: "left-start" },
+  { label: "left-end", value: "left-end" },
+  { label: "right", value: "right" },
+  { label: "right-start", value: "right-start" },
+  { label: "right-end", value: "right-end" },
 ];
 
 function addReg() {
