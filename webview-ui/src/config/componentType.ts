@@ -601,4 +601,6 @@ export const infoFeedbackComponents: ComponentItemJson[] = [
     title:"常规信息提示内容",
     effect: 'light',
   },
-];// tree、alert、rate、badge、timeline
+];
+
+// badge、timeline

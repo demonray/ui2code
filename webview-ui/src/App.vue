@@ -8,10 +8,10 @@ import DetectResult from "./DetectResult.vue";
 import { TextOcr } from "./hooks/useDetectService";
 import { detect, generateUIList } from "./lib";
 
-// //@ts-ignore
-// import uiResult from "../test_images/table_ui";
-// //@ts-ignore
-// import textRes from "../test_images/table_text";
+//@ts-ignore
+import uiResult from "../test_images/tree_ui";
+//@ts-ignore
+import textRes from "../test_images/tree_text";
 
 let designJson: DesignJson = reactive({
   fields: [],
@@ -74,7 +74,7 @@ window.addEventListener("message", (event) => {
   }
 });
 
-// for dev test
+//// for dev test
 // generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
 //   designJson.fields = fields;
 //   designJson.metaInfo = {
@@ -96,10 +96,10 @@ function back() {
 }
 function download() {}
 onMounted(() => {
-  status.value = "模型加载中..."
-  TextOcr.loadModel(() => {
-    status.value = ""
-  })
+//   status.value = "模型加载中..."
+//   TextOcr.loadModel(() => {
+//     status.value = ""
+//   })
 })
 </script>
 

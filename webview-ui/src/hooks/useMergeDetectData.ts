@@ -301,7 +301,7 @@ function mergeTextUI(
  */
 export default function mergeDetectData(
   uiResults: DetectItem[],
-  textResults: TextItem[],
+  textResults: TextItem[] = [],
   structures: StructureItem[] = []
 ) {
   metaInfo = {

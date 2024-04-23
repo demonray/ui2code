@@ -1,10 +1,10 @@
-import { inputComponents, selectComponents, layoutComponents } from "../config/componentType";
+import { inputComponents, selectComponents, layoutComponents, infoFeedbackComponents } from "../config/componentType";
 import type { UiItem } from "./useMergeDetectData";
 /**
  * 查找对应组件设计器配置
  */
 function findComponentConf(type: UiType): ComponentItemJson {
-  const findConf = [...inputComponents, ...selectComponents, ...layoutComponents].find((it) => {
+  const findConf = [...inputComponents, ...selectComponents, ...layoutComponents, ...infoFeedbackComponents].find((it) => {
     return it.type === type;
   });
   return findConf && JSON.parse(JSON.stringify(findConf));
