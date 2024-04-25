@@ -365,7 +365,7 @@ export default function processConf(it: UiItem, textResults: TextItem[]) {
     case "menu":
       conf = makeMenunConf(conf, it, textResults);
       break;
-    case "tabs":
+    case "tab":
       conf = makeTabConf(conf, it, textResults);
       break;
     default: // todo 各自处理row、dialog、breadcumb、tree、 tooltip、calendar、alert、rate、badge、timeline

@@ -113,7 +113,7 @@ localStorage.setItem("labels", JSON.stringify(labels));
  */
 function initDetectData(data) {
   var annotates = detectBoxToLabelBox(data.ui.bbox || []);
-  annotate.SetImage(data.detectImg || data.ui.resultImg, annotates);
+  annotate.SetImage(data.detectImg || data.ui.resultImg, annotates || []);
 }
 
 var confirm = document.querySelector(".confirm-detect");
@@ -132,7 +132,7 @@ window.addEventListener("message", (e) => {
   if (e && e.data) {
     const event = e.data;
     if (event.command === "ui2code_init_detect_data") {
-      this.initDetectData(event.data);
+      initDetectData(event.data);
     }
   }
 });

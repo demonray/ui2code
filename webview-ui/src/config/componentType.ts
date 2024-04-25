@@ -456,7 +456,7 @@ export const layoutComponents: ComponentItemJson[] = [
         },
       ],
     },
-    type: "tabs",
+    type: "tab",
   },
   {
     __config__: {

@@ -59,7 +59,7 @@ function makeDataObj(conf: ComponentItemJson): object {
       case "steps":
         options.direction = conf.__config__.mode;
         break;
-    case "tabs":
+    case "tab":
         options.type = conf.__config__.type;
         options.tabPosition = conf.__config__.position;
         options.editable = conf.__config__.editable;
@@ -242,7 +242,7 @@ renderChildClass.addPlugin('default', new defaultPlugin())
 .addPlugin('radio', new radioAndCheckboxPlugin('radio'))
 .addPlugin('checkbox', new radioAndCheckboxPlugin('checkbox'))
 .addPlugin('menu', new menuPlugin())
-.addPlugin('tabs', new tabsPlugin())
+.addPlugin('tab', new tabsPlugin())
 .addPlugin('steps', new stepsPlugin())
 .addPlugin('breadcumb', new BreadcumbPlugin())
 .addPlugin('tooltip', new TooltipPlugin())

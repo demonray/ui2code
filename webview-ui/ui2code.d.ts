@@ -20,7 +20,7 @@ declare global {
     | "dialog"
     | "row"
     | "menu"
-    | "tabs"
+    | "tab"
     | "steps"
     | "default"
     | "progress"

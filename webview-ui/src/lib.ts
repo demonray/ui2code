@@ -40,15 +40,14 @@ export async function detect(
       }
       const { uiResults, textResults, imageRes } = getResult();
       if (status.component === "FINISH" && status.text === "SUCCESS") {
-        const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, []);
+        const { fields } = useMergeDetectData(uiResults, textResults, []);
         resolve({
           fields,
           metaInfo: {
             imageRes,
-            metaInfo: {
-              detectImg,
-              ...metaInfo,
-            },
+            detectImg,
+            uiResults: deepClone(uiResults),
+            textResults: deepClone(textResults),
           },
         });
       } else {
@@ -70,14 +69,13 @@ export async function generateUIList(
   textResults: TextItem[]
 ): Promise<{ fields: ComponentItemJson[]; metaInfo: MetaInfo }> {
   return new Promise(function (resolve) {
-    const { fields, metaInfo } = useMergeDetectData(uiResults, textResults, []);
+    const { fields } = useMergeDetectData(uiResults, textResults, []);
     resolve({
       fields,
       metaInfo: {
         detectImg,
         uiResults: deepClone(uiResults),
         textResults: deepClone(textResults),
-        ...metaInfo,
       },
     });
   });

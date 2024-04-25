@@ -27,8 +27,6 @@ export interface UiItem {
   [propName: string]: any;
 }
 
-let metaInfo: { [index: string]: any } = {};
-
 /**
  * 计算中心点
  */
@@ -304,8 +302,6 @@ export default function mergeDetectData(
   textResults: TextItem[] = [],
   structures: StructureItem[] = []
 ) {
-  metaInfo = {
-  };
 
   const checkInCompArea = (types: UiType[], item: XYXY) => {
     const comps = uiResults.filter((it) => types.indexOf(it.class) > -1);
@@ -402,6 +398,5 @@ export default function mergeDetectData(
   }
   return {
     fields,
-    metaInfo,
   };
 }

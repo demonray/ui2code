@@ -9,9 +9,9 @@ import { TextOcr } from "./hooks/useDetectService";
 import { detect, generateUIList } from "./lib";
 
 //@ts-ignore
-import uiResult from "../test_images/tree_ui";
+import uiResult from "../test_images/tab_ui";
 //@ts-ignore
-import textRes from "../test_images/tree_text";
+import textRes from "../test_images/tab_text";
 
 let designJson: DesignJson = reactive({
   fields: [],
@@ -35,9 +35,9 @@ function onUpload(uploadFile: UploadFile) {
   status.value = "识别中，请稍候...";
   detect(uploadFile.raw as File).then(({ fields, metaInfo }) => {
     status.value = "";
+    designPreview.value = 3;
     designJson.fields = fields;
     designJson.metaInfo = metaInfo;
-    designPreview.value = 3;
   });
 }
 
@@ -50,21 +50,22 @@ window.addEventListener("message", (event) => {
       generateUIList(message.data.uiResults, message.data.textResults).then(
         ({ fields, metaInfo }) => {
           status.value = "";
+          designPreview.value = 3;
           designJson.fields = fields;
           designJson.metaInfo = metaInfo;
-          designPreview.value = 3;
         }
       );
       break;
     // 识别结果labelimg 调整确认发送过来消息
     case "ui2code_confirm_detect_data":
       // 调整后的组件数据列表重新合并
-      designPreview.value = 1;
+      console.log(message.data, designJson.metaInfo.textResults)
       if (message.data && message.data.length) {
         generateUIList(message.data, designJson.metaInfo.textResults).then(
           ({ fields, metaInfo }) => {
+            designPreview.value = 1;
             status.value = "";
-            designJson.fields = fields;
+            designJson.fields = [...fields];
             designJson.metaInfo = metaInfo;
           }
         );
@@ -76,6 +77,7 @@ window.addEventListener("message", (event) => {
 
 //// for dev test
 // generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
+//   designPreview.value = 3;
 //   designJson.fields = fields;
 //   designJson.metaInfo = {
 //     imageRes: {
@@ -84,7 +86,6 @@ window.addEventListener("message", (event) => {
 //     },
 //     ...metaInfo,
 //   };
-//   // designPreview.value = 3;
 // });
 
 function onPreview(params: SandboxTemplateConfig) {
@@ -96,10 +97,10 @@ function back() {
 }
 function download() {}
 onMounted(() => {
-//   status.value = "模型加载中..."
-//   TextOcr.loadModel(() => {
-//     status.value = ""
-//   })
+  status.value = "模型加载中..."
+  TextOcr.loadModel(() => {
+    status.value = ""
+  })
 })
 </script>
 
@@ -118,7 +119,7 @@ onMounted(() => {
     @upload="onUpload"
     @preview="onPreview"
   />
-  <detect-result v-show="designPreview == 3" :data="designJson.metaInfo" />
+  <detect-result v-if="designPreview == 3" :data="designJson.metaInfo" />
 </template>
 
 <style>

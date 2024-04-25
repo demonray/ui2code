@@ -17,31 +17,32 @@ const props = defineProps({
   },
 });
 
-watch(props, () => {
-  showConfirm();
-});
+// watch(props, () => {
+//   showConfirm();
+// });
 
 let iframeRef = ref<any>(null); // 和iframe标签的ref绑定
 let iframeWin: any = null;
 onMounted(() => {
   if (iframeRef.value) {
     iframeWin = iframeRef.value.contentWindow;
+    showConfirm()
   }
 });
 
-async function showConfirm() {
-  const data = toRaw(props.data)
+function showConfirm() {
+  const data = toRaw(props.data);
   let deviceEvent = {
     command: "ui2code_init_detect_data",
     data: {
-        ...data.imageRes,
-        detectImg: data.detectImg,
+      ...data.imageRes,
+      detectImg: data.detectImg,
     },
   };
-  if (iframeWin && data.imageRes) {
+  if (iframeWin) {
     setTimeout(() => {
       iframeWin.postMessage(deviceEvent, "*");
-    }, 1000);
+    }, 1500);
   }
 }
 </script>
