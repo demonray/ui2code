@@ -68,7 +68,7 @@ export default function useDetectService(
         result.data = await TextOcr.recognize(img);
       } else {
         result = await Axios({
-          url: `${config.OCR}/predict-by-base64`,
+          url: `${config.OCR}/predict-by-base64/`,
           method: "post",
           data: {
             base64_str: images.replace(/data:image\/.+;base64,/, ""),
@@ -79,6 +79,7 @@ export default function useDetectService(
         });
       }
       if (result.data) {
+        console.log("detect text:", result.data)
         textResults = result.data.data || [];
         imageRes.text = result.data;
       }
@@ -193,6 +194,7 @@ export default function useDetectService(
           if (res.data.result) {
             imageRes.ui = res.data.result;
             uiResults = res.data.result.bbox;
+            console.log('detect ui:' ,res.data.result)
           }
           detectStatus.component = "FINISH";
         }

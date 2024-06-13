@@ -1,10 +1,20 @@
-import { inputComponents, selectComponents, layoutComponents, infoFeedbackComponents } from "../config/componentType";
+import {
+  inputComponents,
+  selectComponents,
+  layoutComponents,
+  infoFeedbackComponents,
+} from "../config/componentType";
 import type { UiItem } from "./useMergeDetectData";
 /**
  * 查找对应组件设计器配置
  */
 function findComponentConf(type: UiType): ComponentItemJson {
-  const findConf = [...inputComponents, ...selectComponents, ...layoutComponents, ...infoFeedbackComponents].find((it) => {
+  const findConf = [
+    ...inputComponents,
+    ...selectComponents,
+    ...layoutComponents,
+    ...infoFeedbackComponents,
+  ].find((it) => {
     return it.type === type;
   });
   return findConf && JSON.parse(JSON.stringify(findConf));
@@ -293,11 +303,34 @@ function makeMenunConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
   return conf;
 }
 function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-  // todo tab 选项
+  if (it.textMatched && it.textMatched.in) {
+    let tabOptions: any = [];
+    if (it.textMatched.in.texts?.length) {
+      tabOptions = [
+        {
+          label: it.textMatched.in.texts[0].text,
+          value: `0`,
+        },
+      ];
+      for (let i = 1; i <= it.textMatched.in.texts.length - 2; i++) {
+        if (it.textMatched.in.texts[i].y - it.textMatched.in.texts[i - 1].y > 10) {
+          break;
+        } else {
+          tabOptions.push({
+            label: it.textMatched.in.texts[i].text,
+            value: `${i}`,
+          });
+        }
+      }
+    }
+    if (tabOptions.length && conf.__slot__ && conf.__slot__.options) {
+      conf.__slot__.options = tabOptions;
+    }
+  }
   return conf;
 }
 function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-  // todo 
+  // todo
   return conf;
 }
 
@@ -372,6 +405,8 @@ export default function processConf(it: UiItem, textResults: TextItem[]) {
       conf = makeDefaultConf(conf, it, textResults);
       break;
   }
-  conf.uiItem = it.uiItem;
+  if (conf) {
+    conf.uiItem = it.uiItem;
+  }
   return conf;
 }

@@ -30,11 +30,11 @@ export async function detect(
   detectImg = await getBase64(uploadFile);
   const detect = config ? useDetectService(config) : useDetectService();
   const { status, getResult, detectUI, detectText, detectStructure } = detect;
-  await Promise.all([detectUI(uploadFile), detectText(uploadFile, 'local')]);
+  await Promise.all([detectUI(uploadFile), detectText(uploadFile)]);
   return new Promise(function (resolve) {
     let count = 1;
     const checkResult = () => {
-      if (count++ > 15) {
+      if (count++ > 25) {
         resolve({ fields: [], metaInfo: {} });
         return;
       }
