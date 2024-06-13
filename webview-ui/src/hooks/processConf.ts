@@ -5,6 +5,7 @@ import {
   infoFeedbackComponents,
 } from "../config/componentType";
 import type { UiItem } from "./useMergeDetectData";
+import { textRegionFirstLine } from "../utilities";
 /**
  * 查找对应组件设计器配置
  */
@@ -81,6 +82,24 @@ function makeTableConf(conf: ComponentItemJson, data: StructureItem | string[][]
 function makeStepConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
   // console.log(it, textResults, conf)
   conf.__config__.mode = it.uiItem.w < it.uiItem.h ? "vertical" : "horizontal";
+  if (it.uiItem.w < it.uiItem.h) {
+    conf.__config__.mode = "vertical";
+  } else {
+    conf.__config__.mode = "horizontal";
+    if (it.textMatched && it.textMatched.in && it.textMatched.in.texts) {
+      let firstLine = textRegionFirstLine(it.textMatched.in.texts).map(
+        (it: TextItem, index: number) => {
+          return {
+            label: it.text,
+            value: ``,
+          };
+        }
+      );
+      if (firstLine.length && conf.__slot__ && conf.__slot__.options) {
+        conf.__slot__.options = firstLine;
+      }
+    }
+  }
   return conf;
 }
 
@@ -298,31 +317,46 @@ function makePageinationConf(conf: ComponentItemJson, it: UiItem, textResults: T
   // todo
   return conf;
 }
+
 function makeMenunConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
   // todo menu类型，数据
   return conf;
 }
+
+function makeBreadcrumbConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  if (it.textMatched && it.textMatched.in) {
+    let navOptions: any = [];
+    if (it.textMatched.in.texts?.length) {
+      it.textMatched.in.texts.forEach((it: TextItem) => {
+        it.text.split(/>|\//).forEach((item) => navOptions.push(item));
+      });
+    }
+    if (navOptions.length && conf.__slot__ && conf.__slot__.options) {
+      conf.__slot__.options = navOptions.map((it: any, index: number) => {
+        return {
+          label: it,
+          value: `${index + 1}`,
+        };
+      });
+    }
+  }
+  return conf;
+}
+
 function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in) {
     let tabOptions: any = [];
     if (it.textMatched.in.texts?.length) {
-      tabOptions = [
-        {
-          label: it.textMatched.in.texts[0].text,
-          value: `0`,
-        },
-      ];
-      for (let i = 1; i <= it.textMatched.in.texts.length - 2; i++) {
-        if (it.textMatched.in.texts[i].y - it.textMatched.in.texts[i - 1].y > 10) {
-          break;
-        } else {
-          tabOptions.push({
-            label: it.textMatched.in.texts[i].text,
-            value: `${i}`,
-          });
+      tabOptions = textRegionFirstLine(it.textMatched.in.texts).map(
+        (it: TextItem, index: number) => {
+          return {
+            label: it.text,
+            value: `${index + 1}`,
+          };
         }
-      }
+      );
     }
+
     if (tabOptions.length && conf.__slot__ && conf.__slot__.options) {
       conf.__slot__.options = tabOptions;
     }
@@ -330,6 +364,7 @@ function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[
   return conf;
 }
 function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  console.log("makeDefaultConf: ", conf, it, textResults);
   // todo
   return conf;
 }
@@ -343,6 +378,7 @@ function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextI
  */
 export default function processConf(it: UiItem, textResults: TextItem[]) {
   let conf = findComponentConf(it.type);
+  console.log("findComponentConf:", it.type, conf);
   switch (it.type) {
     case "table":
       // todo uiResults是否有分页组件
@@ -401,7 +437,10 @@ export default function processConf(it: UiItem, textResults: TextItem[]) {
     case "tab":
       conf = makeTabConf(conf, it, textResults);
       break;
-    default: // todo 各自处理row、dialog、breadcumb、tree、 tooltip、calendar、alert、rate、badge、timeline
+    case "breadcrumb":
+      conf = makeBreadcrumbConf(conf, it, textResults);
+      break;
+    default: // todo 各自处理row、dialog、tree、 tooltip、calendar、alert、rate、badge、timeline
       conf = makeDefaultConf(conf, it, textResults);
       break;
   }

@@ -182,9 +182,27 @@ export function guid() {
 // prefer old unicode hacks for backward compatibility
 // https://base64.guru/developers/javascript/examples/unicode-strings
 export function utoa(data: string): string {
-  return btoa(unescape(encodeURIComponent(data)))
+  return btoa(unescape(encodeURIComponent(data)));
 }
 
 export function atou(base64: string): string {
-  return decodeURIComponent(escape(atob(base64)))
+  return decodeURIComponent(escape(atob(base64)));
+}
+
+/**
+ * 处理文本区域数据
+ */
+export function textRegionFirstLine(texts: TextItem[]): TextItem[] {
+  let firstLine: TextItem[] = [];
+  if (texts?.length) {
+    firstLine = [texts[0]];
+    for (let i = 1; i <= texts.length - 2; i++) {
+      if (texts[i].y - texts[i - 1].y > 10) {
+        break;
+      } else {
+        firstLine.push(texts[i]);
+      }
+    }
+  }
+  return firstLine;
 }

@@ -525,7 +525,7 @@ export const layoutComponents: ComponentItemJson[] = [
         },
       ],
     },
-    type: "breadcumb",
+    type: "breadcrumb",
     separator: "/",
   },
   {

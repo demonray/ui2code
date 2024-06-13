@@ -222,7 +222,7 @@ class stepsPlugin implements pluginInfoType {
 }
 
 // 面包屑
-class BreadcumbPlugin implements pluginInfoType {
+class BreadcrumbPlugin implements pluginInfoType {
   getChild (conf: ComponentItemJson):  Array<any> | string{
       return (conf.__slot__?.options || []).map((item:OptionItem) => {
           return h(resolveComponent("el-breadcrumb-item"), {}, item.label || item.value)
@@ -244,5 +244,5 @@ renderChildClass.addPlugin('default', new defaultPlugin())
 .addPlugin('menu', new menuPlugin())
 .addPlugin('tab', new tabsPlugin())
 .addPlugin('steps', new stepsPlugin())
-.addPlugin('breadcumb', new BreadcumbPlugin())
+.addPlugin('breadcrumb', new BreadcrumbPlugin())
 .addPlugin('tooltip', new TooltipPlugin())

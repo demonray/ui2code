@@ -2,8 +2,8 @@ import DetectConfig from "../config";
 import processConf from "./processConf";
 
 interface DirDis {
-  dir: Direction;   // 文本相对组件位置
-  dis: number;      // 文本与组件中心点距离
+  dir: Direction; // 文本相对组件位置
+  dis: number; // 文本与组件中心点距离
 }
 
 type Direction = "in" | "left" | "right" | "bottom" | "top";
@@ -181,10 +181,7 @@ function xywh2xyxy(box: { x: number; y: number; w: number; h: number }): XYXY {
  * @param uiResults
  * @param textResults
  */
-function mergeTextUI(
-  uiResults: DetectItem[],
-  textResults: TextItem[],
-): ComponentItemJson[] {
+function mergeTextUI(uiResults: DetectItem[], textResults: TextItem[]): ComponentItemJson[] {
   let fields: ComponentItemJson[] = [];
 
   // 遍历文本识别结果数据，判断与组件识别结果关系：
@@ -196,11 +193,12 @@ function mergeTextUI(
   for (let uiIndex = 0; uiIndex < uiResults.length; uiIndex++) {
     const matchs: Partial<Matchs> = {};
     textResults.forEach((item, index) => {
-      if (!textIn[index]) {  // 跳过已经处理了的微博 text in ui component
+      if (!textIn[index]) {
+        // 跳过已经处理了的微博 text in ui component
         const xy = textItemXY(item.text_region);
         item.x = xy.x;
         item.y = xy.y;
-        let dirdis
+        let dirdis;
         if (uiResults[uiIndex]) dirdis = positionDir(item, uiResults[uiIndex]);
 
         if (dirdis) {
@@ -211,7 +209,7 @@ function mergeTextUI(
                 dir: dirdis.dir,
                 dis: dirdis.dis,
                 index,
-                texts: matchsDir.texts
+                texts: matchsDir.texts,
               };
             }
           } else {
@@ -223,18 +221,18 @@ function mergeTextUI(
           }
           if (dirdis.dir === "in") {
             textIn[index] = true;
-          }
-          if (matchs.in && matchs.in.texts) {
-            matchs.in.texts.push(item)
-          } else if (matchs.in) {
-            matchs.in.texts = [item]
+            if (matchs.in && matchs.in.texts) {
+              matchs.in.texts.push(item);
+            } else if (matchs.in) {
+              matchs.in.texts = [item];
+            }
           }
         }
       }
     });
     uiTextMap[uiIndex] = matchs;
   }
-  console.log('uiTextMap', uiTextMap);
+  console.log("uiTextMap", uiTextMap);
   // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
   const jsonData: UiItem[] = [];
 
@@ -291,12 +289,12 @@ function mergeTextUI(
 
   for (let idx = 0; idx < jsonData.length; idx++) {
     const it = jsonData[idx];
-    const conf = processConf(it, textResults)
+    const conf = processConf(it, textResults);
     if (conf) {
-      fields.push(conf)
+      fields.push(conf);
     }
   }
-  return fields
+  return fields;
 }
 
 /**
@@ -311,7 +309,6 @@ export default function mergeDetectData(
   textResults: TextItem[] = [],
   structures: StructureItem[] = []
 ) {
-
   const checkInCompArea = (types: UiType[], item: XYXY) => {
     const comps = uiResults.filter((it) => types.indexOf(it.class) > -1);
     return comps.some((it) => {
@@ -335,12 +332,12 @@ export default function mergeDetectData(
         ];
         return checkInCompArea(["table"], boxText);
       });
-      tds.sort((a,b) => {
+      tds.sort((a, b) => {
         if (Math.abs(a.text_region[0][1] - b.text_region[0][1]) < 8) {
-            return a.text_region[0][0] - b.text_region[0][0]
+          return a.text_region[0][0] - b.text_region[0][0];
         }
-        return a.text_region[0][1] - b.text_region[0][1]
-      })
+        return a.text_region[0][1] - b.text_region[0][1];
+      });
       const tableData: string[][] = [[]];
       for (let i = 0; i < tds.length; i++) {
         if (tableData.length && i > 0 && tds[i].text_region[0][0] < tds[i - 1].text_region[0][0]) {
@@ -412,7 +409,7 @@ export default function mergeDetectData(
   if (uiItems.length && textResults.length) {
     fields = mergeTextUI(uiItems, textResults);
   }
-  console.log('useMergeDetectData', fields)
+  console.log("useMergeDetectData", fields);
   return {
     fields,
   };

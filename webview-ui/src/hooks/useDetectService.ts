@@ -79,8 +79,9 @@ export default function useDetectService(
         });
       }
       if (result.data) {
+        result.data.data = (result.data.data || []).filter((it:any) => it.confidence > 0.75)
         console.log("detect text:", result.data)
-        textResults = result.data.data || [];
+        textResults = result.data.data;
         imageRes.text = result.data;
       }
       detectStatus.text = "SUCCESS";

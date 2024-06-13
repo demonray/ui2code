@@ -24,7 +24,7 @@ declare global {
     | "steps"
     | "default"
     | "progress"
-    | "breadcumb"
+    | "breadcrumb"
     | "tree"
     | "tooltip"
     | "calendar"
