@@ -260,6 +260,22 @@ function makeRadioConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
   return conf;
 }
 
+function makeAlertConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  if (it.textMatched && it.textMatched.in) {
+    conf.title = it.textMatched.in?.texts?.map((it: TextItem) => it.text).join("");
+  }
+  return conf;
+}
+
+function makeRateConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  if (it.textMatched && it.textMatched.left) {
+    // label
+    const textItem = textResults[it.textMatched.left.index];
+    conf.__config__.label = textItem.text;
+  }
+  return conf;
+}
+
 function makeTimepickerConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
@@ -319,7 +335,23 @@ function makePageinationConf(conf: ComponentItemJson, it: UiItem, textResults: T
 }
 
 function makeMenunConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-  // todo menu类型，数据
+  conf.__config__.mode = it.uiItem.w < it.uiItem.h ? "vertical" : "horizontal";
+  if (it.textMatched && it.textMatched.in) {
+    let navOptions: any = [];
+    if (it.textMatched.in.texts?.length) {
+      it.textMatched.in.texts.forEach((it: TextItem) => {
+        navOptions.push(it);
+      });
+    }
+    if (navOptions.length && conf.__slot__ && conf.__slot__.options) {
+      conf.__slot__.options = navOptions.map((it: any, index: number) => {
+        return {
+          label: it.text,
+          value: `${index + 1}`,
+        };
+      });
+    }
+  }
   return conf;
 }
 
@@ -364,6 +396,31 @@ function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[
   return conf;
 }
 function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  console.log("makeDefaultConf: ", conf, it, textResults);
+  // todo
+  return conf;
+}
+function makeTimelineConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+    if (it.textMatched && it.textMatched.in) {
+        let timeOptions: any = [];
+        if (it.textMatched.in.texts?.length) {
+          timeOptions = it.textMatched.in.texts.map(
+            (it: TextItem, index: number) => {
+              // todo 数据分组识别出节点文本 timestamp 和 content
+              return {
+                label: it.text,
+                value: `${index + 1}`,
+              };
+            }
+          );
+        }
+        if (timeOptions.length && conf.__slot__ && conf.__slot__.options) {
+          conf.__slot__.options = timeOptions;
+        }
+      }
+  return conf;
+}
+function makeTreeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
   console.log("makeDefaultConf: ", conf, it, textResults);
   // todo
   return conf;
@@ -440,7 +497,19 @@ export default function processConf(it: UiItem, textResults: TextItem[]) {
     case "breadcrumb":
       conf = makeBreadcrumbConf(conf, it, textResults);
       break;
-    default: // todo 各自处理row、dialog、tree、 tooltip、calendar、alert、rate、badge、timeline
+    case "rate":
+      conf = makeRateConf(conf, it, textResults);
+      break;
+    case "timeline":
+      conf = makeTimelineConf(conf, it, textResults);
+      break;
+    case "tree":
+      conf = makeTreeConf(conf, it, textResults);
+      break;
+    case "alert":
+      conf = makeAlertConf(conf, it, textResults);
+      break;
+    default: // todo 各自处理row、dialog、tooltip、calendar、badge
       conf = makeDefaultConf(conf, it, textResults);
       break;
   }

@@ -507,6 +507,35 @@ export const layoutComponents: ComponentItemJson[] = [
   },
   {
     __config__: {
+      label: "时间线",
+      showLabel: false,
+      labelWidth: null,
+      tag: "el-timeline",
+      tagIcon: "timeline",
+      type: "primary",
+      span: 24,
+      layout: "raw",
+    },
+    __slot__: {
+      options: [
+        {
+          label: "Event start",
+          value: "2018-04-15",
+        },
+        {
+          label: "Approved",
+          value: "2018-04-13",
+        },
+        {
+          label: "Success",
+          value: "2018-04-11",
+        },
+      ],
+    },
+    type: "timeline",
+  },
+  {
+    __config__: {
       layout: "raw",
       span: 24,
       tagIcon: "menu",
@@ -537,12 +566,11 @@ export const layoutComponents: ComponentItemJson[] = [
       layout: "raw",
       changeTag: true,
     },
-    __slot__ : {
-    },
+    __slot__: {},
     type: "calendar",
   },
   {
-    __config__: {
+    "__config__": {
       label: "评分",
       tag: "el-rate",
       tagIcon: "rate",
@@ -554,15 +582,15 @@ export const layoutComponents: ComponentItemJson[] = [
       labelWidth: null,
       defaultValue: undefined,
     },
-    type: "rate",
-    disabled: false,
-    clearable: false,
-    max: 5,
-    size: 'default',
+    "type": "rate",
+    "disabled": false,
+    "clearable": false,
+    "max": 5,
+    "size": "default",
     "allow-half": false,
-    "show-text" : false,
-    texts: ['极差','失望','一般','满意','惊喜'],
-  }
+    "show-text": false,
+    "texts": ["极差", "失望", "一般", "满意", "惊喜"],
+  },
 ];
 
 // 信息反馈型组件 【左面板】
@@ -574,10 +602,10 @@ export const infoFeedbackComponents: ComponentItemJson[] = [
       tagIcon: "tooltip",
       span: 24,
       layout: "raw",
-      changeTag: false
+      changeTag: false,
     },
     __slot__: {
-      default:`查看更多`,
+      default: `查看更多`,
     },
     type: "tooltip",
     trigger: "click",
@@ -592,14 +620,13 @@ export const infoFeedbackComponents: ComponentItemJson[] = [
       tag: "el-alert",
       tagIcon: "alert",
       span: 24,
-      type:"success",
+      type: "success",
       changeTag: true,
     },
-    __slot__: {
-    },
+    __slot__: {},
     type: "alert",
-    title:"常规信息提示内容",
-    effect: 'light',
+    title: "常规信息提示内容",
+    effect: "light",
   },
 ];
 
