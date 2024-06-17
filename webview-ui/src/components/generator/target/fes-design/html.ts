@@ -1,7 +1,7 @@
 import ruleTrigger from "./ruleTrigger";
 
 let confGlobal: FormConf | null = null;
-let metaInfo: {[index: string]: any} = {};
+let metaInfo: { [index: string]: any } = {};
 
 function colWrapper(scheme: ComponentItemJson, str: string) {
   return `<FGridItem :span="${scheme.__config__.span}">
@@ -60,6 +60,17 @@ type TagTemplate = {
 };
 
 const tags: TagTemplate = {
+  "el-badge": (el: ComponentItemJson) => {
+    const tag = "FBadge";
+    const { type } = attrBuilder(el);
+    const typeStr = type ? `type="${type}"` : "";
+    const size = el.size ? `size="${el.size}"` : "";
+    const value = el.data ? `:value=${el.data}` : "";
+    let child = buildElBadgeChild(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<${tag} ${typeStr} ${size} ${value} >${child}</${tag}>`;
+  },
   "el-button": (el: ComponentItemJson) => {
     const tag = "FButton";
     const { disabled, type } = attrBuilder(el);
@@ -105,8 +116,16 @@ const tags: TagTemplate = {
   },
   "el-tree-select": (el: ComponentItemJson) => {
     const tag = "FSelectTree";
-    const {disabled, vModel, placeholder, width } = attrBuilder(el);
+    const { disabled, vModel, placeholder, width } = attrBuilder(el);
     return `<${tag} ${vModel} ${placeholder} ${disabled}  ${width}></${tag}>`;
+  },
+  "el-tree": (el: ComponentItemJson) => {
+    const tag = "FTree";
+    const data = `:data="${el.__vModel__}"`;
+    // selectable
+    // draggable
+    const checkable = el.__config__['show-checkbox'] ? 'checkable' : ''
+    return `<${tag} ${data} ${checkable}></${tag}>`;
   },
   "el-radio-group": (el: ComponentItemJson) => {
     const tag = "FRadioGroup";
@@ -259,42 +278,42 @@ const tags: TagTemplate = {
     return `<FMenu ${mode}>${child}</FMenu>`;
   },
   "el-steps": (el: ComponentItemJson) => {
-    const vertical = el.__config__.mode === 'vertical' ? 'vertical' : '';
+    const vertical = el.__config__.mode === "vertical" ? "vertical" : "";
     let child = buildElStepsChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
     return `<FSteps ${vertical}>${child}</FSteps>`;
   },
   "el-tooltip": (el: ComponentItemJson) => {
-    const content = el.content ? `content="${el.content}"` : '';
-    const placement = el.placement ? `placement="${el.placement}"` : '';
-    const trigger = el.trigger ? `trigger="${el.trigger}"` : '';
-    const mode = el.mode ? `mode="${el.mode}"` : '';
+    const content = el.content ? `content="${el.content}"` : "";
+    const placement = el.placement ? `placement="${el.placement}"` : "";
+    const trigger = el.trigger ? `trigger="${el.trigger}"` : "";
+    const mode = el.mode ? `mode="${el.mode}"` : "";
     const slot = `<FButton>查看</FButton>`;
     return `<FTooltip ${content} ${placement} ${trigger} ${mode}>${slot}</FTooltip>`;
   },
-  "el-alert" : (el: ComponentItemJson) => {
+  "el-alert": (el: ComponentItemJson) => {
     const { tag } = attrBuilder(el);
-    const type = el.__config__.type ? `type="${el.__config__.type}"` : '';
-    const message = el.title ? `message="${el.title}"` : '';
-    const description = el.description ? `description="${el.description}"` : '';
-    const showIcon = el["show-icon"] ? 'show-icon' : '';
-    const closable = el.closable ? 'closable' : '';
-    const center = el.center ? 'center' : '';
+    const type = el.__config__.type ? `type="${el.__config__.type}"` : "";
+    const message = el.title ? `message="${el.title}"` : "";
+    const description = el.description ? `description="${el.description}"` : "";
+    const showIcon = el["show-icon"] ? "show-icon" : "";
+    const closable = el.closable ? "closable" : "";
+    const center = el.center ? "center" : "";
     return `<FAlert ${type} ${message} ${description} ${showIcon} ${closable} ${center} ></FAlert>`;
   },
-  "el-calendar" : (el: ComponentItemJson) => {
+  "el-calendar": (el: ComponentItemJson) => {
     const { vModel } = attrBuilder(el);
     return `<FCalendar ${vModel}></FCalendar>`;
   },
-  "el-rate" : (el: ComponentItemJson) => {
+  "el-rate": (el: ComponentItemJson) => {
     const { vModel, clearable, disabled } = attrBuilder(el);
-    const allowHalf = el['allow-half'] ? 'allow-half': '';
-    const readonly = el.readonly ? 'readonly' : '';
-    const size = el.size!=='default' ? `size=${el.size}` : '';
+    const allowHalf = el["allow-half"] ? "allow-half" : "";
+    const readonly = el.readonly ? "readonly" : "";
+    const size = el.size !== "default" ? `size=${el.size}` : "";
     const count = `:count="${el.max}"`;
-    const showText = el['show-text'] ? `show-text` : '';
-    const texts = el['show-text'] ? `:texts="${JSON.stringify(el.texts).replace(/"/g, "'")}"` : '';
+    const showText = el["show-text"] ? `show-text` : "";
+    const texts = el["show-text"] ? `:texts="${JSON.stringify(el.texts).replace(/"/g, "'")}"` : "";
     return `<FRate ${vModel}  ${texts} ${size} ${count} ${showText} ${allowHalf} ${readonly} ${clearable} ${disabled}></FRate>`;
   },
   "el-progress": (el: ComponentItemJson) => {
@@ -305,16 +324,29 @@ const tags: TagTemplate = {
 
     if (child) child = `\n${child}\n`; // 换行
     // type line cycle
-    return `<FProgress percent="50" type="${type}" ${type === 'line' ? 'showOutPercent' : 'showCircleText'} >${child}</FSteps>`;
+    return `<FProgress percent="50" type="${type}" ${
+      type === "line" ? "showOutPercent" : "showCircleText"
+    } >${child}</FProgress>`;
   },
-  // breadcrumb
-//   <FBreadcrumb :separator="separator" :fontSize="fontSize">
-//         <FBreadcrumbItem>首页</FBreadcrumbItem>
-//         <FBreadcrumbItem>二级页面 </FBreadcrumbItem>
-//         <FBreadcrumbItem>三级页面</FBreadcrumbItem>
-//         <FBreadcrumbItem>四级页面</FBreadcrumbItem>
-//         <FBreadcrumbItem>五级页面</FBreadcrumbItem>
-//     </FBreadcrumb>
+  "el-breadcrumb": (el: ComponentItemJson) => {
+    let child = "";
+    if (el.__slot__?.options) {
+      child = el.__slot__.options
+        .map((it) => {
+          return `<FBreadcrumbItem>${it.label}</FBreadcrumbItem>`;
+        })
+        .join("\n");
+    }
+    return `<FBreadcrumb>\n${child}\n</FBreadcrumb>`;
+  },
+  "el-timeline": (el: ComponentItemJson) => {
+    const { direction, titlePosition, descPosition } = el.__config__;
+    const data = `:data="${el.__vModel__}"`;
+    let _direction = `direction="${direction || ""}"`;
+    let _titlePosition = `titlePosition="${titlePosition || ""}"`;
+    let _descPosition = `descPosition="${descPosition || ""}"`;
+    return `<FTimeline ${data} ${_direction} ${_titlePosition} ${_descPosition} />`;
+  },
 };
 
 function attrBuilder(el: ComponentItemJson) {
@@ -327,6 +359,15 @@ function attrBuilder(el: ComponentItemJson) {
     width: el.style && el.style.width ? ":style=\"{width: '100%'}\"" : "",
     disabled: el.disabled ? ":disabled='true'" : "",
   };
+}
+
+// el-buttin 子级
+function buildElBadgeChild(scheme: ComponentItemJson) {
+  const children = [];
+  const slot = scheme.__slot__ || {};
+  if (slot.default) {
+    return `<FButton>${slot.default}</FButton>`;
+  }
 }
 
 // el-buttin 子级
@@ -359,11 +400,11 @@ function buildElTableChild(scheme: ComponentItemJson) {
     children = scheme.__config__.children.map((it: ComponentItemJson, index: number) => {
       let prop = it.prop ? `prop="${it.prop}"` : "";
       const label = it.label ? `label="${it.label}"` : "";
-      let action = ''
+      let action = "";
       // todo 操作 等特殊列 判断条件
-      if (it.label.trim() == '操作') {
-        metaInfo.talbeAction = `${scheme.__vModel__}_col_${index}_actions`
-        action = `:action="${scheme.__vModel__}_col_${index}_actions"`
+      if (it.label.trim() == "操作") {
+        metaInfo.talbeAction = `${scheme.__vModel__}_col_${index}_actions`;
+        action = `:action="${scheme.__vModel__}_col_${index}_actions"`;
       }
       return `<FTableColumn ${prop} ${label} ${action} />`;
     });
@@ -428,19 +469,19 @@ function buildElMenuChild(scheme: ComponentItemJson) {
   const children = [];
   const slot = scheme.__slot__;
   function resolveMenu(children: Array<OptionItem>): Array<any> | string {
-    let strHtml = ''
+    let strHtml = "";
     children.forEach((item: OptionItem) => {
       if (item.children) {
-        strHtml +=`<FSubMenu value='${item.value}'>
+        strHtml += `<FSubMenu value='${item.value}'>
           <template #label>${item.label}</template>
           ${resolveMenu(item.children)}
-        </FSubMenu>`
+        </FSubMenu>`;
       } else {
-        strHtml +=`<FMenuItem value='${item.value}' label=${item.label}></FMenuItem>`
+        strHtml += `<FMenuItem value='${item.value}' label=${item.label}></FMenuItem>`;
       }
-    })
-    return strHtml
-}
+    });
+    return strHtml;
+  }
   if (slot && slot.options && slot.options.length) {
     children.push(resolveMenu(slot.options));
   }
@@ -453,20 +494,23 @@ function buildElTabsChild(scheme: ComponentItemJson) {
   if (slot && slot.options && slot.options.length) {
     for (let index = 0; index < slot.options.length; index++) {
       const item = slot.options[index];
-      let childrenComponet: string | Array<string> = []
+      let childrenComponet: string | Array<string> = [];
       if (item.childrenComponet && item.childrenComponet.length) {
         childrenComponet = item.childrenComponet.map((el: ComponentItemJson) => {
           return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
         });
-        childrenComponet = buildFormTemplate(confGlobal as FormConf, childrenComponet.join("\n"), "tabs");
+        childrenComponet = buildFormTemplate(
+          confGlobal as FormConf,
+          childrenComponet.join("\n"),
+          "tabs"
+        );
       }
       children.push(
-      `<FTabPane key="${index}" name="${item.label}" value="${item.value}">
+        `<FTabPane key="${index}" name="${item.label}" value="${item.value}">
         ${childrenComponet}
       </FTabPane>`
-    );
+      );
     }
-  
   }
   return children.join("\n");
 }
@@ -525,46 +569,46 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
 
 /**
  * 从生成的模版里获取使用到的组件
- * @param html 
- * @returns 
+ * @param html
+ * @returns
  */
 function getUsedComp(html: string) {
-    return [
-      "FForm",
-      "FFormItem",
-      "FCheckboxGroup",
-      "FCheckbox",
-      "FInput",
-      "FSelect",
-      "FSelectTree",
-      "FTree",
-      "FButton",
-      "FRadioButton",
-      "FRadio",
-      "FOption",
-      "FRadioGroup",
-      "FSwitch",
-      "FTable",
-      "FTableColumn",
-      "FDatePicker",
-      "FTimePicker",
-      "FPagination",
-      "FModal",
-      "FGrid",
-      "FGridItem",
-      "FTabs",
-      "FTabPane",
-      "FMenu",
-      "FSubMenu",
-      "FMenuItem",
-      "FSteps",
-      'FStep',
-      'FTooltip',
-      'FAlert',
-      'FCalendar',
-      'FRate'
-    ].filter((item) => html.indexOf(item) > -1);
-  }
+  return [
+    "FForm",
+    "FFormItem",
+    "FCheckboxGroup",
+    "FCheckbox",
+    "FInput",
+    "FSelect",
+    "FSelectTree",
+    "FTree",
+    "FButton",
+    "FRadioButton",
+    "FRadio",
+    "FOption",
+    "FRadioGroup",
+    "FSwitch",
+    "FTable",
+    "FTableColumn",
+    "FDatePicker",
+    "FTimePicker",
+    "FPagination",
+    "FModal",
+    "FGrid",
+    "FGridItem",
+    "FTabs",
+    "FTabPane",
+    "FMenu",
+    "FSubMenu",
+    "FMenuItem",
+    "FSteps",
+    "FStep",
+    "FTooltip",
+    "FAlert",
+    "FCalendar",
+    "FRate",
+  ].filter((item) => html.indexOf(item) > -1);
+}
 
 /**
  * 组装Template代码
@@ -579,7 +623,20 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
   formConfig.fields.forEach((el) => {
-    if (!['table', 'pagination', 'dialog', 'menu', 'tabs', 'steps', 'progress','alert','tooltip','calendar'].includes(el.type)) {
+    if (
+      ![
+        "table",
+        "pagination",
+        "dialog",
+        "menu",
+        "tabs",
+        "steps",
+        "progress",
+        "alert",
+        "tooltip",
+        "calendar",
+      ].includes(el.type)
+    ) {
       if (el.__config__.layout) {
         formItemList.push(layouts[el.__config__.layout](el));
       }
@@ -613,7 +670,7 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
     html: temp,
     info: {
       usedComponents: getUsedComp(temp),
-      ...metaInfo
+      ...metaInfo,
     },
   };
 }

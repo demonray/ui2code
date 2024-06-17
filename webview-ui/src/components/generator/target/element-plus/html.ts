@@ -281,23 +281,23 @@ const tags: TagTemplate = {
 
     return `<${tag} ${typeAttr} ${vModel} ${format} ${valueFormat} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${readonly} ${disabled}></${tag}>`;
   },
-  //   "el-rate": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel } = attrBuilder(el);
-  //     const max = el.max ? `:max='${el.max}'` : "";
-  //     const allowHalf = el["allow-half"] ? "allow-half" : "";
-  //     const showText = el["show-text"] ? "show-text" : "";
-  //     const showScore = el["show-score"] ? "show-score" : "";
+    "el-rate": (el: ComponentItemJson) => {
+      const { tag, disabled, vModel } = attrBuilder(el);
+      const max = el.max ? `:max='${el.max}'` : "";
+      const allowHalf = el["allow-half"] ? "allow-half" : "";
+      const showText = el["show-text"] ? "show-text" : "";
+      const showScore = el["show-score"] ? "show-score" : "";
 
-  //     return `<${tag} ${vModel} ${max} ${allowHalf} ${showText} ${showScore} ${disabled}></${tag}>`;
-  //   },
-  //   "el-color-picker": (el: ComponentItemJson) => {
-  //     const { tag, disabled, vModel } = attrBuilder(el);
-  //     const size = `size="${el.size}"`;
-  //     const showAlpha = el["show-alpha"] ? "show-alpha" : "";
-  //     const colorFormat = el["color-format"] ? `color-format="${el["color-format"]}"` : "";
+      return `<${tag} ${vModel} ${max} ${allowHalf} ${showText} ${showScore} ${disabled}></${tag}>`;
+    },
+    "el-color-picker": (el: ComponentItemJson) => {
+      const { tag, disabled, vModel } = attrBuilder(el);
+      const size = `size="${el.size}"`;
+      const showAlpha = el["show-alpha"] ? "show-alpha" : "";
+      const colorFormat = el["color-format"] ? `color-format="${el["color-format"]}"` : "";
 
-  //     return `<${tag} ${vModel} ${size} ${showAlpha} ${colorFormat} ${disabled}></${tag}>`;
-  //   },
+      return `<${tag} ${vModel} ${size} ${showAlpha} ${colorFormat} ${disabled}></${tag}>`;
+    },
   //   "el-upload": (el: ComponentItemJson) => {
   //     const { tag } = el.__config__;
   //     const disabled = el.disabled ? ":disabled='true'" : "";

@@ -1,8 +1,8 @@
-import { resolveComponent, h, defineComponent, type PropType, type ComponentOptions } from "vue";
+import { resolveComponent, h, defineComponent, type PropType, type ComponentOptions, type VNode } from "vue";
 import draggable from "vuedraggable";
 import { renderChildrenItem, type ItemOpts } from "../../DraggableItem";
-type resultInfo = { options: Object; child: Array<any> | string };
-type resolveComponentChild = (conf: ComponentItemJson, opts?: ItemOpts) => Array<any> | string;
+type resultInfo = { options: Object; child: Array<any> | string | VNode };
+type resolveComponentChild = (conf: ComponentItemJson, opts?: ItemOpts) => Array<any> | string | VNode;
 type resolveComponentOption = (conf: ComponentItemJson, opts?: ItemOpts) => object;
 interface pluginInfoType {
   getChild: resolveComponentChild;
@@ -58,6 +58,12 @@ function makeDataObj(conf: ComponentItemJson): object {
       options.data = conf.data;
       options.border = conf.__config__.border;
       break;
+    case "tree":
+      options.data = conf.data;
+      options.props = conf.__config__.props;
+      options["show-checkbox"] = conf.__config__["show-checkbox"];
+      options["node-key"] = conf.__config__["node-key"];
+      break;
     case "menu":
       options.mode = conf.__config__.mode;
       options["default-active"] = "0";
@@ -109,7 +115,10 @@ function makeDataObj(conf: ComponentItemJson): object {
       options["show-icon"] = conf["show-icon"];
       break;
     case "calendar":
-      options.type = conf.__config__.type;
+      // options.type = conf.__config__.type;
+      break;
+    case "badge":
+      options.value = conf.data || '';
       break;
     case "rate":
       options.clearable = conf.clearable;
@@ -267,10 +276,24 @@ class TooltipPlugin implements pluginInfoType {
 class TimelinePlugin implements pluginInfoType {
   getChild(conf: ComponentItemJson): Array<any> | string {
     return (conf.__slot__?.options || []).map((item: OptionItem) => {
-      return h(resolveComponent("el-timeline-item"), {
-        timestamp: item.value
-      }, item.label || item.value);
+      return h(
+        resolveComponent("el-timeline-item"),
+        {
+          timestamp: item.value,
+        },
+        item.label || item.value
+      );
     });
+  }
+}
+
+class BadgePlugin implements pluginInfoType {
+  getChild(conf: ComponentItemJson): VNode {
+    return h(
+      resolveComponent("el-button"),
+      {},
+      conf.__slot__ && conf.__slot__.default ? conf.__slot__.default : ""
+    );
   }
 }
 
@@ -285,4 +308,5 @@ renderChildClass
   .addPlugin("steps", new stepsPlugin())
   .addPlugin("timeline", new TimelinePlugin())
   .addPlugin("breadcrumb", new BreadcrumbPlugin())
-  .addPlugin("tooltip", new TooltipPlugin());
+  .addPlugin("tooltip", new TooltipPlugin())
+  .addPlugin("badge", new BadgePlugin());
