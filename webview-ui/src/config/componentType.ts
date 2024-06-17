@@ -265,42 +265,6 @@ export const selectComponents: ComponentItemJson[] = [
     readonly: false,
     type: "daterange",
   },
-  {
-    __config__: {
-      label: "树形选择",
-      showLabel: true,
-      labelWidth: null,
-      tag: "el-tree-select",
-      tagIcon: "tree-select",
-      layout: "colItem",
-      span: 24,
-      required: true,
-      regList: [],
-      changeTag: true,
-    },
-    placeholder: "请选择",
-    disabled: false,
-    readonly: false,
-    type: "tree",
-    // data: [
-    //   {
-    //     value: '1',
-    //     label: 'Level one 1',
-    //     children: [
-    //       {
-    //         value: '1-1',
-    //         label: 'Level two 1-1',
-    //         children: [
-    //           {
-    //             value: '1-1-1',
-    //             label: 'Level three 1-1-1',
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //   },
-    // ],
-  },
 ];
 
 // 布局型组件 【左面板】
@@ -515,6 +479,9 @@ export const layoutComponents: ComponentItemJson[] = [
       type: "primary",
       span: 24,
       layout: "raw",
+      direction: "column",
+      titlePosition: "end",
+      descPosition: "under",
     },
     __slot__: {
       options: [
@@ -591,6 +558,47 @@ export const layoutComponents: ComponentItemJson[] = [
     "show-text": false,
     "texts": ["极差", "失望", "一般", "满意", "惊喜"],
   },
+  {
+    __config__: {
+      "label": "树形控件",
+      "showLabel": false,
+      "labelWidth": null,
+      "tag": "el-tree",
+      "tagIcon": "tree",
+      "layout": "raw",
+      "span": 24,
+      "changeTag": true,
+      "show-checkbox": true,
+      "props": {
+        children: "children",
+        label: "label",
+        disabled: "disabled",
+      },
+      "node-key": "value",
+    },
+    placeholder: "",
+    disabled: false,
+    readonly: false,
+    type: "tree",
+    data: [
+      {
+        value: "1",
+        label: "Level one 1",
+        children: [
+          {
+            value: "1-1",
+            label: "Level two 1-1",
+            children: [
+              {
+                value: "1-1-1",
+                label: "Level three 1-1-1",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // 信息反馈型组件 【左面板】
@@ -628,6 +636,20 @@ export const infoFeedbackComponents: ComponentItemJson[] = [
     title: "常规信息提示内容",
     effect: "light",
   },
+  {
+    __config__: {
+      label: "Badge徽章",
+      layout: "raw",
+      tag: "el-badge",
+      tagIcon: "badge",
+      span: 24,
+      type: "success",
+      changeTag: true,
+    },
+    __slot__: {
+      default: "dddd",
+    },
+    data: "99",
+    type: "badge",
+  },
 ];
-
-// badge、timeline

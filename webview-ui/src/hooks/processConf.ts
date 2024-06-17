@@ -267,6 +267,18 @@ function makeAlertConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
   return conf;
 }
 
+function makeCalendarConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  
+  return conf;
+}
+
+function makeBadgeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  if (it.textMatched && it.textMatched.in && conf.__slot__) {
+    conf.__slot__.default = textResults[it.textMatched.in?.index].text;
+  }
+  return conf;
+}
+
 function makeRateConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
@@ -395,32 +407,45 @@ function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[
   }
   return conf;
 }
-function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-  console.log("makeDefaultConf: ", conf, it, textResults);
-  // todo
-  return conf;
-}
+
 function makeTimelineConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-    if (it.textMatched && it.textMatched.in) {
-        let timeOptions: any = [];
-        if (it.textMatched.in.texts?.length) {
-          timeOptions = it.textMatched.in.texts.map(
-            (it: TextItem, index: number) => {
-              // todo 数据分组识别出节点文本 timestamp 和 content
-              return {
-                label: it.text,
-                value: `${index + 1}`,
-              };
-            }
-          );
-        }
-        if (timeOptions.length && conf.__slot__ && conf.__slot__.options) {
-          conf.__slot__.options = timeOptions;
-        }
-      }
+  if (it.textMatched && it.textMatched.in) {
+    let timeOptions: any = [];
+    if (it.textMatched.in.texts?.length) {
+      timeOptions = it.textMatched.in.texts.map((it: TextItem, index: number) => {
+        // todo 数据分组识别出节点文本 timestamp 和 content
+        return {
+          label: it.text,
+          value: `${index + 1}`,
+        };
+      });
+    }
+    if (timeOptions.length && conf.__slot__ && conf.__slot__.options) {
+      conf.__slot__.options = timeOptions;
+    }
+  }
   return conf;
 }
+
 function makeTreeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  if (it.textMatched && it.textMatched.in) {
+    let datalist: any = [];
+    if (it.textMatched.in.texts?.length) {
+      it.textMatched.in.texts.forEach((it: TextItem) => {
+        datalist.push({
+          label: it.text,
+          // children: [] // 根据缩进 识别数据？
+        });
+      });
+    }
+    if (datalist.length) {
+      conf.data = datalist;
+    }
+  }
+  return conf;
+}
+
+function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
   console.log("makeDefaultConf: ", conf, it, textResults);
   // todo
   return conf;
@@ -509,7 +534,13 @@ export default function processConf(it: UiItem, textResults: TextItem[]) {
     case "alert":
       conf = makeAlertConf(conf, it, textResults);
       break;
-    default: // todo 各自处理row、dialog、tooltip、calendar、badge
+    case "badge":
+      conf = makeBadgeConf(conf, it, textResults);
+      break;
+    case "calendar":
+      conf = makeCalendarConf(conf, it, textResults);
+      break;
+    default: // todo 各自处理row、dialog、tooltip
       conf = makeDefaultConf(conf, it, textResults);
       break;
   }

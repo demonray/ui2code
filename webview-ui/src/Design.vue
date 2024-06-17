@@ -73,35 +73,28 @@
         </el-button>
       </div>
       <el-scrollbar class="center-scrollbar">
-        <el-row class="center-board-row" :gutter="formConf.gutter">
-          <el-form
-            :size="formConf.size"
-            :label-position="formConf.labelPosition"
-            :disabled="formConf.disabled"
-            :label-width="formConf.labelWidth + 'px'"
+        <!-- <el-row class="center-board-row" :gutter="formConf.gutter"> -->
+          <draggable
+            class="drawing-board"
+            :list="drawingList"
+            item-key="guid"
+            :animation="340"
+            group="componentsGroup"
           >
-            <draggable
-              class="drawing-board"
-              :list="drawingList"
-              item-key="guid"
-              :animation="340"
-              group="componentsGroup"
-            >
-              <template #item="{ element }">
-                <draggable-item
-                  :current-item="element"
-                  :active-id="activeItemId"
-                  @active-item="activeItem"
-                  @copy-item="drawingItemCopy"
-                  @delete-item="drawingItemDelete"
-                />
-              </template>
-            </draggable>
-            <div v-show="!drawingList.length" class="empty-info">
-              从左侧拖入或点选组件进行表单设计
-            </div>
-          </el-form>
-        </el-row>
+            <template #item="{ element }">
+              <draggable-item
+                :current-item="element"
+                :active-id="activeItemId"
+                @active-item="activeItem"
+                @copy-item="drawingItemCopy"
+                @delete-item="drawingItemDelete"
+              />
+            </template>
+          </draggable>
+          <div v-show="!drawingList.length" class="empty-info">
+            从左侧拖入或点选组件进行表单设计
+          </div>
+        <!-- </el-row> -->
       </el-scrollbar>
     </div>
 
@@ -236,7 +229,7 @@ function initDrawingList(json: DesignJson) {
   for (let i = 0; i < json.fields.length; i++) {
     // guid
     json.fields[i].guid = json.fields[i].guid || guid();
-    // 同一行判断
+    // todo 应当根据版面分析进行结构补充
     if (json.fields[i].uiItem.y - lastRowY < DetectConfig.RowThreshold && lastRowY) {
       lastRow.push(json.fields[i]);
     } else {

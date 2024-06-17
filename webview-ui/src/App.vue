@@ -5,13 +5,13 @@ import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Preview from "./Preview.vue";
 import DetectResult from "./DetectResult.vue";
-import { TextOcr } from "./hooks/useDetectService";
+// import { TextOcr } from "./hooks/useDetectService";
 import { detect, generateUIList } from "./lib";
 
 //@ts-ignore
-import uiResult from "../test_images/tab_ui";
+import uiResult from "../test_images/tablepage_ui";
 //@ts-ignore
-import textRes from "../test_images/tab_text";
+import textRes from "../test_images/tablepage_text";
 
 let designJson: DesignJson = reactive({
   fields: [],
@@ -35,7 +35,7 @@ function onUpload(uploadFile: UploadFile) {
   status.value = "识别中，请稍候...";
   detect(uploadFile.raw as File).then(({ fields, metaInfo }) => {
     status.value = "";
-    designPreview.value = 3;
+    // designPreview.value = 3;
     designJson.fields = fields;
     designJson.metaInfo = metaInfo;
   });
@@ -76,17 +76,17 @@ window.addEventListener("message", (event) => {
 });
 
 //// for dev test
-// generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
-//   designPreview.value = 3;
-//   designJson.fields = fields;
-//   designJson.metaInfo = {
-//     imageRes: {
-//       ui: uiResult.result,
-//       text: textRes,
-//     },
-//     ...metaInfo,
-//   };
-// });
+generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
+  // designPreview.value = 3;
+  designJson.fields = fields;
+  designJson.metaInfo = {
+    imageRes: {
+      ui: uiResult.result,
+      text: textRes,
+    },
+    ...metaInfo,
+  };
+});
 
 function onPreview(params: SandboxTemplateConfig) {
   designPreview.value = 2;
@@ -97,10 +97,10 @@ function back() {
 }
 function download() {}
 onMounted(() => {
-  status.value = "模型加载中..."
-  TextOcr.loadModel(() => {
-    status.value = ""
-  })
+//   status.value = "模型加载中..."
+//   TextOcr.loadModel(() => {
+//     status.value = ""
+//   })
 })
 </script>
 
