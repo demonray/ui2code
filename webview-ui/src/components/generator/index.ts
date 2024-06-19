@@ -11,7 +11,7 @@ export type SaveConfig = {
 
 type LibInterface = {
   // 生成目标组件库代码
-  generateCode: (data: FormConf, type: string, metaInfo: any) => string;
+  generateCode: (data: FormConf, type: SaveConfig["type"], metaInfo: any) => string;
   // 生成sanbbox预览文件
   getSandboxTpl: (code: string, local: boolean) => string | SandboxTemplateConfig;
   getPlaygoundUrl?: (code: string) => string;
@@ -31,7 +31,7 @@ const map: {
  * @param lib
  * @returns
  */
-export function generateCode(data: FormConf, type: string, lib: LibType, metaInfo: any): string {
+export function generateCode(data: FormConf, type: SaveConfig["type"], lib: LibType, metaInfo: any): string {
   if (map[lib]) {
     return map[lib].generateCode(data, type, metaInfo);
   }

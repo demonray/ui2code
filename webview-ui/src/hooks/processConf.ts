@@ -460,7 +460,7 @@ function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextI
  */
 export default function processConf(it: UiItem, textResults: TextItem[]) {
   let conf = findComponentConf(it.type);
-  console.log("findComponentConf:", it.type, conf);
+  // console.log("findComponentConf:", it.type, conf);
   switch (it.type) {
     case "table":
       // todo uiResults是否有分页组件

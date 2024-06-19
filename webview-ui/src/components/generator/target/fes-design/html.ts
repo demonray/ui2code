@@ -59,7 +59,36 @@ type TagTemplate = {
   [propName: string]: (el: ComponentItemJson, params?: any) => string;
 };
 
+function genElementTplStr(el: ComponentItemJson) {
+  if (el.__config__.children && ["el-row", "el-col"].includes(el.__config__.tag)) {
+    return el.__config__.children
+      .map((it: ComponentItemJson) => {
+        return tags[it.__config__.tag](it);
+      })
+      .join("\n");
+  } else {
+    return tags[el.__config__.tag](el);
+  }
+}
+
 const tags: TagTemplate = {
+  "el-row": (el: ComponentItemJson) => {
+    const tag = "FGrid";
+    const align = el.align ? `align="${el.align}"` : "";
+    const justify = el.justify ? `justify="${el.justify}"` : "";
+    const gutter = el.gutter ? `:gutter=${el.gutter}` : "";
+    let child = genElementTplStr(el);
+
+    if (child) child = `\n${child}\n`; // 换行
+    return `<${tag} ${align} ${gutter} >${child}</${tag}>`;
+  },
+  "el-col": (el: ComponentItemJson) => {
+    const tag = "FGridItem";
+    const span = el.__config__.span ? `span="${el.__config__.span}"` : "";
+    let child = genElementTplStr(el);
+    if (child) child = `\n${child}\n`; // 换行
+    return `<${tag} ${span} >${child}</${tag}>`;
+  },
   "el-badge": (el: ComponentItemJson) => {
     const tag = "FBadge";
     const { type } = attrBuilder(el);
@@ -124,7 +153,7 @@ const tags: TagTemplate = {
     const data = `:data="${el.__vModel__}"`;
     // selectable
     // draggable
-    const checkable = el.__config__['show-checkbox'] ? 'checkable' : ''
+    const checkable = el.__config__["show-checkbox"] ? "checkable" : "";
     return `<${tag} ${data} ${checkable}></${tag}>`;
   },
   "el-radio-group": (el: ComponentItemJson) => {
@@ -619,45 +648,53 @@ export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeH
   metaInfo = info;
   const formItemList: string[] = [];
   confGlobal = formConfig;
+  console.log(formConfig.fields);
   // 遍历渲染每个组件成html
   // 默认table, pagination组件不在form里
   const htmlList: string[] = [];
-  formConfig.fields.forEach((el) => {
-    if (
-      ![
-        "table",
-        "pagination",
-        "dialog",
-        "menu",
-        "tabs",
-        "steps",
-        "progress",
-        "alert",
-        "tooltip",
-        "calendar",
-      ].includes(el.type)
-    ) {
-      if (el.__config__.layout) {
-        formItemList.push(layouts[el.__config__.layout](el));
-      }
-    } else {
-      if (el.__config__.layout) {
-        htmlList.push(layouts[el.__config__.layout](el));
-      }
-    }
-  });
+  //   formConfig.fields.forEach((el) => {
+  //     if (
+  //       ![
+  //         "table",
+  //         "pagination",
+  //         "dialog",
+  //         "menu",
+  //         "tabs",
+  //         "steps",
+  //         "progress",
+  //         "alert",
+  //         "tooltip",
+  //         "calendar",
+  //       ].includes(el.type)
+  //     ) {
+  //       if (el.__config__.layout) {
+  //         formItemList.push(layouts[el.__config__.layout](el));
+  //       }
+  //     } else {
+  //       if (el.__config__.layout) {
+  //         htmlList.push(layouts[el.__config__.layout](el));
+  //       }
+  //     }
+  //   });
+
+  //   let temp = "";
+  //   const itemStr = formItemList.join("\n");
+  //   const htmlStr = htmlList.join("\n");
+  // 将组件代码放进form标签
+  //   if (formItemList.length) {
+  //     temp = buildFormTemplate(formConfig, itemStr, type);
+  //   }
+  //   if (htmlList.length) {
+  //     temp = temp + htmlStr;
+  //   }
+  // dialog标签包裹代码
 
   let temp = "";
-  const itemStr = formItemList.join("\n");
-  const htmlStr = htmlList.join("\n");
-  // 将组件代码放进form标签
-  if (formItemList.length) {
-    temp = buildFormTemplate(formConfig, itemStr, type);
-  }
-  if (htmlList.length) {
-    temp = temp + htmlStr;
-  }
-  // dialog标签包裹代码
+  temp = formConfig.fields
+    .map((el) => {
+      return tags[el.__config__.tag](el);
+    })
+    .join("\n");
   if (type === "dialog") {
     temp = dialogWrapper(temp);
   }

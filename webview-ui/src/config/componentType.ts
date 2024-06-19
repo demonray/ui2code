@@ -278,9 +278,20 @@ export const layoutComponents: ComponentItemJson[] = [
       children: [],
     },
     type: "row",
-    justify: "start",
-    align: "top",
+    justify: "'flex-start",
+    align: "'flex-start",
     gutter: "20",
+  },
+  {
+    __config__: {
+      layout: "colItem",
+      tagIcon: "col",
+      label: "列容器",
+      tag: "el-col",
+      children: [],
+      span: "24",
+    },
+    type: "col",
   },
   {
     __config__: {

@@ -74,26 +74,24 @@
       </div>
       <el-scrollbar class="center-scrollbar">
         <!-- <el-row class="center-board-row" :gutter="formConf.gutter"> -->
-          <draggable
-            class="drawing-board"
-            :list="drawingList"
-            item-key="guid"
-            :animation="340"
-            group="componentsGroup"
-          >
-            <template #item="{ element }">
-              <draggable-item
-                :current-item="element"
-                :active-id="activeItemId"
-                @active-item="activeItem"
-                @copy-item="drawingItemCopy"
-                @delete-item="drawingItemDelete"
-              />
-            </template>
-          </draggable>
-          <div v-show="!drawingList.length" class="empty-info">
-            从左侧拖入或点选组件进行表单设计
-          </div>
+        <draggable
+          class="drawing-board"
+          :list="drawingList"
+          item-key="guid"
+          :animation="340"
+          group="componentsGroup"
+        >
+          <template #item="{ element }">
+            <draggable-item
+              :current-item="element"
+              :active-id="activeItemId"
+              @active-item="activeItem"
+              @copy-item="drawingItemCopy"
+              @delete-item="drawingItemDelete"
+            />
+          </template>
+        </draggable>
+        <div v-show="!drawingList.length" class="empty-info">从左侧拖入或点选组件进行表单设计</div>
         <!-- </el-row> -->
       </el-scrollbar>
     </div>
@@ -221,44 +219,155 @@ watch(props.json, (v) => {
   initDrawingList(v);
 });
 
+type UiCompRange = [number, number, number, number, number];
+
+/** 找到最大的组件 */
+function findMax(arr: UiCompRange[], type: "w" | "h") {
+  if (arr.length === 0) {
+    return -1;
+  }
+  let max = type == "h" ? arr[0][3] - arr[0][2] : arr[0][1] - arr[0][0];
+  let maxIndex = 0;
+  for (let i = 0; i < arr.length; i++) {
+    let size = type == "h" ? arr[i][3] - arr[i][2] : arr[i][1] - arr[i][0];
+    if (size > max) {
+      max = size;
+      maxIndex = i;
+    }
+  }
+  return maxIndex;
+}
+
+/**
+ * 根据识别出的组件json数据，补充组件guid，分析结构，重组数据
+ * @param json
+ */
 function initDrawingList(json: DesignJson) {
   drawingList.length = 0;
-  let rows = [];
-  let lastRow: ComponentItemJson[] = [];
-  let lastRowY = 0;
+  //   let rows: ComponentItemJson[] = [];
+  // 分析页面结构，先识别行，然后再识别列
+
+  let rows: UiCompRange[][] = [];
+  let ranges: UiCompRange[] = [];
+  let cols: UiCompRange[][] = [];
+
   for (let i = 0; i < json.fields.length; i++) {
-    // guid
     json.fields[i].guid = json.fields[i].guid || guid();
-    // todo 应当根据版面分析进行结构补充
-    if (json.fields[i].uiItem.y - lastRowY < DetectConfig.RowThreshold && lastRowY) {
-      lastRow.push(json.fields[i]);
-    } else {
-      lastRowY = json.fields[i].uiItem.y;
-      lastRow = [json.fields[i]];
-      rows.push(lastRow);
-    }
-    lastRow.sort((a, b) => a.uiItem.x - b.uiItem.x);
+    const { x, y, w, h } = json.fields[i].uiItem;
+    ranges.push([x - w / 2, x + w / 2, y - h / 2, y + h / 2, i]);
   }
-  rows = rows.map((rowItems) => {
-    if (rowItems.length > 1) {
-      let row = layoutComponents.find((it) => it.type === "row") as ComponentItemJson;
-      if (row) {
-        row = deepClone(row);
-        // 根据组件宽度占比计算span
-        let allWidth = 0;
-        rowItems.forEach((it) => {
-          allWidth += it.uiItem.w;
-        });
-        rowItems.forEach((it) => {
-          it.__config__.span = Math.floor((it.uiItem.w / allWidth) * 24);
-        });
-        row.__config__.children = [...rowItems];
-        rowItems = [row];
+
+  /**
+   * 从最高的组件开始，行分组数据
+   */
+  function rowSplit(ranges: UiCompRange[]) {
+    let maxIndex = findMax(ranges, "h");
+    let max = ranges[maxIndex];
+    if (maxIndex > -1) {
+      rows.push([]);
+      rows[rows.length - 1].push(ranges[maxIndex]);
+      ranges.splice(maxIndex, 1);
+    }
+    for (let j = ranges.length - 1; j >= 0; j--) {
+      if (ranges[j][3] < max[2] || ranges[j][2] > max[3]) {
+        // 区域外
+      } else {
+        rows[rows.length - 1].push(ranges[j]);
+        ranges.splice(j, 1);
       }
     }
-    return rowItems[0];
+
+    if (ranges.length > 0) {
+      rowSplit(ranges);
+    }
+  }
+
+  /**
+   * 从最宽的组件开始，识别列分组
+   */
+  function colSplit(ranges: UiCompRange[]) {
+    let maxIndex = findMax(ranges, "w");
+    let max = ranges[maxIndex];
+    if (maxIndex > -1) {
+      cols.push([]);
+      cols[cols.length - 1].push(ranges[maxIndex]);
+      ranges.splice(maxIndex, 1);
+    }
+    for (let j = ranges.length - 1; j >= 0; j--) {
+      if (ranges[j][1] < max[0] || ranges[j][0] > max[1]) {
+        // 区域外
+      } else {
+        cols[cols.length - 1].push(ranges[j]);
+        ranges.splice(j, 1);
+      }
+    }
+
+    if (ranges.length > 0) {
+      colSplit(ranges);
+    }
+  }
+
+  rowSplit(ranges);
+
+  // 行排序
+  rows.sort((a, b) => {
+    return a[0][2] > b[0][2] ? 1 : -1;
   });
-  drawingList.push(...rows);
+
+  const rowsData = rows.map((row) => {
+    colSplit(row);
+    // 列排序
+    cols.sort((a, b) => {
+      return a[0][0] > a[0][0] ? 1 : -1;
+    });
+    // 行列单元格内排序
+    cols.forEach((col) => {
+      col.sort((a, b) => {
+        return a[2] > b[2] ? 1 : -1;
+      });
+      // 组件Y值在误差范围内的算一行，按X排序
+      for (let i = 1; i < col.length; i++) {
+        if (col[i][2] - col[i - 1][2] < 10 && col[i][0] < col[i - 1][0]) {
+          const tmp = col[i];
+          col[i] = col[i - 1];
+          col[i - 1] = tmp;
+        }
+      }
+    });
+    return cols;
+  });
+
+  const list = rowsData.map((rowItem) => {
+    let row = layoutComponents.find((it) => it.type === "row") as ComponentItemJson;
+    row = deepClone(row);
+
+    if (rowItem.length > 1) {
+      // 多列
+         // 根据组件宽度占比计算span
+         let allWidth = 0;
+         rowItem.forEach((item) => {
+            const maxItemIdx = findMax(item, 'w')
+          allWidth += json.fields[maxItemIdx].uiItem.w
+        });
+     
+      row.__config__.children = rowItem.map((item) => {
+        let col = layoutComponents.find((it) => it.type === "col") as ComponentItemJson;
+        col = deepClone(col);
+        const maxItemIdx = findMax(item, 'w')
+        const colWidth = json.fields[maxItemIdx].uiItem.w
+        col.__config__.span = Math.floor((colWidth / allWidth) * 24);
+        col.__config__.children = item.map((colItem) => {
+          return json.fields[colItem[4]];
+        });
+        return col;
+        // return item.map((colItem) => {
+        //   return json.fields[colItem[4]];
+        // });
+      });
+    }
+    return row;
+  });
+  drawingList.push(...list);
 }
 
 onUnmounted(() => {});
@@ -402,7 +511,6 @@ function deleteItemFormList(list: Array<ComponentItemJson>, item: ComponentItemJ
       if (children) {
         const index = children.findIndex((it: ComponentItemJson) => it.guid === item.guid);
         if (index > -1) {
-          console.log(index);
           children.splice(index, 1);
           return true;
         }

@@ -19,6 +19,7 @@ declare global {
     | "pagination"
     | "dialog"
     | "row"
+    | "col"
     | "menu"
     | "tab"
     | "steps"
@@ -35,11 +36,11 @@ declare global {
 
   type CompItemConf = {
     label: string;
-    showLabel?: boolean;
     tag: string;
+    layout: "colItem" | "rowItem" | "raw";
+    showLabel?: boolean;
     defaultValue?: any;
     required?: boolean;
-    layout?: "colItem" | "rowItem" | "raw";
     [propName: string]: any;
   };
 

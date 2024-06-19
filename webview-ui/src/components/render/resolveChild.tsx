@@ -28,7 +28,7 @@ export default class renderChildClass {
     return this;
   }
   resolve(): resultInfo {
-    console.log(renderChildClass.plugins);
+    // console.log(renderChildClass.plugins);
     const defaultPluginInfo: pluginInfoType = renderChildClass.plugins.get(
       "default"
     ) as pluginInfoType;

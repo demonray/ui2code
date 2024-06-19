@@ -3,8 +3,10 @@ import { makeUpHtml } from "./html";
 import { makeUpJs } from "./js";
 import DetectConfig from "../../../../config";
 import { utoa } from "../../../../utilities/index";
+import type { SaveConfig } from "../../../../components/generator";
 
-function generateCode(data: FormConf, type: string, metaInfo: any): string {
+
+function generateCode(data: FormConf, type: SaveConfig["type"], metaInfo: any): string {
   const { html, info} = makeUpHtml(data, type, metaInfo);
   const script = makeUpJs(data, type, {html, info});
   return html + '\n' + script;
