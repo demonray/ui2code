@@ -279,14 +279,7 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
       methodList.push(`function handleCancel() {}`);
     }
   }
-  // table action
-  if (data.info.tableAction) {
-    data.info.tableAction.forEach((item: string) => {
-      dataList.push(`const ${item} = (index, row) => {
-            console.log(index, row)
-      }`);
-    });
-  }
+  
   if (formConfig.formBtns && type === "file") {
     if (data.info.usedComponents.includes("ElForm")) {
       methodList.push(`function submitForm() {

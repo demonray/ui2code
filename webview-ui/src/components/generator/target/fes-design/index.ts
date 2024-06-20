@@ -21,7 +21,6 @@ function getPlaygoundUrl(code: string) {
       libUrl = DetectConfig.playground;
     }
   }
-  code = code.replace("./lib/fes-design.js", "@fesjs/fes-design");
   code += `<style>
   @import url('${libUrl}fes-design/dist/fes-design.css')
   </style>`;

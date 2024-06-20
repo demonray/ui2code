@@ -426,8 +426,8 @@ function previewSandbox() {
  */
 function generateVmodel(childrenList: Array<ComponentItemJson>, preStr: string) {
   childrenList.forEach((child: ComponentItemJson, idx: number) => {
-    const modelStr = `${preStr}_${idx}`;
-    if (hasVmodel(child.type)) {
+    const modelStr = `${preStr}_${idx}`; // todo
+    if (hasVmodel(child)) {
       child.__vModel__ = modelStr;
     }
     if (child.__config__.children && child.__config__.children.length) {
@@ -448,7 +448,7 @@ function generateVmodel(childrenList: Array<ComponentItemJson>, preStr: string) 
 function generate(): string {
   const { type, targetlib } = saveType;
   drawingList.forEach((it, index) => {
-    if (hasVmodel(it.type)) {
+    if (hasVmodel(it)) {
       it.__vModel__ = `field_${index}`;
     }
     if (it.__config__.children) {
@@ -574,7 +574,7 @@ function tagChange(newTag: ComponentItemJson, type: string = "") {
     newTag = cloneComponent(newTag);
     const config = newTag.__config__;
     if (activeData.data) {
-      newTag.__vModel__ = hasVmodel(newTag.type) ? activeData.data.__vModel__ : undefined;
+      newTag.__vModel__ = hasVmodel(newTag) ? activeData.data.__vModel__ : undefined;
       config.span = activeData.data.__config__.span;
       activeData.data.__config__.tag = config.tag;
       activeData.data.__config__.tagIcon = config.tagIcon;
@@ -608,8 +608,9 @@ function nextComp() {
   };
 }
 
-function hasVmodel(type: string) {
-  return !["button"].includes(type);
+// 判断组件是否要设置v-model 绑定数据，先通过是否给默认值来判断
+function hasVmodel(el: ComponentItemJson) {
+  return el.hasOwnProperty('data') || el.__config__.hasOwnProperty('defaultValue')
 }
 
 const isVscode = typeof acquireVsCodeApi === "function";

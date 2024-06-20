@@ -343,19 +343,13 @@ function buildElButtonChild(scheme: ComponentItemJson) {
 function buildElTableChild(scheme: ComponentItemJson) {
   let children: string[] = [];
   if (scheme.__config__.children) {
-    metaInfo.tableAction = [];
     children = scheme.__config__.children.map((it: ComponentItemJson) => {
       const prop = it.prop ? `prop="${it.prop}"` : "";
       const label = it.label ? `label="${it.label}"` : "";
       // todo 操作 等特殊列 判断条件
       if (it.label.trim() == "操作") {
         let actionBtn = "";
-        if (metaInfo.actionLabels) {
-          metaInfo.actionLabels.forEach((it: string, idx: number) => {
-            metaInfo.tableAction.push(`${scheme.__vModel__}_colAction_${idx}`);
-            actionBtn += `<el-button link type="primary" size="small" @click="${scheme.__vModel__}_colAction_${idx}(scope.$index,scope.row)">${it}</el-button>`;
-          });
-        }
+       
         return `<${it.__config__.tag} ${label}>
           <template #default="scope">
             ${actionBtn}

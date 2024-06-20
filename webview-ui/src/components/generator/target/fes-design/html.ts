@@ -3,58 +3,6 @@ import ruleTrigger from "./ruleTrigger";
 let confGlobal: FormConf | null = null;
 let metaInfo: { [index: string]: any } = {};
 
-function colWrapper(scheme: ComponentItemJson, str: string) {
-  return `<FGridItem :span="${scheme.__config__.span}">
-    ${str}
-</FGridItem>`;
-}
-
-const layouts = {
-  colItem(scheme: ComponentItemJson) {
-    const config = scheme.__config__;
-    let labelWidth = "";
-    let label = `label="${config.label}"`;
-    if (confGlobal && config.labelWidth && config.labelWidth !== confGlobal.labelWidth) {
-      labelWidth = `label-width="${config.labelWidth}px"`;
-    }
-    if (config.showLabel === false) {
-      labelWidth = 'label-width="0"';
-      label = "";
-    }
-    const required = config.tag && !ruleTrigger[config.tag] && config.required ? "required" : "";
-    const tagDom = config.tag && tags[config.tag] ? tags[config.tag](scheme) : null;
-    // todo not form item
-    let str = `<FFormItem ${labelWidth} ${label} prop="${scheme.__vModel__}" ${required}>
-            ${tagDom}
-          </FFormItem>`;
-    return str;
-  },
-  rowItem(scheme: ComponentItemJson) {
-    const config = scheme.__config__;
-    const tag = "FGrid";
-    const type = scheme.type === "default" ? "" : `type="${scheme.type}"`;
-    const justify = scheme.type === "default" ? "" : `justify="${scheme.justify}"`;
-    const align = scheme.type === "default" ? "" : `align="${scheme.align}"`;
-    const gutter = scheme.gutter ? `:gutter="${scheme.gutter}"` : "";
-    const children = config.children.map((el: ComponentItemJson) => {
-      let str = el.__config__.layout ? layouts[el.__config__.layout](el) : "";
-      if (str.indexOf("<FGridItem") !== 0) {
-        str = colWrapper(el, str);
-      }
-      return str;
-    });
-    let str = `<${tag} ${type} ${justify} ${align} ${gutter}>
-          ${children.join("\n")}
-        </${tag}>`;
-    return str;
-  },
-  raw(scheme: ComponentItemJson) {
-    const config = scheme.__config__;
-    const tagDom = config.tag && tags[config.tag] ? tags[config.tag](scheme) : "";
-    return tagDom;
-  },
-};
-
 type TagTemplate = {
   [propName: string]: (el: ComponentItemJson, params?: any) => string;
 };
@@ -84,7 +32,7 @@ const tags: TagTemplate = {
   },
   "el-col": (el: ComponentItemJson) => {
     const tag = "FGridItem";
-    const span = el.__config__.span ? `span="${el.__config__.span}"` : "";
+    const span = el.__config__.span ? `:span="${el.__config__.span}"` : "";
     let child = genElementTplStr(el);
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${span} >${child}</${tag}>`;
@@ -201,9 +149,9 @@ const tags: TagTemplate = {
     return `<FTable ${border} ${data}>${child}</FTable>`;
   },
   "el-pagination": (el: ComponentItemJson) => {
-    const data = `:page-size="${el.__vModel__}PageSize" :current-page="${el.__vModel__}currentPage"`;
-    const total = `:total-count="${el.__vModel__}Total"`;
-    const change = `@change="handleChange${el.__vModel__}"`;
+    const data = `:page-size="pageSize" :current-page="currentPage"`;
+    const total = `:total-count="total"`;
+    const change = `@change="handleChange"`;
     let layoutItems = "";
     if (el.__config__.layoutItems) {
       layoutItems += el.__config__.layoutItems.includes("jumper") ? "showQuickJumper " : "";
@@ -215,7 +163,7 @@ const tags: TagTemplate = {
   "el-dialog": (el: ComponentItemJson) => {
     const { title, footer, okText, cancelText } = el.__config__;
     let children = el.__config__.children.map((el: ComponentItemJson) => {
-      return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+      return genElementTplStr(el);
     });
     // todo 是否需要form包裹
     children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), "dialog");
@@ -431,7 +379,8 @@ function buildElTableChild(scheme: ComponentItemJson) {
       const label = it.label ? `label="${it.label}"` : "";
       let action = "";
       // todo 操作 等特殊列 判断条件
-      if (it.label.trim() == "操作") {
+      if (it.__config__.actionLabels) {
+        metaInfo.actionLabels = it.__config__.actionLabels;
         metaInfo.talbeAction = `${scheme.__vModel__}_col_${index}_actions`;
         action = `:action="${scheme.__vModel__}_col_${index}_actions"`;
       }
@@ -526,7 +475,7 @@ function buildElTabsChild(scheme: ComponentItemJson) {
       let childrenComponet: string | Array<string> = [];
       if (item.childrenComponet && item.childrenComponet.length) {
         childrenComponet = item.childrenComponet.map((el: ComponentItemJson) => {
-          return el.__config__.layout ? layouts[el.__config__.layout](el) : "";
+          return genElementTplStr(el);
         });
         childrenComponet = buildFormTemplate(
           confGlobal as FormConf,
@@ -646,48 +595,10 @@ function getUsedComp(html: string) {
  */
 export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeHtmlResult {
   metaInfo = info;
-  const formItemList: string[] = [];
   confGlobal = formConfig;
   console.log(formConfig.fields);
-  // 遍历渲染每个组件成html
-  // 默认table, pagination组件不在form里
-  const htmlList: string[] = [];
-  //   formConfig.fields.forEach((el) => {
-  //     if (
-  //       ![
-  //         "table",
-  //         "pagination",
-  //         "dialog",
-  //         "menu",
-  //         "tabs",
-  //         "steps",
-  //         "progress",
-  //         "alert",
-  //         "tooltip",
-  //         "calendar",
-  //       ].includes(el.type)
-  //     ) {
-  //       if (el.__config__.layout) {
-  //         formItemList.push(layouts[el.__config__.layout](el));
-  //       }
-  //     } else {
-  //       if (el.__config__.layout) {
-  //         htmlList.push(layouts[el.__config__.layout](el));
-  //       }
-  //     }
-  //   });
 
-  //   let temp = "";
-  //   const itemStr = formItemList.join("\n");
-  //   const htmlStr = htmlList.join("\n");
-  // 将组件代码放进form标签
-  //   if (formItemList.length) {
-  //     temp = buildFormTemplate(formConfig, itemStr, type);
-  //   }
-  //   if (htmlList.length) {
-  //     temp = temp + htmlStr;
-  //   }
-  // dialog标签包裹代码
+  // todo dialog 默认用Form包裹可以配置不用Form
 
   let temp = "";
   temp = formConfig.fields

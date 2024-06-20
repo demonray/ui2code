@@ -50,23 +50,25 @@ function makeTableConf(conf: ComponentItemJson, data: StructureItem | string[][]
       if (index === 0) {
         // 第一行为表头
         conf.__config__.children = it.map((item, colIndex) => {
-          if (actionCol < 0 && item.indexOf("操作") > -1) {
+          let actionLabels;
+          if (actionCol < 0 && item.trim() == "操作") {
             actionCol = colIndex;
+            actionLabels = ["编辑", "删除"];
+            if (trs[1] && trs[1][actionCol] && trs[1][actionCol].trim()) {
+              actionLabels = trs[1][actionCol].trim().split(/\s/);
+            }
           }
           return {
             __config__: {
               layout: "raw",
               tag: "el-table-column",
+              actionLabels,
             },
             prop: `col_${colIndex}`,
             label: item,
           };
         });
       } else {
-        // todo 表格操作列
-        // if (!metaInfo.actionLabels && actionCol > -1) {
-        //   metaInfo.actionLabels = it[actionCol].trim().split(/\s/);
-        // }
         const obj: { [propName: string]: any } = {};
         it.forEach((item, colIndex) => {
           obj[`col_${colIndex}`] = item;
@@ -268,7 +270,6 @@ function makeAlertConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
 }
 
 function makeCalendarConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-  
   return conf;
 }
 

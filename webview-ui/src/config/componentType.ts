@@ -265,6 +265,82 @@ export const selectComponents: ComponentItemJson[] = [
     readonly: false,
     type: "daterange",
   },
+  {
+    __config__: {
+      label: "日历",
+      tag: "el-calendar",
+      tagIcon: "calendar",
+      span: 24,
+      layout: "raw",
+      defaultValue: Date.now(),
+      changeTag: true,
+    },
+    __slot__: {},
+    type: "calendar",
+  },
+  {
+    "__config__": {
+      label: "评分",
+      tag: "el-rate",
+      tagIcon: "rate",
+      span: 24,
+      layout: "colItem",
+      changeTag: true,
+      required: true,
+      showLabel: true,
+      labelWidth: null,
+      defaultValue: undefined,
+    },
+    "type": "rate",
+    "disabled": false,
+    "clearable": false,
+    "max": 5,
+    "size": "default",
+    "allow-half": false,
+    "show-text": false,
+    "texts": ["极差", "失望", "一般", "满意", "惊喜"],
+  },
+  {
+    __config__: {
+      "label": "树形控件",
+      "showLabel": false,
+      "labelWidth": null,
+      "tag": "el-tree",
+      "tagIcon": "tree",
+      "layout": "raw",
+      "span": 24,
+      "changeTag": true,
+      "show-checkbox": true,
+      "props": {
+        children: "children",
+        label: "label",
+        disabled: "disabled",
+      },
+      "node-key": "value",
+    },
+    placeholder: "",
+    disabled: false,
+    readonly: false,
+    type: "tree",
+    data: [
+      {
+        value: "1",
+        label: "Level one 1",
+        children: [
+          {
+            value: "1-1",
+            label: "Level two 1-1",
+            children: [
+              {
+                value: "1-1-1",
+                label: "Level three 1-1-1",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // 布局型组件 【左面板】
@@ -349,6 +425,7 @@ export const layoutComponents: ComponentItemJson[] = [
       title: "Dialog Titile",
       desc: "",
       show: false,
+      defaultValue: false,
       closable: true,
       footer: true,
       okText: "确定",
@@ -364,6 +441,7 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-menu",
       label: "菜单导航",
       children: [],
+      defaultValue: null,
       mode: "vertical",
     },
     __slot__: {
@@ -410,6 +488,7 @@ export const layoutComponents: ComponentItemJson[] = [
       position: "top",
       type: "card",
       editable: true,
+      defaultValue: null,
       children: [],
     },
     __slot__: {
@@ -534,81 +613,6 @@ export const layoutComponents: ComponentItemJson[] = [
     },
     type: "breadcrumb",
     separator: "/",
-  },
-  {
-    __config__: {
-      label: "日历",
-      tag: "el-calendar",
-      tagIcon: "calendar",
-      span: 24,
-      layout: "raw",
-      changeTag: true,
-    },
-    __slot__: {},
-    type: "calendar",
-  },
-  {
-    "__config__": {
-      label: "评分",
-      tag: "el-rate",
-      tagIcon: "rate",
-      span: 24,
-      layout: "colItem",
-      changeTag: true,
-      required: true,
-      showLabel: true,
-      labelWidth: null,
-      defaultValue: undefined,
-    },
-    "type": "rate",
-    "disabled": false,
-    "clearable": false,
-    "max": 5,
-    "size": "default",
-    "allow-half": false,
-    "show-text": false,
-    "texts": ["极差", "失望", "一般", "满意", "惊喜"],
-  },
-  {
-    __config__: {
-      "label": "树形控件",
-      "showLabel": false,
-      "labelWidth": null,
-      "tag": "el-tree",
-      "tagIcon": "tree",
-      "layout": "raw",
-      "span": 24,
-      "changeTag": true,
-      "show-checkbox": true,
-      "props": {
-        children: "children",
-        label: "label",
-        disabled: "disabled",
-      },
-      "node-key": "value",
-    },
-    placeholder: "",
-    disabled: false,
-    readonly: false,
-    type: "tree",
-    data: [
-      {
-        value: "1",
-        label: "Level one 1",
-        children: [
-          {
-            value: "1-1",
-            label: "Level two 1-1",
-            children: [
-              {
-                value: "1-1-1",
-                label: "Level three 1-1-1",
-              },
-            ],
-          },
-        ],
-      },
-    ],
   },
 ];
 

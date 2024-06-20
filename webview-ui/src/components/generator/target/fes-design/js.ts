@@ -19,8 +19,7 @@ function buildFetchDataMethod(
   const config = scheme.__config__;
   let str = "";
   str = `function ${methodName}(params) {
-          // 注意：this.$axios是通过app.config.globalProperties.$axios = axios挂载产生的
-          this.$axios({
+          axios({
             method: 'get',
             url: '${config.url}',
             params
@@ -35,14 +34,18 @@ function buildFetchDataMethod(
 }
 
 // 构建data
-function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: string[]) {
+function buildData(
+  scheme: ComponentItemJson,
+  dataList: string[],
+  formDataList: string[],
+  data: MakeHtmlResult
+) {
   const config = scheme.__config__;
-  if (scheme.__vModel__ === undefined) return;
   if (scheme.type === "pagination") {
     dataList.push(`
-    const ${scheme.__vModel__}PageSize = ref(10)
-    const ${scheme.__vModel__}currentPage = ref(1)
-    const ${scheme.__vModel__}Total = ref(20)
+    const pageSize = ref(10)
+    const currentPage = ref(1)
+    const total = ref(20)
     `);
   } else if (scheme.type === "table") {
     let str = "";
@@ -52,6 +55,20 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
       str = `const ${scheme.__vModel__} = reactive(
             ${JSON.stringify(scheme.data)}
         )`;
+    }
+    // table action
+    if (data.info.actionLabels) {
+      const labels = data.info.actionLabels.map((item: string) => {
+        return `{
+            label: "${item}",
+            func: (row) => {
+                console.log(row);
+            },
+        }`;
+      });
+      dataList.push(`const ${data.info.talbeAction} = [
+      ${labels.join(",")}
+    ];`);
     }
     dataList.push(str);
   } else if (scheme.type === "dialog") {
@@ -63,7 +80,7 @@ function buildData(scheme: ComponentItemJson, dataList: string[], formDataList: 
         ${JSON.stringify(scheme.data)}
       )`;
     dataList.push(str);
-  } else {
+  } else if(config.hasOwnProperty('defaultValue')) {
     const defaultValue = JSON.stringify(config.defaultValue);
     formDataList.push(`${scheme.__vModel__}: ${defaultValue}`);
   }
@@ -99,9 +116,9 @@ function buildOptions(
     }
     options = Array.isArray(scheme.data) ? scheme.data : [];
   } else if (!options && scheme.__slot__ && scheme.__slot__.options) {
-    options = scheme.__slot__.options.map(item => {
-      const { childrenComponet, ...restOption } = item
-      return restOption
+    options = scheme.__slot__.options.map((item) => {
+      const { childrenComponet, ...restOption } = item;
+      return restOption;
     });
   } else if (!options) {
     return;
@@ -152,27 +169,20 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
   // todo 按钮click form 内的按钮提交触发校验
   switch (scheme.type) {
     case "pagination":
-      const table = confGlobal && confGlobal.fields[scheme.index - 1];
-      if (table) {
-        const { model, method } = getOptionsModelKeyAndMethod(table);
-        if (table.__config__.pagination === "remote") {
-          methodList.push(`function handleChange${scheme.__vModel__}(currentPage, pageSize) {
-            ${method}({
-                currentPage,
-                pageSize
-            })
-          }`);
-        } else if (table.__config__.pagination === "local") {
-          methodList.push(`function handleChange${scheme.__vModel__}(currentPage, pageSize) {
-            ${scheme.__vModel__}currentPage.value = currentPage
-            ${scheme.__vModel__}PageSize.value = pageSize
-          }`);
-          methodList.push(`
-          const ${table.__vModel__} = computed(() => {
-            return ${model}.slice(${scheme.__vModel__}PageSize.value * (${scheme.__vModel__}currentPage.value - 1), ${scheme.__vModel__}PageSize.value * ${scheme.__vModel__}currentPage.value)
-          })
-        `);
-        }
+      if (scheme.__config__.pagination === "local") {
+        methodList.push(`function handleChange(currentPage, pageSize) {
+                currentPage.value = currentPage
+                pageSize.value = pageSize
+              }`);
+        //   methodList.push(`
+        //       const ${table.__vModel__} = computed(() => {
+        //         return ${model}.slice(pageSize.value * (currentPage.value - 1), pageSize.value * ${scheme.__vModel__}currentPage.value)
+        //       })
+        //     `);
+      } else {
+        methodList.push(`function handleChange(currentPage, pageSize) {
+                
+        }`);
       }
       break;
     case "dialog":
@@ -189,26 +199,31 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
 /**
  * 递归生成vModel
  */
-function buildCommonInfo(childrenList: Array<ComponentItemJson>, preStr: string, buildInfo: {
-  formDataList: string[],
-  dataList: string[],
-  ruleList: string[],
-  methodList: string[],
-  mounted: string[],
-}) {
+function buildCommonInfo(
+  childrenList: Array<ComponentItemJson>,
+  preStr: string,
+  buildInfo: {
+    formDataList: string[];
+    dataList: string[];
+    ruleList: string[];
+    methodList: string[];
+    mounted: string[];
+  },
+  data: MakeHtmlResult
+) {
   childrenList.forEach((it: ComponentItemJson, idx: number) => {
-    it.index = preStr + idx + '';
-    buildData(it, buildInfo.dataList, buildInfo.formDataList);
+    it.index = preStr + idx + "";
+    buildData(it, buildInfo.dataList, buildInfo.formDataList, data);
     buildRules(it, buildInfo.ruleList);
     buildOptions(it, buildInfo.methodList, buildInfo.dataList, buildInfo.mounted); // 例如select options
     buildEventMethods(it, buildInfo.methodList);
     if (it.__config__.children && it.__config__.children.length) {
-      buildCommonInfo(it.__config__.children, it.index, buildInfo)
+      buildCommonInfo(it.__config__.children, it.index, buildInfo, data);
     }
     if (it.__slot__?.options && it.__slot__?.options.length) {
       it.__slot__?.options.forEach((element: OptionItem, k: number) => {
         if (element.childrenComponet && element.childrenComponet.length) {
-          buildCommonInfo(element.childrenComponet, it.index + k, buildInfo)
+          buildCommonInfo(element.childrenComponet, it.index + k, buildInfo, data);
         }
       });
     }
@@ -229,29 +244,39 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
 
   formConfig.fields.forEach((item, index) => {
     item.index = index;
-    buildData(item, dataList, formDataList);
+    buildData(item, dataList, formDataList, data);
     buildRules(item, ruleList);
     buildOptions(item, methodList, dataList, mounted); // 例如select options
     buildEventMethods(item, methodList);
     if (item.__config__.children) {
-      buildCommonInfo(item.__config__.children, String(index), {
-        formDataList,
-        dataList,
-        ruleList,
-        methodList,
-        mounted,
-      })
+      buildCommonInfo(
+        item.__config__.children,
+        String(index),
+        {
+          formDataList,
+          dataList,
+          ruleList,
+          methodList,
+          mounted,
+        },
+        data
+      );
     }
     if (item.__slot__?.options && item.__slot__?.options.length) {
       item.__slot__?.options.forEach((element: OptionItem, k: number) => {
         if (element.childrenComponet && element.childrenComponet.length) {
-          buildCommonInfo(element.childrenComponet, String(index)+k, {
-            formDataList,
-            dataList,
-            ruleList,
-            methodList,
-            mounted,
-          })
+          buildCommonInfo(
+            element.childrenComponet,
+            String(index) + k,
+            {
+              formDataList,
+              dataList,
+              ruleList,
+              methodList,
+              mounted,
+            },
+            data
+          );
         }
       });
     }
@@ -270,20 +295,7 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
   if (data.info.usedComponents.includes("FForm")) {
     dataList.push(`const ${formConfig.formRef} = ref(null)`);
   }
-  // table action
-  if (data.info.talbeAction && data.info.actionLabels) {
-    const labels = data.info.actionLabels.map((item: string) => {
-      return `{
-            label: "${item}",
-            func: (row) => {
-                console.log(row);
-            },
-        }`;
-    });
-    dataList.push(`const ${data.info.talbeAction} = [
-      ${labels.join(",")}
-    ];`);
-  }
+
   if (type === "dialog") {
     dataList.push(`const showModal = ref(true)`);
     // 是否存在Form
@@ -333,7 +345,8 @@ export function makeUpJs(formConfig: FormConf, type: string, data: MakeHtmlResul
   // codesandbox 打包fesdesign 时less loader 有bug
   return `<script lang="ts" setup>
     import { ref, reactive, computed, onMounted } from 'vue'
-    import {${data.info.usedComponents.join(",")}} from './lib/fes-design.js'
+    // import axios from 'axios'
+    import {${data.info.usedComponents.join(",")}} from '@fesjs/fes-design'
     ${formDataListStr}
     ${formRulesStr}
     ${dataList.join("\n")}
