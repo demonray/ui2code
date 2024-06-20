@@ -5,13 +5,12 @@ import type { UploadFile } from "element-plus";
 import Design from "./Design.vue";
 import Preview from "./Preview.vue";
 import DetectResult from "./DetectResult.vue";
-// import { TextOcr } from "./hooks/useDetectService";
 import { detect, generateUIList } from "./lib";
 
 //@ts-ignore
-import uiResult from "../test_images/tablepage_ui";
+import uiResult from "../test_images/form_ui";
 //@ts-ignore
-import textRes from "../test_images/tablepage_text";
+import textRes from "../test_images/form_text";
 
 let designJson: DesignJson = reactive({
   fields: [],
@@ -97,10 +96,6 @@ function back() {
 }
 function download() {}
 onMounted(() => {
-//   status.value = "模型加载中..."
-//   TextOcr.loadModel(() => {
-//     status.value = ""
-//   })
 })
 </script>
 

@@ -134,6 +134,7 @@ import {
   selectComponents,
   layoutComponents,
   infoFeedbackComponents,
+  findComponentConf,
   formConfig,
 } from "./config/componentType";
 import DetectConfig from "./config";
@@ -315,10 +316,11 @@ function initDrawingList(json: DesignJson) {
   });
 
   const rowsData = rows.map((row) => {
+    cols = [];
     colSplit(row);
     // 列排序
     cols.sort((a, b) => {
-      return a[0][0] > a[0][0] ? 1 : -1;
+      return a[0][0] > b[0][0] ? 1 : -1;
     });
     // 行列单元格内排序
     cols.forEach((col) => {
@@ -341,28 +343,25 @@ function initDrawingList(json: DesignJson) {
     let row = layoutComponents.find((it) => it.type === "row") as ComponentItemJson;
     row = deepClone(row);
 
-    if (rowItem.length > 1) {
+    if (rowItem.length >= 1) {
       // 多列
-         // 根据组件宽度占比计算span
-         let allWidth = 0;
-         rowItem.forEach((item) => {
-            const maxItemIdx = findMax(item, 'w')
-          allWidth += json.fields[maxItemIdx].uiItem.w
-        });
-     
+      // 根据组件宽度占比计算span
+      let allWidth = 0;
+      rowItem.forEach((item) => {
+        const maxItemIdx = findMax(item, "w");
+        allWidth += json.fields[maxItemIdx].uiItem.w;
+      });
+
       row.__config__.children = rowItem.map((item) => {
         let col = layoutComponents.find((it) => it.type === "col") as ComponentItemJson;
         col = deepClone(col);
-        const maxItemIdx = findMax(item, 'w')
-        const colWidth = json.fields[maxItemIdx].uiItem.w
+        const maxItemIdx = findMax(item, "w");
+        const colWidth = json.fields[maxItemIdx].uiItem.w;
         col.__config__.span = Math.floor((colWidth / allWidth) * 24);
         col.__config__.children = item.map((colItem) => {
           return json.fields[colItem[4]];
         });
         return col;
-        // return item.map((colItem) => {
-        //   return json.fields[colItem[4]];
-        // });
       });
     }
     return row;
@@ -429,6 +428,8 @@ function generateVmodel(childrenList: Array<ComponentItemJson>, preStr: string) 
     const modelStr = `${preStr}_${idx}`; // todo
     if (hasVmodel(child)) {
       child.__vModel__ = modelStr;
+    } else {
+      child.__levelStr__ = modelStr;
     }
     if (child.__config__.children && child.__config__.children.length) {
       generateVmodel(child.__config__.children, modelStr);
@@ -466,6 +467,12 @@ function generate(): string {
     fields: drawingList,
     ...formConf,
   };
+  // dialog 增加包裹元素modal，form
+  if (type == 'dialog') {
+    const dialog = findComponentConf("dialog");
+    dialog.__config__.children = drawingList;
+    data.fields = [dialog]
+  }
   const code = generateCode(data, type, targetlib, props.json.metaInfo);
   return code && beautifier ? beautifier.html(code, beautifierConf.html) : code || "null";
 }
@@ -610,7 +617,7 @@ function nextComp() {
 
 // 判断组件是否要设置v-model 绑定数据，先通过是否给默认值来判断
 function hasVmodel(el: ComponentItemJson) {
-  return el.hasOwnProperty('data') || el.__config__.hasOwnProperty('defaultValue')
+  return el.hasOwnProperty("data") || el.__config__.hasOwnProperty("defaultValue");
 }
 
 const isVscode = typeof acquireVsCodeApi === "function";

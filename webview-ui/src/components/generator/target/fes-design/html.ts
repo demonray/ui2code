@@ -57,10 +57,11 @@ const tags: TagTemplate = {
     const size = el.size ? `size="${el.size}"` : "";
     const plain = el.plain ? "plain" : "";
     const circle = el.circle ? "circle" : "";
+    const click = `@click="click${el.__levelStr__}"`;
     let child = buildElButtonChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
-    return `<${tag} ${typeStr} ${icon} ${round} ${size} ${plain} ${disabled} ${circle}>${child}</${tag}>`;
+    return `<${tag} ${typeStr} ${icon} ${round} ${size} ${plain} ${disabled} ${circle} ${click}>${child}</${tag}>`;
   },
   "el-input": (el: ComponentItemJson) => {
     const tag = "FInput";
@@ -144,14 +145,14 @@ const tags: TagTemplate = {
     let child = buildElTableChild(el);
     if (child) child = `\n${child}\n`; // 换行
     // data height border size fit highlight-current-row
-    const data = `:data="${el.__vModel__}"`;
+    const data = `:data="tableData.data"`;
     const border = `${el.__config__.border ? "border" : ""}`;
     return `<FTable ${border} ${data}>${child}</FTable>`;
   },
   "el-pagination": (el: ComponentItemJson) => {
     const data = `:page-size="pageSize" :current-page="currentPage"`;
     const total = `:total-count="total"`;
-    const change = `@change="handleChange"`;
+    const change = `@change="handlePageChange"`;
     let layoutItems = "";
     if (el.__config__.layoutItems) {
       layoutItems += el.__config__.layoutItems.includes("jumper") ? "showQuickJumper " : "";
@@ -164,11 +165,10 @@ const tags: TagTemplate = {
     const { title, footer, okText, cancelText } = el.__config__;
     let children = el.__config__.children.map((el: ComponentItemJson) => {
       return genElementTplStr(el);
-    });
-    // todo 是否需要form包裹
-    children = buildFormTemplate(confGlobal as FormConf, children.join("\n"), "dialog");
-    const cancelEvent = `@click="onCancel${el.__vModel__}"`;
-    const okEvent = `@click="onOK${el.__vModel__}"`;
+    }).join('\n');
+    children = buildFormTemplate(confGlobal as FormConf, children, "dialog")
+    const cancelEvent = `@click="onCancel"`;
+    const okEvent = `@click="onOk"`;
     const footerTpl = footer
       ? `<template #footer>
     <FButton style="margin-right: 15px" ${cancelEvent}>
@@ -177,7 +177,7 @@ const tags: TagTemplate = {
     <FButton type="primary" ${okEvent}>${okText}</FButton>
 </template>`
       : "";
-    return `<FModal v-model:show="${el.__vModel__}" title="${title}">
+    return `<FModal v-model:show="showModal" title="${title}">
     ${children}
     ${footerTpl}
 </FModal>`;
@@ -270,7 +270,6 @@ const tags: TagTemplate = {
     return `<FTooltip ${content} ${placement} ${trigger} ${mode}>${slot}</FTooltip>`;
   },
   "el-alert": (el: ComponentItemJson) => {
-    const { tag } = attrBuilder(el);
     const type = el.__config__.type ? `type="${el.__config__.type}"` : "";
     const message = el.title ? `message="${el.title}"` : "";
     const description = el.description ? `description="${el.description}"` : "";
@@ -477,11 +476,6 @@ function buildElTabsChild(scheme: ComponentItemJson) {
         childrenComponet = item.childrenComponet.map((el: ComponentItemJson) => {
           return genElementTplStr(el);
         });
-        childrenComponet = buildFormTemplate(
-          confGlobal as FormConf,
-          childrenComponet.join("\n"),
-          "tabs"
-        );
       }
       children.push(
         `<FTabPane key="${index}" name="${item.label}" value="${item.value}">
@@ -508,26 +502,17 @@ function buildElUploadChild(scheme: ComponentItemJson) {
     );
   return list.join("\n");
 }
-function buildFromBtns(scheme: FormConf, type: string) {
-  let str = "";
-  if (scheme.formBtns && type === "file") {
-    str = `<FFormItem size="large">
-              <FButton type="primary" @click="submitForm">提交</FButton>
-              <FButton @click="resetForm">重置</FButton>
-            </FFormItem>`;
-  }
-  return str;
-}
 
-function dialogWrapper(str: string) {
-  return `<FModal v-model:show="showModal" title="Dialog Titile">
-        ${str}
-        <template #footer>
-          <FButton @click="handleCancel">取消</FButton>
-          <FButton type="primary" @click="handelSubmit">确定</FButton>
-        </template>
-      </FModal>`;
-}
+// function buildFromBtns(scheme: FormConf, type: string) {
+//   let str = "";
+//   if (scheme.formBtns && type === "file") {
+//     str = `<FFormItem size="large">
+//               <FButton type="primary" @click="submitForm">提交</FButton>
+//               <FButton @click="resetForm">重置</FButton>
+//             </FFormItem>`;
+//   }
+//   return str;
+// }
 
 function buildFormTemplate(scheme: FormConf, child: string, type: string) {
   let labelPosition = "";
@@ -540,7 +525,6 @@ function buildFormTemplate(scheme: FormConf, child: string, type: string) {
     scheme.labelWidth
   }px" ${labelPosition}>
     ${child}
-    ${buildFromBtns(scheme, type)}
 </FForm>`;
   return str;
 }
@@ -596,19 +580,12 @@ function getUsedComp(html: string) {
 export function makeUpHtml(formConfig: FormConf, type: string, info: any): MakeHtmlResult {
   metaInfo = info;
   confGlobal = formConfig;
-  console.log(formConfig.fields);
-
-  // todo dialog 默认用Form包裹可以配置不用Form
-
   let temp = "";
   temp = formConfig.fields
     .map((el) => {
       return tags[el.__config__.tag](el);
     })
     .join("\n");
-  if (type === "dialog") {
-    temp = dialogWrapper(temp);
-  }
   confGlobal = null;
   temp = `<template>
   ${temp}

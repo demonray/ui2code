@@ -115,6 +115,7 @@ html,body, #app {
 }
 .drawing-board {
   height: 100%;
+  padding-top: 10px;
   position: relative;
   .components-body {
     padding: 0;
@@ -184,7 +185,7 @@ html,body, #app {
     margin-bottom: 2px;
   }
   .el-col {
-    margin-top: 22px;
+    margin-top: 12px;
   }
   .el-form-item {
     margin-bottom: 0;

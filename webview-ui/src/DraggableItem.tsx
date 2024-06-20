@@ -39,33 +39,33 @@ const layouts = {
   colItem(currentItem: ComponentItemJson, opts: ItemOpts) {
     const { active, actived } = opts;
     const config = currentItem.__config__;
+    let className = actived ? "drawing-item active-from-item" : "drawing-item";
+
     let child = null;
     if (config.children) {
       child = renderChildren(currentItem, opts);
     } else {
-      return <render key={config.guid} conf={currentItem} opts={opts}></render>;
+      return (
+        <div
+          class={className}
+          onClick={(event: MouseEvent) => {
+            active(currentItem);
+            event.stopPropagation();
+          }}>
+          <render key={config.guid} conf={currentItem} opts={opts}></render>
+          {components.itemBtns(currentItem, opts)}
+        </div>
+      );
     }
-    //let className = actived ? "drawing-item active-from-item" : "drawing-item";
-    // let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null;
-    // if (config.showLabel === false) labelWidth = "0";
-    // todo 有无form-item
     return (
       <el-col
         span={config.span}
-        //class={className}
+        class={className}
         onClick={(event: MouseEvent) => {
-          //   active(currentItem);
+          active(currentItem);
           event.stopPropagation();
         }}>
-        {/* <el-form-item
-          label-width={labelWidth}
-          label={config.showLabel ? config.label : ""}
-          required={config.required}> */}
-        {/* <render key={config.guid} conf={currentItem}> */}
         {child}
-        {/* </render> */}
-        {/* </el-form-item> */}
-        {/* {components.itemBtns(currentItem, opts)} */}
       </el-col>
     );
   },
@@ -111,39 +111,6 @@ const layouts = {
     const { active, actived } = opts;
     const config = currentItem.__config__;
     let className = actived ? "drawing-item active-from-item" : "drawing-item";
-    // if (currentItem.type === "dialog") {
-    //   className += " drawing-row-item";
-    //   return (
-    //     <div
-    //       class={className}
-    //       onClick={(event: MouseEvent) => {
-    //         active(currentItem);
-    //         event.stopPropagation();
-    //       }}>
-    //       <draggable
-    //         list={config.children || []}
-    //         animation={340}
-    //         item-key="guid"
-    //         group="componentsGroup"
-    //         class="drag-wrapper">
-    //         {{
-    //           item: ({ element }: any) =>
-    //             currentItem.layoutType === "flex" ? (
-    //               <el-row
-    //                 type={currentItem.layoutType}
-    //                 justify={currentItem.justify}
-    //                 align={currentItem.align}>
-    //                 {renderChildren(element, opts)}
-    //               </el-row>
-    //             ) : (
-    //               <>{renderChildren(element, opts)}</>
-    //             ),
-    //         }}
-    //       </draggable>
-    //       {components.itemBtns(currentItem, opts)}
-    //     </div>
-    //   );
-    // }
     let child = null;
     if (config.children) {
       child = renderChildren(currentItem, opts);
@@ -208,6 +175,7 @@ export default defineComponent({
   },
   setup(props, context) {
     function active(currentItem: ComponentItemJson) {
+      console.log(currentItem, "active");
       context.emit("activeItem", currentItem);
     }
     /**

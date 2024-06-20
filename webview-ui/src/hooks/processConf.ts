@@ -1,25 +1,8 @@
 import {
-  inputComponents,
-  selectComponents,
-  layoutComponents,
-  infoFeedbackComponents,
+  findComponentConf
 } from "../config/componentType";
 import type { UiItem } from "./useMergeDetectData";
 import { textRegionFirstLine } from "../utilities";
-/**
- * 查找对应组件设计器配置
- */
-function findComponentConf(type: UiType): ComponentItemJson {
-  const findConf = [
-    ...inputComponents,
-    ...selectComponents,
-    ...layoutComponents,
-    ...infoFeedbackComponents,
-  ].find((it) => {
-    return it.type === type;
-  });
-  return findConf && JSON.parse(JSON.stringify(findConf));
-}
 
 /**
  * table结构识别数据转换成设计器可识别的json代码

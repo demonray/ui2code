@@ -48,14 +48,10 @@ function buildData(
     const total = ref(20)
     `);
   } else if (scheme.type === "table") {
-    let str = "";
-    if (config.pagination === "local") {
-      //
-    } else {
-      str = `const ${scheme.__vModel__} = reactive(
-            ${JSON.stringify(scheme.data)}
-        )`;
-    }
+    const str = `const tableData = reactive({
+        data: ${JSON.stringify(scheme.data)}
+    })`;
+    dataList.push(str);
     // table action
     if (data.info.actionLabels) {
       const labels = data.info.actionLabels.map((item: string) => {
@@ -70,20 +66,21 @@ function buildData(
       ${labels.join(",")}
     ];`);
     }
-    dataList.push(str);
   } else if (scheme.type === "dialog") {
     dataList.push(`
         const ${scheme.__vModel__} = ref(true)
     `);
-  } else if (config.dynamic) {
-    const str = `const ${scheme.__vModel__} = reactive(
-        ${JSON.stringify(scheme.data)}
-      )`;
-    dataList.push(str);
-  } else if(config.hasOwnProperty('defaultValue')) {
+  } else if (config.hasOwnProperty("defaultValue")) {
     const defaultValue = JSON.stringify(config.defaultValue);
     formDataList.push(`${scheme.__vModel__}: ${defaultValue}`);
   }
+  // 动态数据需要配置url，并定义获取数据方法
+  //   if (config.dynamic && config.url) {
+  //     const str = `const ${scheme.__vModel__} = reactive(
+  //         ${JSON.stringify(scheme.data)}
+  //       )`;
+  //     dataList.push(str);
+  //   }
 }
 
 function getOptionsModelKeyAndMethod(scheme: ComponentItemJson) {
@@ -169,30 +166,31 @@ function buildEventMethods(scheme: ComponentItemJson, methodList: string[]) {
   // todo 按钮click form 内的按钮提交触发校验
   switch (scheme.type) {
     case "pagination":
-      if (scheme.__config__.pagination === "local") {
-        methodList.push(`function handleChange(currentPage, pageSize) {
-                currentPage.value = currentPage
-                pageSize.value = pageSize
-              }`);
-        //   methodList.push(`
-        //       const ${table.__vModel__} = computed(() => {
-        //         return ${model}.slice(pageSize.value * (currentPage.value - 1), pageSize.value * ${scheme.__vModel__}currentPage.value)
-        //       })
-        //     `);
+      if (scheme.__config__.pagination == "local") {
+        methodList.push(`function handlePageChange(currentPage, pageSize) {
+            currentPage.value = currentPage
+            pageSize.value = pageSize
+            // tableData.data = data.slice(pageSize.value * (currentPage.value - 1), pageSize.value * currentPage.value)
+        }`);
       } else {
-        methodList.push(`function handleChange(currentPage, pageSize) {
-                
+        methodList.push(`function handlePageChange(currentPage, pageSize) {
+            // fetch data
         }`);
       }
       break;
     case "dialog":
-      methodList.push(`function onCancel${scheme.__vModel__}() {
-        ${scheme.__vModel__}.value = false
+      methodList.push(`function onCancel() {
+        showModal.value = false
       }`);
-      methodList.push(`function onOk${scheme.__vModel__}() {
+      methodList.push(`function onOk() {
         //
-        ${scheme.__vModel__}.value = false
+        showModal.value = false
       }`);
+      break;
+    case "button":
+      methodList.push(`function click${scheme.__levelStr__}() {
+           //
+        }`);
       break;
   }
 }
