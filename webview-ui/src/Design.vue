@@ -139,7 +139,6 @@ import {
 } from "./config/componentType";
 import DetectConfig from "./config";
 import CodeTypeDialog from "./CodeTypeDialog.vue";
-import DetectResult from "./DetectResult.vue";
 import DraggableItem from "./DraggableItem";
 import loadBeautifier from "./utilities/loadBeautifier";
 import { beautifierConf } from "./utilities/pluginsConfig";
@@ -147,19 +146,19 @@ import { beautifierConf } from "./utilities/pluginsConfig";
 const leftComponents = [
   {
     title: "输入型组件",
-    list: inputComponents,
+    list: inputComponents.filter(it => !it.hidden),
   },
   {
     title: "选择型组件",
-    list: selectComponents,
+    list: selectComponents.filter(it => !it.hidden),
   },
   {
     title: "布局型组件",
-    list: layoutComponents,
+    list: layoutComponents.filter(it => !it.hidden),
   },
   {
     title: "信息反馈组件",
-    list: infoFeedbackComponents,
+    list: infoFeedbackComponents.filter(it => !it.hidden),
   },
 ];
 
@@ -200,7 +199,7 @@ onMounted(() => {
       const codeStr = generate();
       proxy?.$notify({
         title: "成功",
-        message: "代码已复制到剪切板，可粘贴。",
+        message: "代码已复制",
         type: "success",
       });
       dialogVisible.value = false;
@@ -395,6 +394,7 @@ function initDrawingList(json: DesignJson) {
           if (isFormItems) {
             const formitem = findComponentConf("formitem");
             formitem.__config__.children = [item];
+            formitem.guid = guid();
             item = formitem;
             if (
               formItems[formItems.length - 1].length &&
@@ -418,6 +418,7 @@ function initDrawingList(json: DesignJson) {
           if (items) {
             lastForm = items;
             const form = findComponentConf("form");
+            form.guid = guid();
             const childs: any[] = [];
             col.__config__.children.forEach((item: any, i: number) => {
               if (items.includes(i)) {

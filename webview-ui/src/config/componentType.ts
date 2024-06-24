@@ -623,6 +623,7 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-form",
       label: "表单",
     },
+    hidden: true,
     type: "form",
   },
   {
@@ -635,6 +636,7 @@ export const layoutComponents: ComponentItemJson[] = [
     },
     __slot__: {
     },
+    hidden: true,
     type: "formitem",
   },
 ];
