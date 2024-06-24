@@ -21,7 +21,7 @@ interface MatchedOptionItem {
 
 type MatchedOptions = Array<MatchedOptionItem>;
 
-export interface UiItem {
+export interface UiTextMatchItem {
   type: UiType;
   options?: MatchedOptions;
   textMatched?: Partial<Matchs>;
@@ -234,7 +234,7 @@ function mergeTextUI(uiResults: DetectItem[], textResults: TextItem[]): Componen
   }
   console.log("uiTextMap", uiTextMap);
   // 文本可能是label，placeholder，content 把对应文本数据和组件相结合，给UI组件填充文本数据
-  const jsonData: UiItem[] = [];
+  const jsonData: UiTextMatchItem[] = [];
 
   uiResults.forEach((it, index) => {
     let last = jsonData[jsonData.length - 1];

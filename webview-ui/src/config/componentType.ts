@@ -355,8 +355,8 @@ export const layoutComponents: ComponentItemJson[] = [
       children: [],
     },
     type: "row",
-    justify: "'flex-start",
-    align: "'flex-start",
+    justify: "flex-start",
+    align: "flex-start",
     gutter: "20",
   },
   {

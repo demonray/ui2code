@@ -1,7 +1,5 @@
-import {
-  findComponentConf
-} from "../config/componentType";
-import type { UiItem } from "./useMergeDetectData";
+import { findComponentConf } from "../config/componentType";
+import type { UiTextMatchItem } from "./useMergeDetectData";
 import { textRegionFirstLine } from "../utilities";
 
 /**
@@ -64,7 +62,7 @@ function makeTableConf(conf: ComponentItemJson, data: StructureItem | string[][]
   return conf;
 }
 
-function makeStepConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeStepConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   // console.log(it, textResults, conf)
   conf.__config__.mode = it.uiItem.w < it.uiItem.h ? "vertical" : "horizontal";
   if (it.uiItem.w < it.uiItem.h) {
@@ -88,7 +86,7 @@ function makeStepConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem
   return conf;
 }
 
-function makeButtonConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeButtonConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   let text: string = "按钮";
   if (it.textMatched && it.textMatched.in) {
     text = textResults[it.textMatched.in.index].text;
@@ -99,7 +97,7 @@ function makeButtonConf(conf: ComponentItemJson, it: UiItem, textResults: TextIt
   return conf;
 }
 
-function makeInputConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeInputConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   let text: string = "请输入";
   if (it.textMatched && it.textMatched.in) {
     // placeholder
@@ -112,6 +110,9 @@ function makeInputConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
     const textItem = textResults[it.textMatched.left.index];
     conf.__config__.label = textItem.text;
   }
+  conf.__config__.style = {
+    width: Math.ceil(it.uiItem.w)+ "px",
+  };
   // required处理
   if (/^\*/.test(conf.__config__.label)) {
     conf.__config__.required = true;
@@ -120,7 +121,7 @@ function makeInputConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
   return conf;
 }
 
-function makeSelectConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeSelectConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   let text: string = "";
   if (it.textMatched && it.textMatched.in) {
     // placeholder
@@ -132,6 +133,9 @@ function makeSelectConf(conf: ComponentItemJson, it: UiItem, textResults: TextIt
     const textItem = textResults[it.textMatched.left.index];
     conf.__config__.label = textItem.text;
   }
+  conf.__config__.style = {
+    width: Math.ceil(it.uiItem.w)+ "px",
+  };
   // required处理
   if (/^\*/.test(conf.__config__.label)) {
     conf.__config__.required = true;
@@ -140,13 +144,16 @@ function makeSelectConf(conf: ComponentItemJson, it: UiItem, textResults: TextIt
   return conf;
 }
 
-function makeTextareaConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeTextareaConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   let text: string = "";
   if (it.textMatched && it.textMatched.in) {
     // placeholder
     text = textResults[it.textMatched.in.index].text;
   }
   conf.placeholder = text;
+  conf.__config__.style = {
+    width: Math.ceil(it.uiItem.w)+ "px",
+  };
   if (it.textMatched && it.textMatched.left) {
     // label
     const textItem = textResults[it.textMatched.left.index];
@@ -160,7 +167,7 @@ function makeTextareaConf(conf: ComponentItemJson, it: UiItem, textResults: Text
   return conf;
 }
 
-function makeSwitchConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeSwitchConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
     const textItem = textResults[it.textMatched.left.index];
@@ -174,7 +181,7 @@ function makeSwitchConf(conf: ComponentItemJson, it: UiItem, textResults: TextIt
   return conf;
 }
 
-function makeProgressConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeProgressConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in) {
     const textItem = textResults[it.textMatched.in.index];
     // 进度条处理
@@ -189,7 +196,7 @@ function makeProgressConf(conf: ComponentItemJson, it: UiItem, textResults: Text
   return conf;
 }
 
-function makeCheckboxConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeCheckboxConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.options) {
     // 复选框组
     const option: OptionItem[] = [];
@@ -217,7 +224,7 @@ function makeCheckboxConf(conf: ComponentItemJson, it: UiItem, textResults: Text
   return conf;
 }
 
-function makeRadioConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeRadioConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.options) {
     // 单选框组
     const option: OptionItem[] = [];
@@ -245,30 +252,30 @@ function makeRadioConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
   return conf;
 }
 
-function makeAlertConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeAlertConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in) {
     conf.title = it.textMatched.in?.texts?.map((it: TextItem) => it.text).join("");
   }
   return conf;
 }
 
-function makeCalendarConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeCalendarConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   return conf;
 }
 
-function makeFormItemConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-  console.log(conf, it)
+function makeFormItemConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
+  console.log(conf, it);
   return conf;
 }
 
-function makeBadgeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeBadgeConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in && conf.__slot__) {
     conf.__slot__.default = textResults[it.textMatched.in?.index].text;
   }
   return conf;
 }
 
-function makeRateConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeRateConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
     const textItem = textResults[it.textMatched.left.index];
@@ -277,7 +284,7 @@ function makeRateConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem
   return conf;
 }
 
-function makeTimepickerConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeTimepickerConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
     const textItem = textResults[it.textMatched.left.index];
@@ -290,7 +297,7 @@ function makeTimepickerConf(conf: ComponentItemJson, it: UiItem, textResults: Te
   }
   return conf;
 }
-function makeDatepickerConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeDatepickerConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
     const textItem = textResults[it.textMatched.left.index];
@@ -303,7 +310,7 @@ function makeDatepickerConf(conf: ComponentItemJson, it: UiItem, textResults: Te
   }
   return conf;
 }
-function makeTimeRangeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeTimeRangeConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
     const textItem = textResults[it.textMatched.left.index];
@@ -316,7 +323,7 @@ function makeTimeRangeConf(conf: ComponentItemJson, it: UiItem, textResults: Tex
   }
   return conf;
 }
-function makeDateRangeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeDateRangeConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.left) {
     // label
     const textItem = textResults[it.textMatched.left.index];
@@ -330,12 +337,16 @@ function makeDateRangeConf(conf: ComponentItemJson, it: UiItem, textResults: Tex
   return conf;
 }
 
-function makePageinationConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makePageinationConf(
+  conf: ComponentItemJson,
+  it: UiTextMatchItem,
+  textResults: TextItem[]
+) {
   // todo
   return conf;
 }
 
-function makeMenunConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeMenunConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   conf.__config__.mode = it.uiItem.w < it.uiItem.h ? "vertical" : "horizontal";
   if (it.textMatched && it.textMatched.in) {
     let navOptions: any = [];
@@ -356,7 +367,7 @@ function makeMenunConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
   return conf;
 }
 
-function makeBreadcrumbConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeBreadcrumbConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in) {
     let navOptions: any = [];
     if (it.textMatched.in.texts?.length) {
@@ -376,7 +387,7 @@ function makeBreadcrumbConf(conf: ComponentItemJson, it: UiItem, textResults: Te
   return conf;
 }
 
-function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeTabConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in) {
     let tabOptions: any = [];
     if (it.textMatched.in.texts?.length) {
@@ -397,7 +408,7 @@ function makeTabConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[
   return conf;
 }
 
-function makeTimelineConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeTimelineConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in) {
     let timeOptions: any = [];
     if (it.textMatched.in.texts?.length) {
@@ -416,7 +427,7 @@ function makeTimelineConf(conf: ComponentItemJson, it: UiItem, textResults: Text
   return conf;
 }
 
-function makeTreeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeTreeConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   if (it.textMatched && it.textMatched.in) {
     let datalist: any = [];
     if (it.textMatched.in.texts?.length) {
@@ -434,7 +445,7 @@ function makeTreeConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem
   return conf;
 }
 
-function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+function makeDefaultConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
   console.log("makeDefaultConf: ", conf, it, textResults);
   // todo
   return conf;
@@ -447,7 +458,7 @@ function makeDefaultConf(conf: ComponentItemJson, it: UiItem, textResults: TextI
  * ...
  * @param conf
  */
-export default function processConf(it: UiItem, textResults: TextItem[]) {
+export default function processConf(it: UiTextMatchItem, textResults: TextItem[]) {
   let conf = findComponentConf(it.type);
   // console.log("findComponentConf:", it.type, conf);
   switch (it.type) {

@@ -248,7 +248,7 @@ function isFormElItem(item: ComponentItemJson) {
     "textarea",
     "radio",
     "checkbox",
-    "button",
+   // "button",
     "switch",
     "select",
     "timepicker",
@@ -388,7 +388,7 @@ function initDrawingList(json: DesignJson) {
     return row;
   });
   
-  console.log(list, "init");
+  // console.log(list, "init");
   // 识别包裹Form
 
   const formItem: number[][] = [[]];
@@ -418,7 +418,6 @@ function initDrawingList(json: DesignJson) {
     }
   });
 
-  console.log(formItem);
   let maxItems: number[] = [];
   formItem.forEach((it) => {
     if (it.length > maxItems.length) {
@@ -433,7 +432,6 @@ function initDrawingList(json: DesignJson) {
     form.__config__.children = items;
     list.splice(maxItems[0], maxItems.length, form);
   }
-  console.log(list);
 
   drawingList.push(...list);
 }
