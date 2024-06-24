@@ -248,7 +248,7 @@ function isFormElItem(item: ComponentItemJson) {
     "textarea",
     "radio",
     "checkbox",
-   // "button",
+    // "button",
     "switch",
     "select",
     "timepicker",
@@ -329,26 +329,19 @@ function initDrawingList(json: DesignJson) {
     }
   }
 
-  rowSplit(ranges);
+  colSplit(ranges);
 
-  // 行排序
-  rows.sort((a, b) => {
-    return a[0][2] > b[0][2] ? 1 : -1;
+  // 列排序
+  cols.sort((a, b) => {
+    return a[0][0] > b[0][0] ? 1 : -1;
   });
 
-  const rowsData = rows.map((row) => {
-    cols = [];
-    colSplit(row);
-    // 列排序
-    cols.sort((a, b) => {
-      return a[0][0] > b[0][0] ? 1 : -1;
-    });
-    // 行列单元格内排序
-    cols.forEach((col) => {
+  // 列包裹在行里，列内元素排序按y，浮动范围内的算同一行按x todo
+  const rowsData = [cols].map((row) => {
+    row.forEach((col) => {
       col.sort((a, b) => {
         return a[2] > b[2] ? 1 : -1;
       });
-      // 组件Y值在误差范围内的算一行，按X排序
       for (let i = 1; i < col.length; i++) {
         if (col[i][2] - col[i - 1][2] < 10 && col[i][0] < col[i - 1][0]) {
           const tmp = col[i];
@@ -357,7 +350,7 @@ function initDrawingList(json: DesignJson) {
         }
       }
     });
-    return cols;
+    return row;
   });
 
   const list = rowsData.map((rowItem) => {
@@ -387,51 +380,58 @@ function initDrawingList(json: DesignJson) {
     }
     return row;
   });
-  
+
   // console.log(list, "init");
   // 识别包裹Form
+  const formItems: number[][] = [];
 
-  const formItem: number[][] = [[]];
-
-  list.forEach((row, index) => {
-    const isFormItem = row.__config__.children?.every((col: ComponentItemJson) => {
-      return col.__config__.children?.every((item: ComponentItemJson) => {
-        return isFormElItem(item);
-      });
+  list.forEach((row) => {
+    row.__config__.children?.forEach((col: ComponentItemJson) => {
+      formItems.push([]);
+      // 每一列里连续是form表单输入类的识别是formitem，包裹
+      col.__config__.children = col.__config__.children?.map(
+        (item: ComponentItemJson, index: number) => {
+          const isFormItems = isFormElItem(item);
+          if (isFormItems) {
+            const formitem = findComponentConf("formitem");
+            formitem.__config__.children = [item];
+            item = formitem;
+            if (
+              formItems[formItems.length - 1].length &&
+              formItems[formItems.length - 1][formItems[formItems.length - 1].length - 1] + 1 <
+                index
+            ) {
+              formItems.push([index]);
+            } else {
+              formItems[formItems.length - 1].push(index);
+            }
+          }
+          return item;
+        }
+      );
+      // form 包裹
+      let lastForm: number[];
+      col.__config__.children = col.__config__.children
+        .map((it: any, idx: number) => {
+          const items = formItems.find((f) => f.includes(idx));
+          if (lastForm && lastForm.includes(idx)) return;
+          if (items) {
+            lastForm = items;
+            const form = findComponentConf("form");
+            const childs: any[] = [];
+            col.__config__.children.forEach((item: any, i: number) => {
+              if (items.includes(i)) {
+                childs.push(item);
+              }
+            });
+            form.__config__.children = childs;
+            return form;
+          }
+          return it;
+        })
+        .filter((it: any) => it);
     });
-    if (isFormItem) {
-      row.__config__.children?.forEach((col: ComponentItemJson) => {
-        col.__config__.children = col.__config__.children?.map((item: ComponentItemJson) => {
-          const formitem = findComponentConf("formitem");
-          formitem.__config__.children = [item];
-          return formitem;
-        });
-      });
-      if (
-        formItem[formItem.length - 1].length &&
-        formItem[formItem.length - 1][formItem[formItem.length - 1].length - 1] + 1 < index
-      ) {
-        formItem.push([index]);
-      } else {
-        formItem[formItem.length - 1].push(index);
-      }
-    }
   });
-
-  let maxItems: number[] = [];
-  formItem.forEach((it) => {
-    if (it.length > maxItems.length) {
-      maxItems = it;
-    }
-  });
-  if (maxItems.length >= 2) {
-    const form = findComponentConf("form");
-    const items = maxItems.map((it) => {
-      return list[it];
-    });
-    form.__config__.children = items;
-    list.splice(maxItems[0], maxItems.length, form);
-  }
 
   drawingList.push(...list);
 }
