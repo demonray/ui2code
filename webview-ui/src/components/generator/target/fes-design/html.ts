@@ -7,25 +7,16 @@ type TagTemplate = {
   [propName: string]: (el: ComponentItemJson, params?: any) => string;
 };
 
-function genElementTplStr(el: ComponentItemJson) {
-  if (el.__config__.children && ["el-row", "el-col"].includes(el.__config__.tag)) {
-    return el.__config__.children
-      .map((it: ComponentItemJson) => {
-        return tags[it.__config__.tag](it);
-      })
-      .join("\n");
-  } else {
-    return tags[el.__config__.tag](el);
-  }
-}
-
 const tags: TagTemplate = {
   "el-row": (el: ComponentItemJson) => {
     const tag = "FGrid";
     const align = el.align ? `align="${el.align}"` : "";
     const justify = el.justify ? `justify="${el.justify}"` : "";
     const gutter = el.gutter ? `:gutter=${el.gutter}` : "";
-    let child = genElementTplStr(el);
+
+    let child = el.__config__.children.map((it: ComponentItemJson) => {
+        return tags[it.__config__.tag](it);
+      }).join('\n');
 
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${align} ${gutter} >${child}</${tag}>`;
@@ -33,7 +24,9 @@ const tags: TagTemplate = {
   "el-col": (el: ComponentItemJson) => {
     const tag = "FGridItem";
     const span = el.__config__.span ? `:span="${el.__config__.span}"` : "";
-    let child = genElementTplStr(el);
+    let child = el.__config__.children.map((it: ComponentItemJson) => {
+        return tags[it.__config__.tag](it);
+      }).join('\n');
     if (child) child = `\n${child}\n`; // 换行
     return `<${tag} ${span} >${child}</${tag}>`;
   },
@@ -161,26 +154,66 @@ const tags: TagTemplate = {
     }
     return `<FPagination ${data} ${layoutItems} ${total} ${change}></FPagination>`;
   },
+  "el-form": (el: ComponentItemJson) => {
+    // form为合并组件识别和文本之后加上的，没有经过processConf补充属性
+    // form配置取自formConfig
+    let labelPosition = `label-position="${confGlobal?.labelPosition || 'right'}"`
+    const disabled = confGlobal?.disabled ? `:disabled="${confGlobal?.disabled}"` : "";
+    let children = el.__config__?.children.map((it: ComponentItemJson) => {
+        return tags[it.__config__.tag](it);
+      }).join('\n');
+
+    let str = `<FForm ref="${confGlobal?.formRef}" :model="${confGlobal?.formModel}" :rules="${
+        confGlobal?.formRules
+    }" size="${confGlobal?.size}" ${disabled} label-width="${confGlobal?.labelWidth}px" ${labelPosition}>
+            ${children}
+            </FForm>`;
+    return str;
+  },
+  "el-form-item": (el: ComponentItemJson) => {
+    const config = el.__config__;
+    let labelWidth = "";
+    // 一个formitem 应当只有一个表单控件, formitem为合并组件识别和文本之后加上的，没有经过processConf补充属性
+    let label = config.label
+    if (el.__config__.children && el.__config__.children[0]) {
+        label = el.__config__.children[0].__config__.label || config.label
+    }
+    label = `label="${label}"`;
+    if (confGlobal && config.labelWidth && config.labelWidth !== confGlobal.labelWidth) {
+      labelWidth = `label-width="${config.labelWidth}px"`;
+    }
+    if (config.showLabel === false) {
+      labelWidth = 'label-width="0"';
+      label = "";
+    }
+    const required = config.tag && !ruleTrigger[config.tag] && config.required ? "required" : "";
+    let children = el.__config__.children.map((it: ComponentItemJson) => {
+        return tags[it.__config__.tag](it);
+      }).join('\n');
+    let str = `<FFormItem ${labelWidth} ${label} prop="${el.__vModel__}" ${required}>
+            ${children}
+          </FFormItem>`;
+    return str;
+  },
   "el-dialog": (el: ComponentItemJson) => {
     const { title, footer, okText, cancelText } = el.__config__;
-    let children = el.__config__.children.map((el: ComponentItemJson) => {
-      return genElementTplStr(el);
+    let children = el.__config__.children.map((it: ComponentItemJson) => {
+      return tags[it.__config__.tag](it);
     }).join('\n');
-    children = buildFormTemplate(confGlobal as FormConf, children, "dialog")
     const cancelEvent = `@click="onCancel"`;
     const okEvent = `@click="onOk"`;
     const footerTpl = footer
       ? `<template #footer>
-    <FButton style="margin-right: 15px" ${cancelEvent}>
-        ${cancelText}
-    </FButton>
-    <FButton type="primary" ${okEvent}>${okText}</FButton>
-</template>`
+            <FButton style="margin-right: 15px" ${cancelEvent}>
+                ${cancelText}
+            </FButton>
+            <FButton type="primary" ${okEvent}>${okText}</FButton>
+        </template>`
       : "";
     return `<FModal v-model:show="showModal" title="${title}">
-    ${children}
-    ${footerTpl}
-</FModal>`;
+                ${children}
+                ${footerTpl}
+            </FModal>`;
   },
   //   "el-cascader": (el: ComponentItemJson) => {
   //     const { tag, disabled, vModel, clearable, placeholder, width } = attrBuilder(el);
@@ -474,7 +507,7 @@ function buildElTabsChild(scheme: ComponentItemJson) {
       let childrenComponet: string | Array<string> = [];
       if (item.childrenComponet && item.childrenComponet.length) {
         childrenComponet = item.childrenComponet.map((el: ComponentItemJson) => {
-          return genElementTplStr(el);
+          return tags[el.__config__.tag](el);
         });
       }
       children.push(
@@ -501,32 +534,6 @@ function buildElUploadChild(scheme: ComponentItemJson) {
       `<div slot="tip" class="el-upload__tip">只能上传不超过 ${config.fileSize}${config.sizeUnit} 的${scheme.accept}文件</div>`
     );
   return list.join("\n");
-}
-
-// function buildFromBtns(scheme: FormConf, type: string) {
-//   let str = "";
-//   if (scheme.formBtns && type === "file") {
-//     str = `<FFormItem size="large">
-//               <FButton type="primary" @click="submitForm">提交</FButton>
-//               <FButton @click="resetForm">重置</FButton>
-//             </FFormItem>`;
-//   }
-//   return str;
-// }
-
-function buildFormTemplate(scheme: FormConf, child: string, type: string) {
-  let labelPosition = "";
-  if (scheme.labelPosition !== "right") {
-    labelPosition = `label-position="${scheme.labelPosition}"`;
-  }
-  const disabled = scheme.disabled ? `:disabled="${scheme.disabled}"` : "";
-  let str = `<FForm ref="${scheme.formRef}" :model="${scheme.formModel}"
-    :rules="${scheme.formRules}" size="${scheme.size}" ${disabled} label-width="${
-    scheme.labelWidth
-  }px" ${labelPosition}>
-    ${child}
-</FForm>`;
-  return str;
 }
 
 /**

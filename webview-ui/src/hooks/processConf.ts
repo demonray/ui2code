@@ -100,7 +100,7 @@ function makeButtonConf(conf: ComponentItemJson, it: UiItem, textResults: TextIt
 }
 
 function makeInputConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
-  let text: string = "";
+  let text: string = "请输入";
   if (it.textMatched && it.textMatched.in) {
     // placeholder
     text = textResults[it.textMatched.in.index].text;
@@ -253,6 +253,11 @@ function makeAlertConf(conf: ComponentItemJson, it: UiItem, textResults: TextIte
 }
 
 function makeCalendarConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  return conf;
+}
+
+function makeFormItemConf(conf: ComponentItemJson, it: UiItem, textResults: TextItem[]) {
+  console.log(conf, it)
   return conf;
 }
 
@@ -523,6 +528,9 @@ export default function processConf(it: UiItem, textResults: TextItem[]) {
       break;
     case "calendar":
       conf = makeCalendarConf(conf, it, textResults);
+      break;
+    case "formitem":
+      conf = makeFormItemConf(conf, it, textResults);
       break;
     default: // todo 各自处理row、dialog、tooltip
       conf = makeDefaultConf(conf, it, textResults);

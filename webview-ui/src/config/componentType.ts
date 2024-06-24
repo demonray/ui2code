@@ -615,6 +615,28 @@ export const layoutComponents: ComponentItemJson[] = [
     type: "breadcrumb",
     separator: "/",
   },
+  {
+    __config__: {
+      layout: "raw",
+      span: 24,
+      tagIcon: "form",
+      tag: "el-form",
+      label: "表单",
+    },
+    type: "form",
+  },
+  {
+    __config__: {
+      layout: "raw",
+      span: 24,
+      tagIcon: "formitem",
+      tag: "el-form-item",
+      label: "表单项",
+    },
+    __slot__: {
+    },
+    type: "formitem",
+  },
 ];
 
 // 信息反馈型组件 【左面板】

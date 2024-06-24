@@ -179,20 +179,20 @@ html,body, #app {
   border: 1px dashed #ccc;
   border-radius: 3px;
   padding: 0 2px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   min-height: 50px;
   .drawing-row-item {
     margin-bottom: 2px;
   }
   .el-col {
-    margin-top: 12px;
+    // margin-top: 12px;
   }
   .el-form-item {
     margin-bottom: 0;
   }
   .drag-wrapper {
     width: 100%;
-    min-height: 80px;
+    min-height: 50px;
   }
   &.active-from-item {
     border: 1px dashed $lighterBlue;

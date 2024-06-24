@@ -1,8 +1,18 @@
-import { resolveComponent, h, defineComponent, type PropType, type ComponentOptions, type VNode } from "vue";
+import {
+  resolveComponent,
+  h,
+  defineComponent,
+  type PropType,
+  type ComponentOptions,
+  type VNode,
+} from "vue";
 import draggable from "vuedraggable";
 import { renderChildrenItem, type ItemOpts } from "../../DraggableItem";
 type resultInfo = { options: Object; child: Array<any> | string | VNode };
-type resolveComponentChild = (conf: ComponentItemJson, opts?: ItemOpts) => Array<any> | string | VNode;
+type resolveComponentChild = (
+  conf: ComponentItemJson,
+  opts?: ItemOpts
+) => Array<any> | string | VNode;
 type resolveComponentOption = (conf: ComponentItemJson, opts?: ItemOpts) => object;
 interface pluginInfoType {
   getChild: resolveComponentChild;
@@ -118,7 +128,7 @@ function makeDataObj(conf: ComponentItemJson): object {
       // options.type = conf.__config__.type;
       break;
     case "badge":
-      options.value = conf.data || '';
+      options.value = conf.data || "";
       break;
     case "rate":
       options.clearable = conf.clearable;
@@ -297,6 +307,29 @@ class BadgePlugin implements pluginInfoType {
   }
 }
 
+class FormPlugin implements pluginInfoType {
+  getChild(conf: ComponentItemJson, opts?: ItemOpts): VNode {
+    return conf.__config__.children.map((item: ComponentItemJson) => {
+      return renderChildrenItem(item, opts as ItemOpts);
+    });
+  }
+  // todo 补充 props
+}
+
+class FormItemPlugin implements pluginInfoType {
+  getChild(conf: ComponentItemJson, opts?: ItemOpts): VNode {
+    return conf.__config__.children.map((item: ComponentItemJson) => {
+      return renderChildrenItem(item, opts as ItemOpts);
+    });
+  }
+  getOption(conf: ComponentItemJson) {
+    return {
+        label: conf.__config__.children[0].__config__.label
+        // todo 补充
+    }
+  }
+}
+
 // 以插件形式导入--后续组建过多可以单独整出去
 renderChildClass
   .addPlugin("default", new defaultPlugin())
@@ -309,4 +342,6 @@ renderChildClass
   .addPlugin("timeline", new TimelinePlugin())
   .addPlugin("breadcrumb", new BreadcrumbPlugin())
   .addPlugin("tooltip", new TooltipPlugin())
-  .addPlugin("badge", new BadgePlugin());
+  .addPlugin("badge", new BadgePlugin())
+  .addPlugin("formitem", new FormItemPlugin())
+  .addPlugin("form", new FormPlugin());

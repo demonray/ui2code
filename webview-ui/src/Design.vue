@@ -240,6 +240,27 @@ function findMax(arr: UiCompRange[], type: "w" | "h") {
 }
 
 /**
+ * 识别是否是表单元素
+ */
+function isFormElItem(item: ComponentItemJson) {
+  const formElTypes = [
+    "input",
+    "textarea",
+    "radio",
+    "checkbox",
+    "button",
+    "switch",
+    "select",
+    "timepicker",
+    "datepicker",
+    "timerange",
+    "daterange",
+    "rate",
+  ];
+  return formElTypes.includes(item.type);
+}
+
+/**
  * 根据识别出的组件json数据，补充组件guid，分析结构，重组数据
  * @param json
  */
@@ -366,6 +387,54 @@ function initDrawingList(json: DesignJson) {
     }
     return row;
   });
+  
+  console.log(list, "init");
+  // 识别包裹Form
+
+  const formItem: number[][] = [[]];
+
+  list.forEach((row, index) => {
+    const isFormItem = row.__config__.children?.every((col: ComponentItemJson) => {
+      return col.__config__.children?.every((item: ComponentItemJson) => {
+        return isFormElItem(item);
+      });
+    });
+    if (isFormItem) {
+      row.__config__.children?.forEach((col: ComponentItemJson) => {
+        col.__config__.children = col.__config__.children?.map((item: ComponentItemJson) => {
+          const formitem = findComponentConf("formitem");
+          formitem.__config__.children = [item];
+          return formitem;
+        });
+      });
+      if (
+        formItem[formItem.length - 1].length &&
+        formItem[formItem.length - 1][formItem[formItem.length - 1].length - 1] + 1 < index
+      ) {
+        formItem.push([index]);
+      } else {
+        formItem[formItem.length - 1].push(index);
+      }
+    }
+  });
+
+  console.log(formItem);
+  let maxItems: number[] = [];
+  formItem.forEach((it) => {
+    if (it.length > maxItems.length) {
+      maxItems = it;
+    }
+  });
+  if (maxItems.length >= 2) {
+    const form = findComponentConf("form");
+    const items = maxItems.map((it) => {
+      return list[it];
+    });
+    form.__config__.children = items;
+    list.splice(maxItems[0], maxItems.length, form);
+  }
+  console.log(list);
+
   drawingList.push(...list);
 }
 
@@ -467,11 +536,11 @@ function generate(): string {
     fields: drawingList,
     ...formConf,
   };
-  // dialog 增加包裹元素modal，form
-  if (type == 'dialog') {
+  // dialog 增加包裹元素modal
+  if (type == "dialog") {
     const dialog = findComponentConf("dialog");
     dialog.__config__.children = drawingList;
-    data.fields = [dialog]
+    data.fields = [dialog];
   }
   const code = generateCode(data, type, targetlib, props.json.metaInfo);
   return code && beautifier ? beautifier.html(code, beautifierConf.html) : code || "null";

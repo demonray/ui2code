@@ -24,6 +24,8 @@ declare global {
     | "tab"
     | "steps"
     | "default"
+    | "formitem"
+    | "form"
     | "progress"
     | "breadcrumb"
     | "tree"
