@@ -8,7 +8,7 @@ import { textRegionFirstLine } from "../utilities";
  * @returns
  */
 function makeTableConf(conf: ComponentItemJson, data: StructureItem | string[][]) {
-  let trs = [];
+  let trs: any[] = [];
   if (Array.isArray(data)) {
     trs = data;
   } else if (data.res.html) {
@@ -30,7 +30,7 @@ function makeTableConf(conf: ComponentItemJson, data: StructureItem | string[][]
     trs.forEach((it, index) => {
       if (index === 0) {
         // 第一行为表头
-        conf.__config__.children = it.map((item, colIndex) => {
+        conf.__config__.children = it.map((item: string, colIndex: number) => {
           let actionLabels;
           if (actionCol < 0 && item.trim() == "操作") {
             actionCol = colIndex;
@@ -51,7 +51,7 @@ function makeTableConf(conf: ComponentItemJson, data: StructureItem | string[][]
         });
       } else {
         const obj: { [propName: string]: any } = {};
-        it.forEach((item, colIndex) => {
+        it.forEach((item: string, colIndex: number) => {
           obj[`col_${colIndex}`] = item;
         });
         data.push(obj);

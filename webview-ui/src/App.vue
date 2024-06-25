@@ -75,17 +75,17 @@ window.addEventListener("message", (event) => {
 });
 
 //// for dev test
-generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
-  // designPreview.value = 3;
-  designJson.fields = fields;
-  designJson.metaInfo = {
-    imageRes: {
-      ui: uiResult.result,
-      text: textRes,
-    },
-    ...metaInfo,
-  };
-});
+// generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
+//   // designPreview.value = 3;
+//   designJson.fields = fields;
+//   designJson.metaInfo = {
+//     imageRes: {
+//       ui: uiResult.result,
+//       text: textRes,
+//     },
+//     ...metaInfo,
+//   };
+// });
 
 function onPreview(params: SandboxTemplateConfig) {
   designPreview.value = 2;
