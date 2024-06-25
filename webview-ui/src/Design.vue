@@ -376,13 +376,12 @@ function initDrawingList(json: DesignJson) {
     return row;
   });
 
-  // console.log(list, "init");
   // 识别包裹Form
-  const formItems: number[][] = [];
+  let formItems: number[][] = [];
 
   list.forEach((row) => {
     row.__config__.children?.forEach((col: ComponentItemJson) => {
-      formItems.push([]);
+      formItems = [[]]
       // 每一列里连续是form表单输入类的识别是formitem，包裹
       col.__config__.children = col.__config__.children?.map(
         (item: ComponentItemJson, index: number) => {
@@ -409,7 +408,7 @@ function initDrawingList(json: DesignJson) {
       let lastForm: number[];
       col.__config__.children = col.__config__.children
         .map((it: any, idx: number) => {
-          const items = formItems.find((f) => f.includes(idx));
+          const items = formItems.find((f) => f.includes(idx)); // 当前字段是哪个form
           if (lastForm && lastForm.includes(idx)) return;
           if (items) {
             lastForm = items;
@@ -429,6 +428,7 @@ function initDrawingList(json: DesignJson) {
         .filter((it: any) => it);
     });
   });
+  // console.log(list, "init");
   generateVmodel(list, "field_");
   drawingList.push(...list);
 }
