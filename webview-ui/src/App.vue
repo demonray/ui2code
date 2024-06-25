@@ -8,9 +8,9 @@ import DetectResult from "./DetectResult.vue";
 import { detect, generateUIList } from "./lib";
 
 //@ts-ignore
-import uiResult from "../test_images/form1_ui";
+import uiResult from "../test_images/page3_ui";
 //@ts-ignore
-import textRes from "../test_images/form1_text";
+import textRes from "../test_images/page3_text";
 
 let designJson: DesignJson = reactive({
   fields: [],

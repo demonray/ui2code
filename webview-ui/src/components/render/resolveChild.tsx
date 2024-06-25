@@ -326,8 +326,10 @@ class FormPlugin implements pluginInfoType {
         }
       });
     });
+    
     const inline = y.length / conf.__config__.children.length <= 0.5
     formConfig.inline = inline 
+    formConfig.span = Math.floor(24 / y.length / conf.__config__.children.length) 
     return {
       model: formConfig[formConfig.formModel],
       size: formConfig.size,

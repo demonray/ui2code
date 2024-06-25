@@ -222,7 +222,7 @@ watch(props.json, (v) => {
 type UiCompRange = [number, number, number, number, number];
 
 /** 找到最大的组件 */
-function findMax(arr: UiCompRange[], type: "w" | "h") {
+function findMax(arr: UiCompRange[], type: "w" | "h", returnType: string) {
   if (arr.length === 0) {
     return -1;
   }
@@ -235,7 +235,7 @@ function findMax(arr: UiCompRange[], type: "w" | "h") {
       maxIndex = i;
     }
   }
-  return maxIndex;
+  return returnType == 'index' ? maxIndex : arr[maxIndex][4];
 }
 
 /**
@@ -282,7 +282,7 @@ function initDrawingList(json: DesignJson) {
    * 从最高的组件开始，行分组数据
    */
   function rowSplit(ranges: UiCompRange[]) {
-    let maxIndex = findMax(ranges, "h");
+    let maxIndex = findMax(ranges, "h", 'index');
     let max = ranges[maxIndex];
     if (maxIndex > -1) {
       rows.push([]);
@@ -307,7 +307,7 @@ function initDrawingList(json: DesignJson) {
    * 从最宽的组件开始，识别列分组
    */
   function colSplit(ranges: UiCompRange[]) {
-    let maxIndex = findMax(ranges, "w");
+    let maxIndex = findMax(ranges, "w", 'index');
     let max = ranges[maxIndex];
     if (maxIndex > -1) {
       cols.push([]);
@@ -336,7 +336,7 @@ function initDrawingList(json: DesignJson) {
   });
 
   // 列包裹在行里，列内元素排序按y，浮动范围内的算同一行按x todo
-  const rowsData = [cols].map((row) => {
+  const rowsData = cols.length < 1 ? [] : [cols].map((row) => {
     row = row.map((col) => {
       col.sort((a, b) => {
         if (Math.abs(a[2] - b[2]) < DetectConfig.RowThreshold) {
@@ -348,7 +348,6 @@ function initDrawingList(json: DesignJson) {
     });
     return row;
   });
-
   const list = rowsData.map((rowItem) => {
     let row = layoutComponents.find((it) => it.type === "row") as ComponentItemJson;
     row = deepClone(row);
@@ -358,14 +357,14 @@ function initDrawingList(json: DesignJson) {
       // 根据组件宽度占比计算span
       let allWidth = 0;
       rowItem.forEach((item) => {
-        const maxItemIdx = findMax(item, "w");
+        const maxItemIdx = findMax(item, "w", 'field_index');
         allWidth += json.fields[maxItemIdx].uiItem.w;
       });
 
       row.__config__.children = rowItem.map((item) => {
         let col = layoutComponents.find((it) => it.type === "col") as ComponentItemJson;
         col = deepClone(col);
-        const maxItemIdx = findMax(item, "w");
+        const maxItemIdx = findMax(item, "w", 'field_index');
         const colWidth = json.fields[maxItemIdx].uiItem.w;
         col.__config__.span = Math.floor((colWidth / allWidth) * 24);
         col.__config__.children = item.map((colItem) => {

@@ -162,7 +162,7 @@ const tags: TagTemplate = {
     let children = el.__config__?.children.map((it: ComponentItemJson) => {
         return tags[it.__config__.tag](it);
       }).join('\n');
-    const inline = confGlobal?.inline ? 'layout="inline" :span="12"' : 'layout="horizontal"';
+    const inline = confGlobal?.inline ? `layout="inline" :span="${confGlobal.span || 12}"` : 'layout="horizontal"';
     let str = `<FForm ref="${confGlobal?.formRef}" ${inline} :model="${confGlobal?.formModel}" :rules="${
         confGlobal?.formRules
     }" size="${confGlobal?.size}" ${disabled} label-width="${confGlobal?.labelWidth}px" ${labelPosition}>
