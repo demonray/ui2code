@@ -174,9 +174,11 @@ const tags: TagTemplate = {
     const config = el.__config__;
     let labelWidth = "";
     // 一个formitem 应当只有一个表单控件, formitem为合并组件识别和文本之后加上的，没有经过processConf补充属性
-    let label = config.label
+    let label = config.label;
+    let prop = ''
     if (el.__config__.children && el.__config__.children[0]) {
-        label = el.__config__.children[0].__config__.label || config.label
+        label = el.__config__.children[0].__config__.label || config.label;
+        prop = el.__config__.children[0].__vModel__
     }
     label = `label="${label}"`;
     if (confGlobal && config.labelWidth && config.labelWidth !== confGlobal.labelWidth) {
@@ -190,7 +192,7 @@ const tags: TagTemplate = {
     let children = el.__config__.children.map((it: ComponentItemJson) => {
         return tags[it.__config__.tag](it);
       }).join('\n');
-    let str = `<FFormItem ${labelWidth} ${label} prop="${el.__vModel__}" ${required}>
+    let str = `<FFormItem ${labelWidth} ${label} prop="${prop}" ${required}>
             ${children}
           </FFormItem>`;
     return str;

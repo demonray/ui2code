@@ -57,7 +57,7 @@ function makeTableConf(conf: ComponentItemJson, data: StructureItem | string[][]
         data.push(obj);
       }
     });
-    conf.data = data;
+    conf.data = [] // data;
   }
   return conf;
 }
@@ -260,11 +260,6 @@ function makeAlertConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults
 }
 
 function makeCalendarConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
-  return conf;
-}
-
-function makeFormItemConf(conf: ComponentItemJson, it: UiTextMatchItem, textResults: TextItem[]) {
-  console.log(conf, it);
   return conf;
 }
 
@@ -539,9 +534,6 @@ export default function processConf(it: UiTextMatchItem, textResults: TextItem[]
       break;
     case "calendar":
       conf = makeCalendarConf(conf, it, textResults);
-      break;
-    case "formitem":
-      conf = makeFormItemConf(conf, it, textResults);
       break;
     default: // todo 各自处理row、dialog、tooltip
       conf = makeDefaultConf(conf, it, textResults);
