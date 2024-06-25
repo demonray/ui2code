@@ -132,6 +132,7 @@ declare global {
     disabled: boolean;
     span: number;
     formBtns: boolean;
+    [key: string]: any;
   }
 
   interface FormConf extends FormConfig {

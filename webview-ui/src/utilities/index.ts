@@ -194,10 +194,10 @@ export function atou(base64: string): string {
  */
 export function textRegionFirstLine(texts: TextItem[]): TextItem[] {
   let firstLine: TextItem[] = [];
-  if (texts?.length) {
+  if (texts.length) {
     firstLine = [texts[0]];
     for (let i = 1; i <= texts.length - 1; i++) {
-      if (texts[i].y - texts[i - 1].y > 10) {
+      if (texts[i].y && texts[i - 1].y && texts[i].y - texts[i - 1].y > 10) {
         break;
       } else {
         firstLine.push(texts[i]);

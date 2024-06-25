@@ -175,7 +175,6 @@ export default defineComponent({
   },
   setup(props, context) {
     function active(currentItem: ComponentItemJson) {
-      console.log(currentItem, "active");
       context.emit("activeItem", currentItem);
     }
     /**

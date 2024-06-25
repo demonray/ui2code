@@ -146,19 +146,19 @@ import { beautifierConf } from "./utilities/pluginsConfig";
 const leftComponents = [
   {
     title: "输入型组件",
-    list: inputComponents.filter(it => !it.hidden),
+    list: inputComponents.filter((it) => !it.hidden),
   },
   {
     title: "选择型组件",
-    list: selectComponents.filter(it => !it.hidden),
+    list: selectComponents.filter((it) => !it.hidden),
   },
   {
     title: "布局型组件",
-    list: layoutComponents.filter(it => !it.hidden),
+    list: layoutComponents.filter((it) => !it.hidden),
   },
   {
     title: "信息反馈组件",
-    list: infoFeedbackComponents.filter(it => !it.hidden),
+    list: infoFeedbackComponents.filter((it) => !it.hidden),
   },
 ];
 
@@ -337,17 +337,14 @@ function initDrawingList(json: DesignJson) {
 
   // 列包裹在行里，列内元素排序按y，浮动范围内的算同一行按x todo
   const rowsData = [cols].map((row) => {
-    row.forEach((col) => {
+    row = row.map((col) => {
       col.sort((a, b) => {
+        if (Math.abs(a[2] - b[2]) < DetectConfig.RowThreshold) {
+          return a[0] > b[0] ? 1 : -1;
+        }
         return a[2] > b[2] ? 1 : -1;
       });
-      for (let i = 1; i < col.length; i++) {
-        if (col[i][2] - col[i - 1][2] < 10 && col[i][0] < col[i - 1][0]) {
-          const tmp = col[i];
-          col[i] = col[i - 1];
-          col[i - 1] = tmp;
-        }
-      }
+      return col;
     });
     return row;
   });
@@ -433,7 +430,7 @@ function initDrawingList(json: DesignJson) {
         .filter((it: any) => it);
     });
   });
-
+  generateVmodel(list, "field_");
   drawingList.push(...list);
 }
 
@@ -516,21 +513,6 @@ function generateVmodel(childrenList: Array<ComponentItemJson>, preStr: string) 
  */
 function generate(): string {
   const { type, targetlib } = saveType;
-  drawingList.forEach((it, index) => {
-    if (hasVmodel(it)) {
-      it.__vModel__ = `field_${index}`;
-    }
-    if (it.__config__.children) {
-      generateVmodel(it.__config__.children, `field_${index}`);
-    }
-    if (it.__slot__?.options && it.__slot__?.options.length) {
-      it.__slot__?.options.forEach((element: OptionItem, k: number) => {
-        if (element.childrenComponet && element.childrenComponet.length) {
-          generateVmodel(element.childrenComponet, `field_${index}${k}`);
-        }
-      });
-    }
-  });
   const data = {
     fields: drawingList,
     ...formConf,

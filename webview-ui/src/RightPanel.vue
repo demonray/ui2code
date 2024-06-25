@@ -910,11 +910,6 @@ function pageChange(type: string) {
 
 <style lang="scss" scoped>
 .right-board {
-  width: 350px;
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding-top: 3px;
 
   .field-box {
     position: relative;

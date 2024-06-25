@@ -364,21 +364,14 @@ export default function mergeDetectData(
   let fields: ComponentItemJson[] = [];
 
   // 按Y排序
-  uiResults.sort((a, b) => {
-    return a.y - b.y;
-  });
-
   // 组件Y值在误差范围内的算一行，按X排序
-  for (let i = 1; i < uiResults.length; i++) {
-    if (
-      uiResults[i].y - uiResults[i - 1].y < DetectConfig.RowThreshold &&
-      uiResults[i].x < uiResults[i - 1].x
-    ) {
-      const tmp = uiResults[i];
-      uiResults[i] = uiResults[i - 1];
-      uiResults[i - 1] = tmp;
+
+  uiResults.sort((a, b) => {
+    if (Math.abs(a.y - b.y) < DetectConfig.RowThreshold) {
+      return a.x > b.x ? 1 : -1;
     }
-  }
+    return a.y > b.y ? 1 : -1;
+  });
 
   // 检测同一组件识别出多标签的情况, 暂时取得分判断
   const uiItems = [uiResults[0]];

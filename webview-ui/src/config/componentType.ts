@@ -10,6 +10,8 @@ export const formConfig: FormConfig = {
   disabled: false,
   span: 24,
   formBtns: false,
+  formData: {},
+  rules: []
 };
 
 // 输入型组件 【左面板】
@@ -623,6 +625,7 @@ export const layoutComponents: ComponentItemJson[] = [
       tag: "el-form",
       label: "表单",
     },
+    data: {},
     hidden: true,
     type: "form",
   },

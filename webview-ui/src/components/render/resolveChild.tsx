@@ -7,6 +7,9 @@ import {
   type VNode,
 } from "vue";
 import draggable from "vuedraggable";
+
+import { formConfig } from "../../config/componentType";
+import DetectConfig from "../../config";
 import { renderChildrenItem, type ItemOpts } from "../../DraggableItem";
 type resultInfo = { options: Object; child: Array<any> | string | VNode };
 type resolveComponentChild = (
@@ -313,7 +316,26 @@ class FormPlugin implements pluginInfoType {
       return renderChildrenItem(item, opts as ItemOpts);
     });
   }
-  // todo 补充 props
+  getOption(conf: ComponentItemJson) {
+    const y: number[] = [];
+    conf.__config__.children.forEach((formItem: ComponentItemJson) => {
+      formItem.__config__.children.forEach((field: ComponentItemJson) => {
+        const sameline = y.some((it) => field.uiItem.y - it < DetectConfig.RowThreshold);
+        if (!sameline) {
+          y.push(field.uiItem.y);
+        }
+      });
+    });
+    const inline = y.length / conf.__config__.children.length <= 0.5
+    formConfig.inline = inline 
+    return {
+      model: formConfig[formConfig.formModel],
+      size: formConfig.size,
+      labelPosition: formConfig.labelPosition,
+      labelWidth: formConfig.labelWidth,
+      inline,
+    };
+  }
 }
 
 class FormItemPlugin implements pluginInfoType {
@@ -323,10 +345,29 @@ class FormItemPlugin implements pluginInfoType {
     });
   }
   getOption(conf: ComponentItemJson) {
-    return {
-        label: conf.__config__.children[0].__config__.label
-        // todo 补充
+    if (conf.__config__.children[0]) {
+      const rules = [];
+      const itemConf = conf.__config__.children[0].__config__;
+      if (itemConf.required) {
+        const type = Array.isArray(itemConf.defaultValue) ? "type: 'array'," : "string";
+
+        const message = `不能为空`;
+        rules.push({ required: true, type, message, trigger: "blur" });
+      }
+      if (itemConf.regList && Array.isArray(itemConf.regList)) {
+        itemConf.regList.forEach((item: any) => {
+          if (item.pattern) {
+            rules.push({ pattern: eval(item.pattern), message: item.message, trigger: "blur" });
+          }
+        });
+        return {
+          label: conf.__config__.children[0].__config__.label,
+          prop: conf.__config__.children[0].__vModel__,
+          rules,
+        };
+      }
     }
+    return {};
   }
 }
 

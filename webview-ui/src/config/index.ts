@@ -11,5 +11,5 @@ export default {
 
   UI_DETECT: 'https://mumblefe.cn/d2c/api',
   OCR: 'https://mumblefe.cn/d2c/ocr',
-  RowThreshold: 5, // 误差内算同一行
+  RowThreshold: 10, // 误差内算同一行
 };
