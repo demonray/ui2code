@@ -360,18 +360,32 @@ function initDrawingList(json: DesignJson) {
         const maxItemIdx = findMax(item, "w", 'field_index');
         allWidth += json.fields[maxItemIdx].uiItem.w;
       });
-
-      row.__config__.children = rowItem.map((item) => {
+      let spanInfo = {
+        span: 24,
+        index: -1,
+        sumSpan: 0
+      };
+      row.__config__.children = rowItem.map((item, idx) => {
         let col = layoutComponents.find((it) => it.type === "col") as ComponentItemJson;
         col = deepClone(col);
         const maxItemIdx = findMax(item, "w", 'field_index');
         const colWidth = json.fields[maxItemIdx].uiItem.w;
-        col.__config__.span = Math.floor((colWidth / allWidth) * 24);
+        const span = Math.floor((colWidth / allWidth) * 24);
+        if (spanInfo.span && span < spanInfo.span) {
+            spanInfo.span = span
+            spanInfo.index = idx
+        }
+        col.__config__.span = span;
+        spanInfo.sumSpan+= col.__config__.span;
         col.__config__.children = item.map((colItem) => {
           return json.fields[colItem[4]];
         });
         return col;
       });
+      if (spanInfo.index > -1 && spanInfo.sumSpan < 24) {
+        row.__config__.children[spanInfo.index].__config__.span = row.__config__.children[spanInfo.index].__config__.span + 24 - spanInfo.sumSpan;
+      }
+      
     }
     return row;
   });

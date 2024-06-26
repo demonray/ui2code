@@ -34,7 +34,7 @@ function onUpload(uploadFile: UploadFile) {
   status.value = "识别中，请稍候...";
   detect(uploadFile.raw as File).then(({ fields, metaInfo }) => {
     status.value = "";
-    // designPreview.value = 3;
+    designPreview.value = 3;
     designJson.fields = fields;
     designJson.metaInfo = metaInfo;
   });
@@ -74,7 +74,7 @@ window.addEventListener("message", (event) => {
   }
 });
 
-//// for dev test
+// for dev test
 // generateUIList(uiResult.result.bbox, textRes.data).then(({ fields, metaInfo }) => {
 //   // designPreview.value = 3;
 //   designJson.fields = fields;
