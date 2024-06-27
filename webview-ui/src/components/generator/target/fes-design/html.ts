@@ -284,10 +284,9 @@ const tags: TagTemplate = {
   },
   "el-menu": (el: ComponentItemJson) => {
     const mode = `mode="${el.__config__.mode}"`;
-    let child = buildElMenuChild(el);
-
-    if (child) child = `\n${child}\n`; // 换行
-    return `<FMenu ${mode}>${child}</FMenu>`;
+    const { vModel } = attrBuilder(el);
+    const options = `:options="${el.__vModel__+'Options'||[]}"`
+    return `<FMenu ${mode} ${vModel} ${options}></FMenu>`;
   },
   "el-steps": (el: ComponentItemJson) => {
     const vertical = el.__config__.mode === "vertical" ? "vertical" : "";
@@ -427,7 +426,7 @@ function buildElTableChild(scheme: ComponentItemJson) {
 function buildElSelectChild(scheme: ComponentItemJson) {
   const children = [];
   const slot = scheme.__slot__;
-  if (slot && slot.options && slot.options.length) {
+  if (slot && slot.options) {
     children.push(
       `<FOption v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :label="item.label" :value="item.value" :disabled="item.disabled"></FOption>`
     );
@@ -473,29 +472,6 @@ function buildElStepsChild(scheme: ComponentItemJson) {
     children.push(
       `<FStep v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :description="item.value" :title="item.label"></FStep>`
     );
-  }
-  return children.join("\n");
-}
-// el-menu 子级
-function buildElMenuChild(scheme: ComponentItemJson) {
-  const children = [];
-  const slot = scheme.__slot__;
-  function resolveMenu(children: Array<OptionItem>): Array<any> | string {
-    let strHtml = "";
-    children.forEach((item: OptionItem) => {
-      if (item.children) {
-        strHtml += `<FSubMenu value='${item.value}'>
-          <template #label>${item.label}</template>
-          ${resolveMenu(item.children)}
-        </FSubMenu>`;
-      } else {
-        strHtml += `<FMenuItem value='${item.value}' label=${item.label}></FMenuItem>`;
-      }
-    });
-    return strHtml;
-  }
-  if (slot && slot.options && slot.options.length) {
-    children.push(resolveMenu(slot.options));
   }
   return children.join("\n");
 }
